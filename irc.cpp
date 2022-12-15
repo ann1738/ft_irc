@@ -1,17 +1,19 @@
 #include "irc.hpp"
+
 int main(int argc, char **argv)
 {
-
 	//basic parsing - needs protection
 	(void)argc;
 	int listenPort = atoi(argv[1]);
 
 	// AF_INET is IP v4 internet protocols
 	// SOCK_STREAM reliable, two-way connection-based byte streams
+
 	//Create a socket for communication
 	int socketFd = socket(AF_INET, SOCK_STREAM, 0);
 	if (socketFd == -1)
 		exitWithMsg("socket(): error");
+
 	//Assign a name/address to the socket file descriptor
 	struct sockaddr_in sockAddr;
 	sockAddr.sin_family = AF_INET;
@@ -28,33 +30,26 @@ int main(int argc, char **argv)
 	struct pollfd fdSet[1];
 	fdSet->fd = socketFd;
 	fdSet->events = POLLIN;
-	
-	int retPoll = poll(fdSet, 1, TIMEOUT);
-	if (retPoll == -1)
-		exitWithMsg("poll(): error");
-	else if(retPoll == 0)
+	while (true)
 	{
-		//timeout
-		;
-	}
-	else
-	{
-		int client_sock_fd = accept(socketFd, NULL, NULL);
-		if (client_sock_fd == -1)
-			exitWithMsg("accept(): error");
-		
-		char buffer[1024];
-		int bytes = recv(client_sock_fd, buffer, sizeof(buffer), 0);
-		std::cout << "Number of bytes recieved: " << bytes << std::endl;
-		std::cout << buffer << std::endl;
+		int retPoll = poll(fdSet, 1, TIMEOUT);
+		if (retPoll == -1)
+			exitWithMsg("poll(): error");
+		else if(retPoll == 0)
+		{
+			std::cout << "poll(): timeout" << std::endl;
+		}
+		else
+		{
+			int client_sock_fd = accept(socketFd, NULL, NULL);
+			if (client_sock_fd == -1)
+				exitWithMsg("accept(): error");
+			
+			char buffer[MAX_MSG_LENGTH];
+			int bytes = recv(client_sock_fd, buffer, sizeof(buffer), 0);
+			std::cout << "Number of bytes recieved: " << bytes << std::endl;
+			std::cout << buffer << std::endl;
+		}
 	}
 
-	//Accept a client connection
-	// struct sockaddr_in clientAddr;
-	// socklen_t clientAddrLen =  sizeof(clientAddr);
-	// int clientSockFd = accept(socketFd, (struct sockaddr *)&clientAddr, &clientAddrLen);
-	// if (clientSockFd == -1)
-	// {
-	// 	exit (1);
-	// }
 }

@@ -3,6 +3,7 @@
 
 #define MAX_CONNECTIONS 10
 #define TIMEOUT 1000000000
+#define MAX_MSG_LENGTH 512
 
 #include <iostream>
 /* atoi() */
