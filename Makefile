@@ -3,7 +3,7 @@ NAME = ircserv
 CXX = c++
 CXXFLAGS = -Wall -Werror -Wextra -std=c++98
 
-SRCS = irc.cpp utils.cpp
+SRCS = irc.cpp utils.cpp initialParse.cpp
 OBJS = $(SRCS:%.cpp=%.o)
 
 all: ${NAME}
@@ -20,7 +20,7 @@ fclean: clean
 re: fclean all
 
 run: all
-	./${NAME} 6667
+	./${NAME} 6667 password
 
 client:
 	${CXX} simpleClient.cpp -o cli && ./cli
@@ -28,7 +28,6 @@ client:
 
 irssi: rm_irssi
 	docker run -it --name my-running-irssi -e TERM -u $(id -u):$(id -g) \
-    -p 6667:6667 \
 	--log-driver=none \
     -v ${HOME}/.irssi:/home/user/.irssi:ro \
     irssi
