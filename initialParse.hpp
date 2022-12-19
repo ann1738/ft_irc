@@ -1,23 +1,31 @@
 #ifndef INITIALPARSE_HPP
 # define INITIALPARSE_HPP
 
+#include <iostream>
+#include <string>
+#include <sstream>
+
+#define NBR_ARGS_ERR "Parse Error: Invalid number of arguments"
+#define INVLD_PORT_ERR "Parse Error: Invalid port number"
+
 class initialParse
 {
 private:
-	/* data */
+	int			port;
+	std::string password;
+
+	bool	checkValidPort(std::string portArg);
+	void	savePort(std::string portArg);
+	void	savePassword(std::string pass);
+
 public:
-	initialParse(/* args */);
+	initialParse();
 	~initialParse();
-};
 
-initialParse::initialParse(int argc, char** argv)
-{
+	int				getPort();
+	std::string		getPassword();
 	
-}
-
-initialParse::~initialParse()
-{
-}
-
+	void	parse(int argc, char **argv);
+};
 
 #endif
