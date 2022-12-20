@@ -1,6 +1,8 @@
 #include "irc.hpp"
 #include "initialParse.hpp"
 #include <cstring>
+#include <unistd.h>
+#include <vector>
 
 int main(int argc, char **argv)
 {
@@ -22,9 +24,11 @@ int main(int argc, char **argv)
 	fcntl(socketFd, F_SETFL, O_NONBLOCK);
 
 	//look into setsockopt()
+	int opt = 1;
+	setsockopt(socketFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
 	//Assign a name/address to the socket file descriptor
-	struct sockaddr_in sockAddr;
+	struct sockaddr_in sockAddr, clientAddr;
 	sockAddr.sin_family = AF_INET;
 	sockAddr.sin_addr.s_addr = inet_addr(IP);
 	sockAddr.sin_port = htons(init.getPort());
@@ -35,113 +39,161 @@ int main(int argc, char **argv)
 	if (listen(socketFd, MAX_CONNECTIONS) == -1)
 		exitWithMsg("listen(): error");
 
-
-	// int	activeClients = 1;
-	// int	clientFdArray[MAX_CLIENTS];
-
-	// memset(&clientFdArray, 0, MAX_CLIENTS);
-
-	accept(socketFd, NULL, NULL);
-	return 0;	
 	char buffer[MAX_MSG_LENGTH];
 
+	int fd_num = 0;
 	fd_set readySockets;
-	fd_set clientSockets;
+	std::vector<struct pollfd>	clientSockets;
 
-	FD_ZERO(&clientSockets);
-	FD_SET(socketFd, &clientSockets);
+	clientSockets.resize(++fd_num);
+	clientSockets[0].fd = socketFd;
+	clientSockets[0].events = POLLIN;
 
+	std::cout << "entering main loop" << std::endl;
+	
 	while (true)
 	{
-		readySockets = clientSockets;
-		int sel = select(FD_SETSIZE, &readySockets, NULL, NULL, NULL); //add timeout
-		if (sel == -1)
+		// readySockets = clientSockets;
+		int pollReturn = poll(clientSockets, fd_num, -1)
+		std::cout << "AFTER SELECT()" << std::endl;
+		if (pollReturn == -1)
 		{
-			std::cerr << "select()" << std::endl;
+			std::cerr << "poll()" << std::endl;
 			exit(1);
 		}
-		for(int i = 0; i < FD_SETSIZE; i++)
+		for(int i = 0; i <= fd_num; i++)
 		{
-			if (FD_ISSET(i, &readySockets))
+			if (clientSockets[i].revents & POLLIN)
 			{
+				std::cout << "Found an fd" << std::endl;
 				if (i == socketFd)
 				{
+					std::cout << "New connection!!!" << std::endl;
 					//new connection incomming
 					int clientSocketFd = accept(socketFd, NULL, NULL);
-					fcntl(clientSocketFd, F_SETFL, O_NONBLOCK);
-					FD_SET(clientSocketFd, &clientSockets);
+					(void)clientAddr;
+					// int clientSocketFd = accept(socketFd, (struct sockaddr *)&clientAddr, (socklen_t *)sizeof(&clientAddr));
+					if (clientSocketFd == -1)
+					{
+						std::cerr << "accept(): error" << std::endl;
+						// FD_CLR(clientSocketFd, &clientSockets); //remove fd from connections
+					}
+					else
+					{
+						fcntl(clientSocketFd, F_SETFL, O_NONBLOCK);
+						/* add client socket */
+						struct pollfd temp;
+						temp.fd = clientSocketFd;
+						temp.events = POLLIN;
+						clientSocketFd.push_back(temp);
+						fd_num++;
+						// FD_SET(clientSocketFd, &clientSockets);
+						// if (clientSocketFd > maxFd)
+							// maxFd = clientSocketFd;
+						// maxFd = clientSocketFd > maxFd ? clientSocketFd : maxFd; //update max fd
+						std::cout << "New client with fd: " << clientSocketFd << std::endl;
+					}
 				}
 				else
 				{
+					std::cout << "Old connection ;)" << std::endl;
 					//handle new connection
-					if (recv(i, buffer, sizeof(buffer), 0) == -1)
+					int readBytes = recv(i, buffer, sizeof(buffer), 0);
+					if (readBytes == -1)
 					{
 						std::cerr << "recv()" << std::endl;
-						exit(1);
+						FD_CLR(i, &clientSockets); //remove fd from connections
+						// exit(1);
 					}
-					std::cout << buffer << std::endl;
-					FD_CLR(i, &clientSockets); //remove fd from connections
+					else if (readBytes == 0) //connection closed
+					{
+						FD_CLR(i, &clientSockets); //remove fd from connections
+						std::cout << "Connection closed with fd: " << i << std::endl;
+						// close(i);
+					}
+					else
+					{
+						std::cout << buffer << std::endl;
+					}
 				}
 			}
 		}
 	}
 
+// 	int maxFd = socketFd;
+
+// 	fd_set readySockets;
+// 	fd_set clientSockets;
+
+// 	FD_ZERO(&clientSockets);
+// 	FD_ZERO(&readySockets);
+// 	FD_SET(socketFd, &clientSockets);
+
+// 	std::cout << "entering main loop" << std::endl;
+	
+// 	while (true)
+// 	{
+// 		readySockets = clientSockets;
+// 		int sel = select(maxFd + 1, &readySockets, NULL, NULL, NULL); //add timeout
+// 		std::cout << "AFTER SELECT()" << std::endl;
+// 		if (sel == -1)
+// 		{
+// 			std::cerr << "select()" << std::endl;
+// 			exit(1);
+// 		}
+// 		for(int i = 0; i <= maxFd; i++)
+// 		{
+// 			if (FD_ISSET(i, &readySockets))
+// 			{
+// 				std::cout << "Found an fd" << std::endl;
+// 				if (i == socketFd)
+// 				{
+// 					std::cout << "New connection!!!" << std::endl;
+// 					//new connection incomming
+// 					int clientSocketFd = accept(socketFd, NULL, NULL);
+// 					(void)clientAddr;
+// 					// int clientSocketFd = accept(socketFd, (struct sockaddr *)&clientAddr, (socklen_t *)sizeof(&clientAddr));
+// 					if (clientSocketFd == -1)
+// 					{
+// 						std::cerr << "accept(): error" << std::endl;
+// 						FD_CLR(clientSocketFd, &clientSockets); //remove fd from connections
+// 					}
+// 					else
+// 					{
+// 						fcntl(clientSocketFd, F_SETFL, O_NONBLOCK);
+// 						FD_SET(clientSocketFd, &clientSockets);
+// 						if (clientSocketFd > maxFd)
+// 							maxFd = clientSocketFd;
+// 						// maxFd = clientSocketFd > maxFd ? clientSocketFd : maxFd; //update max fd
+// 						std::cout << "New client with fd: " << clientSocketFd << std::endl;
+// 					}
+// 				}
+// 				else
+// 				{
+// 					std::cout << "Old connection ;)" << std::endl;
+// 					//handle new connection
+// 					int readBytes = recv(i, buffer, sizeof(buffer), 0);
+// 					if (readBytes == -1)
+// 					{
+// 						std::cerr << "recv()" << std::endl;
+// 						FD_CLR(i, &clientSockets); //remove fd from connections
+// 						// exit(1);
+// 					}
+// 					else if (readBytes == 0) //connection closed
+// 					{
+// 						FD_CLR(i, &clientSockets); //remove fd from connections
+// 						std::cout << "Connection closed with fd: " << i << std::endl;
+// 						// close(i);
+// 					}
+// 					else
+// 					{
+// 						std::cout << buffer << std::endl;
+// 					}
+// 				}
+// 			}
+// 		}
+// 	}
 
 
-	//Manage multiple file descriptors without blocking using poll
-	// struct pollfd fdSet[MAX_CLIENTS];
-	// fdSet->fd = socketFd;
-	// fdSet->events = POLLIN;
-
-	// for (int i = 1; i < MAX_CLIENTS; i++)
-	// {
-	// 	fdSet[i].fd = 0;
-	// 	fdSet[i].events = POLLIN;
-	// }
-	// char buffer[MAX_MSG_LENGTH];
-
-	// while (true)
-	// {
-	// 	// std::cout << "Before poll()" << std::endl;
-	// 	int retPoll = poll(fdSet, activeClients, TIMEOUT);
-	// 	// std::cout << "After poll()" << std::endl;
-	// 	if (retPoll == -1)
-	// 	{
-	// 		exitWithMsg("poll(): error");
-	// 		exit(1);
-	// 	}
-	// 	else if(retPoll == 0)
-	// 	{
-	// 		std::cout << "poll(): timeout" << std::endl;
-	// 		exit(1);
-	// 	}
-	// 	else
-	// 	{
-	// 		// std::cout << "Did it go to the proper place?" << std::endl;
-	// 		if (fdSet[0].revents & POLLIN) //Data is available
-	// 		{
-	// 			std::cout << "Data is available" << std::endl;
-	// 			int client_sock_fd = accept(socketFd, NULL, NULL);
-	// 			if (client_sock_fd == -1)
-	// 				exitWithMsg("accept(): error");
-	// 			for (int i = 1; i < MAX_CLIENTS; i++)
-	// 			{
-	// 				if (fdSet[i].fd == client_sock_fd)
-	// 					break;
-	// 				if (fdSet[i].fd == 0)
-	// 				{
-	// 					std::cout << "New socket!!" << std::endl;
-	// 					fcntl(client_sock_fd, F_SETFL, O_NONBLOCK);
-	// 					fdSet[i].fd = client_sock_fd;
-	// 					activeClients++;
-	// 					break;
-	// 				}
-	// 			}
-	// 			recv(client_sock_fd, buffer, sizeof(buffer), 0);
-	// 			std::cout << buffer;
-	// 			memset(buffer, 0, strlen(buffer));
-	// 		}
-	// 	}
-	// }
 
 }
