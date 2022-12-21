@@ -8,7 +8,7 @@ SRCS_DIR = srcs
 OBJS_DIR = objs
 INCLUDES_DIR = includes
 
-SRCS = irc.cpp utils.cpp initialParse.cpp
+SRCS =  initialParse.cpp main.cpp
 OBJS = $(addprefix ${OBJS_DIR}/, $(SRCS:%.cpp=%.o))
 
 #Manadatory Rules
@@ -18,7 +18,10 @@ ${NAME}: ${OBJS_DIR} ${OBJS}
 	@echo "Linking..."
 	${CXX} ${CPPFLAGS} ${OBJS} -o ${NAME}
 
-${OBJS_DIR}/%.o: ${SRCS_DIR}/%.cpp
+${OBJS_DIR}/%.o: ${SRCS_DIR}/%.cpp 
+	${CXX} ${CPPFLAGS} -I${INCLUDES_DIR} -c $< -o $@
+
+${OBJS_DIR}/%.o: %.cpp
 	${CXX} ${CPPFLAGS} -I${INCLUDES_DIR} -c $< -o $@
 
 clean:
