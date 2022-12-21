@@ -5,6 +5,16 @@
 #include <vector>
 #include <algorithm>
 
+struct pollfd createPollStruct(int fd){
+	struct pollfd temp;
+
+	temp.fd = fd;
+	temp.events = POLLIN;
+
+	return temp;
+}
+
+
 int main(int argc, char **argv)
 {
 	//basic parsing - needs protection
@@ -48,6 +58,7 @@ int main(int argc, char **argv)
 	clientSockets.resize(++fd_num);
 	clientSockets[0].fd = socketFd;
 	clientSockets[0].events = POLLIN;
+	// clientSockets.push_back(createPollStruct(socketFd));
 
 	std::cout << "entering main loop" << std::endl;
 	
