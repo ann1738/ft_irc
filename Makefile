@@ -1,23 +1,38 @@
 NAME = ircserv
 
 CXX = c++
-CXXFLAGS = -Wall -Werror -Wextra -std=c++98
+CPPFLAGS = -Wall -Werror -Wextra -std=c++98
+REMOVE = rm -rf
+
+SRCS_DIR = srcs
+OBJS_DIR = objs
+INCLUDES_DIR = includes
 
 SRCS = irc.cpp utils.cpp initialParse.cpp
-OBJS = $(SRCS:%.cpp=%.o)
+OBJS = $(addprefix ${OBJS_DIR}/, $(SRCS:%.cpp=%.o))
 
+#Manadatory Rules
 all: ${NAME}
 
-${NAME}: ${OBJS}
-	${CXX} ${CXXFLAGS} ${OBJS} -o ${NAME}
+${NAME}: ${OBJS_DIR} ${OBJS}
+	@echo "Linking..."
+	${CXX} ${CPPFLAGS} ${OBJS} -o ${NAME}
+
+${OBJS_DIR}/%.o: ${SRCS_DIR}/%.cpp
+	${CXX} ${CPPFLAGS} -I${INCLUDES_DIR} -c $< -o $@
 
 clean:
-	rm -f ${OBJS}
+	@echo "Cleaning..."
+	@${REMOVE} ${OBJS_DIR}
 
 fclean: clean
-	rm -f ${NAME}
+	@${REMOVE} ${NAME}
 
 re: fclean all
+
+#Utility Rules
+${OBJS_DIR}:
+	@mkdir -p ${OBJS_DIR}
 
 run: all
 	./${NAME} 6667 password
@@ -34,5 +49,6 @@ irssi: rm_irssi
 
 rm_irssi:
 	@docker rm -f my-running-irssi 2> /dev/null || exit 0
+
 
 .PHONY: all clean fclean re
