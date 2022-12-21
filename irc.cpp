@@ -3,6 +3,7 @@
 #include <cstring>
 #include <unistd.h>
 #include <vector>
+#include <algorithm>
 
 int main(int argc, char **argv)
 {
@@ -42,7 +43,6 @@ int main(int argc, char **argv)
 	char buffer[MAX_MSG_LENGTH];
 
 	int fd_num = 0;
-	fd_set readySockets;
 	std::vector<struct pollfd>	clientSockets;
 
 	clientSockets.resize(++fd_num);
@@ -54,8 +54,8 @@ int main(int argc, char **argv)
 	while (true)
 	{
 		// readySockets = clientSockets;
-		int pollReturn = poll(clientSockets, fd_num, -1)
-		std::cout << "AFTER SELECT()" << std::endl;
+		int pollReturn = poll(&clientSockets[0], fd_num, -1);
+		// std::cout << "AFTER SELECT()" << std::endl;
 		if (pollReturn == -1)
 		{
 			std::cerr << "poll()" << std::endl;
@@ -65,8 +65,8 @@ int main(int argc, char **argv)
 		{
 			if (clientSockets[i].revents & POLLIN)
 			{
-				std::cout << "Found an fd" << std::endl;
-				if (i == socketFd)
+				// std::cout << "Found an fd" << std::endl;
+				if (clientSockets[i].fd == socketFd)
 				{
 					std::cout << "New connection!!!" << std::endl;
 					//new connection incomming
@@ -85,8 +85,10 @@ int main(int argc, char **argv)
 						struct pollfd temp;
 						temp.fd = clientSocketFd;
 						temp.events = POLLIN;
-						clientSocketFd.push_back(temp);
+						clientSockets.push_back(temp);
 						fd_num++;
+						send(clientSocketFd, "CAP * ACK multi-prefix\r\n", strlen("CAP * ACK multi-prefix\r\n"), 0);
+						send(clientSocketFd, "001 root :Welcome to the Internet Relay Network root\r\n", strlen("001 root :Welcome to the Internet Relay Network root\r\n"), 0);
 						// FD_SET(clientSocketFd, &clientSockets);
 						// if (clientSocketFd > maxFd)
 							// maxFd = clientSocketFd;
@@ -98,17 +100,21 @@ int main(int argc, char **argv)
 				{
 					std::cout << "Old connection ;)" << std::endl;
 					//handle new connection
-					int readBytes = recv(i, buffer, sizeof(buffer), 0);
+					int readBytes = recv(clientSockets[i].fd, buffer, sizeof(buffer), 0);
 					if (readBytes == -1)
 					{
 						std::cerr << "recv()" << std::endl;
-						FD_CLR(i, &clientSockets); //remove fd from connections
+						// FD_CLR(i, &clientSockets); //remove fd from connections
+						clientSockets.erase(clientSockets.begin() + i);
+						fd_num--;
 						// exit(1);
 					}
 					else if (readBytes == 0) //connection closed
 					{
-						FD_CLR(i, &clientSockets); //remove fd from connections
+						clientSockets.erase(clientSockets.begin() + i);
+						// FD_CLR(i, &clientSockets); //remove fd from connections
 						std::cout << "Connection closed with fd: " << i << std::endl;
+						fd_num--;
 						// close(i);
 					}
 					else

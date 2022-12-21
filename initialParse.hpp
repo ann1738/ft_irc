@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <cstdlib> //change exit to throw()
 
 #define NBR_ARGS_ERR "Parse Error: Invalid number of arguments"
 #define INVLD_PORT_ERR "Parse Error: Invalid port number"
