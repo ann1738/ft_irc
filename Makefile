@@ -8,7 +8,11 @@ SRCS_DIR = srcs
 OBJS_DIR = objs
 INCLUDES_DIR = includes
 
-SRCS =  initialParse.cpp server.cpp user.cpp main.cpp
+SRCS =  main.cpp \
+		initialParse.cpp \
+		server.cpp \
+		NICK.cpp \
+		user.cpp
 OBJS = $(addprefix ${OBJS_DIR}/, $(SRCS:%.cpp=%.o))
 
 #Manadatory Rules

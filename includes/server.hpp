@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "user.hpp"
+#include "NICK.hpp"
 
 /* -------------- Macros --------------- */
 #define TIMEOUT 100000
@@ -63,6 +64,8 @@ private:
 	void			addUser(int fd);
 	std::string		findUserNickname(int fd);
 	std::string		createWelcomeMessage(std::string nickname);
+
+	NICK						nick;
 	
 public:
 	server(int port);

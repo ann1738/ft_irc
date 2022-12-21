@@ -25,6 +25,10 @@ void User::setNickname() {
 	this->m_nickname = nickname;
 }
 
+void User::setNickname(std::string nickname) {
+	this->m_nickname = nickname;
+}
+
 std::string User::getNickname() {
 	return this->m_nickname;
 }

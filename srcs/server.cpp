@@ -148,6 +148,8 @@ void			server::handleExistingConnection(int socketIndex){
 	}
 	else
 	{
+		int fd = clientSockets[socketIndex].fd;
+		nick.changeNickname(buffer, users, fd);
 		std::cout << buffer << std::endl;
 	}
 }
