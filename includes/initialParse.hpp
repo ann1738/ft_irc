@@ -4,8 +4,9 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <cstdlib> //change exit to throw()
+#include <stdexcept>
 
+/* -------------- Error messages --------------- */
 #define NBR_ARGS_ERR "Parse Error: Invalid number of arguments"
 #define INVLD_PORT_ERR "Parse Error: Invalid port number"
 
@@ -13,11 +14,11 @@ class initialParse
 {
 private:
 	int			port;
-	std::string password;
+	std::string	password;
 
-	bool	checkValidPort(std::string portArg);
-	void	savePort(std::string portArg);
-	void	savePassword(std::string pass);
+	bool			checkValidPort(std::string portArg);
+	void			setPort(std::string portArg);
+	void			setPassword(std::string pass);
 
 public:
 	initialParse();
@@ -26,7 +27,7 @@ public:
 	int				getPort();
 	std::string		getPassword();
 	
-	void	parse(int argc, char **argv);
+	void			parse(int argc, char **argv) throw(std::runtime_error);
 };
 
 #endif

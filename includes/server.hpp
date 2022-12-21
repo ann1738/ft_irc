@@ -15,7 +15,7 @@
 #define MAX_CONNECTIONS 10
 #define MAX_MSG_LENGTH 512
 
-/* ------------ Error msgs ------------ */
+/* ------------ Error messages ------------ */
 #define SOCK_ERR "Error: socket()"
 #define FCNTL_ERR "Error: fcntl()"
 #define LISTEN_ERR "Error: listen()"

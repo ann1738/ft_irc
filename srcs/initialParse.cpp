@@ -10,7 +10,7 @@ initialParse::~initialParse()
 
 }
 
-int		initialParse::getPort(){
+int				initialParse::getPort(){
 	return this->port;
 }
 
@@ -18,7 +18,7 @@ std::string		initialParse::getPassword(){
 	return this->password;
 }
 
-bool	initialParse::checkValidPort(std::string portArg){
+bool			initialParse::checkValidPort(std::string portArg){
 	int					tempPort;
 	std::stringstream	sstream;
 	sstream << portArg;
@@ -28,29 +28,23 @@ bool	initialParse::checkValidPort(std::string portArg){
 	return true;
 }
 
-void	initialParse::savePort(std::string portArg){
+void			initialParse::setPort(std::string portArg){
 	std::stringstream	sstream;
 	sstream << portArg;
 	sstream >> this->port;
 }
 
-void	initialParse::savePassword(std::string pass){
+void			initialParse::setPassword(std::string pass){
 	this->password = pass;
 }
 
-void		initialParse::parse(int argc, char **argv){
+void			initialParse::parse(int argc, char **argv) throw(std::runtime_error){
 	if (argc != 3)
-	{
-		std::cerr << NBR_ARGS_ERR << std::endl;
-		exit(1);
-	}
+		throw std::runtime_error(NBR_ARGS_ERR);
 
 	if (checkValidPort(argv[1]) == false)
-	{
-		std::cerr << INVLD_PORT_ERR << std::endl;
-		exit(1);
-	}
+		throw std::runtime_error(INVLD_PORT_ERR);
 
-	savePort(argv[1]);
-	savePassword(argv[2]);
+	setPort(argv[1]);
+	setPassword(argv[2]);
 }
