@@ -106,12 +106,12 @@ void			server::handshakeNewConnection(int clientFd) throw(std::runtime_error){
 	//change the message to be customizable to the specific user
 	int 		status;
 	std::string msg;
-	
+
 	msg = "CAP * ACK multi-prefix\r\n";
 	status = send(clientFd, msg.c_str(), msg.length(), 0);
 	checkStatusAndThrow(status, SEND_ERR);
 
-	msg = "001 root :Welcome to the Internet Relay Network root\r\n";
+	msg = this->createWelcomeMessage(this->findUserNickname(clientFd));
 	status = send(clientFd, msg.c_str(), msg.length(), 0);
 	checkStatusAndThrow(status, SEND_ERR);
 }
@@ -125,13 +125,14 @@ void			server::handleNewConnection(){
 	else
 	{
 		makeFdNonBlock(clientSocketFd);
-		addSocket(clientSocketFd, POLLIN);		
+		addSocket(clientSocketFd, POLLIN);
+		this->addUser(clientSocketFd);
 		handshakeNewConnection(clientSocketFd);
 	}
 }
 
 void			server::handleExistingConnection(int socketIndex){
-	char	buffer[MAX_MSG_LENGTH];
+	char	buffer[MAX_MSG_LENGTH] = {0};
 	int		readBytes;
 	
 	readBytes = recv(clientSockets[socketIndex].fd, buffer, sizeof(buffer), 0);
@@ -162,4 +163,30 @@ void			server::loopAndHandleConnections(){
 				handleExistingConnection(i);
 		}
 	}
+}
+
+
+/*-----------------------------------------------------------------------*/
+
+void			server::addUser(int fd) {
+	users.push_back(User(fd));
+	users.at(users.size() - 1).setNickname();
+	std::cout << users.at(users.size() - 1).getNickname() << " has joined the server." << std::endl;
+}
+
+std::string		server::findUserNickname(int fd) {
+	std::string nickname;
+
+	for (size_t i = 0; i < users.size() && nickname.empty(); i++) {
+		if (users[i].getFd() == fd) {
+			nickname = users[i].getNickname();
+		}
+	}
+	return nickname;
+}
+
+std::string		server::createWelcomeMessage(std::string nickname) {
+	std::stringstream msg;
+	msg << "001 " << nickname << " :Welcome to the Internet Relay Network " << nickname << "\r\n";
+	return msg.str();
 }

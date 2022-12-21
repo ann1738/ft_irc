@@ -10,6 +10,8 @@
 #include <stdexcept>
 #include <iostream>
 
+#include "user.hpp"
+
 /* -------------- Macros --------------- */
 #define TIMEOUT 100000
 #define MAX_CONNECTIONS 10
@@ -53,6 +55,14 @@ private:
 	void			listenToSocket() throw(std::runtime_error);
 	void			pollClients() throw(std::runtime_error);
 	void			loopAndHandleConnections();
+
+
+	/*-----------------------------------------------------------------------*/
+
+	std::vector<User>			users;
+	void			addUser(int fd);
+	std::string		findUserNickname(int fd);
+	std::string		createWelcomeMessage(std::string nickname);
 	
 public:
 	server(int port);
