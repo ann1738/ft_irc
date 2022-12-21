@@ -10,11 +10,9 @@ server::server(int port)
 	bindSocket();
 	listenToSocket();
 	setupPoll();
-	std::cout << "Poll set" << std::endl;
 	while (true)
 	{
 		pollClients();
-		std::cout << "Polled clients" << std::endl;
 		loopAndHandleConnections();
 	}
 }
@@ -119,7 +117,6 @@ void			server::handshakeNewConnection(int clientFd) throw(std::runtime_error){
 }
 
 void			server::handleNewConnection(){
-	std::cout << "New connection!!!" << std::endl;
 	int clientSocketFd;
 
 	clientSocketFd = acceptClient(listenerFd);
@@ -130,12 +127,10 @@ void			server::handleNewConnection(){
 		makeFdNonBlock(clientSocketFd);
 		addSocket(clientSocketFd, POLLIN);		
 		handshakeNewConnection(clientSocketFd);
-		std::cout << "New client with fd: " << clientSocketFd << std::endl;
 	}
 }
 
 void			server::handleExistingConnection(int socketIndex){
-	std::cout << "Old connection ;)" << std::endl;
 	char	buffer[MAX_MSG_LENGTH];
 	int		readBytes;
 	
@@ -148,7 +143,6 @@ void			server::handleExistingConnection(int socketIndex){
 	}
 	else if (readBytes == 0) //connection closed
 	{
-		std::cout << "Connection closed with fd: " << socketIndex << std::endl;
 		removeSocket(socketIndex);
 	}
 	else
