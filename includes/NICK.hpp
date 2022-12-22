@@ -12,8 +12,7 @@ class NICK {
 		NICK();
 		~NICK();
 
-		int getIndex(std::vector<User> users, int fd);
-		void changeNickname(char* buffer, std::vector<User> &users, int fd);
+		void changeNickname(char* buffer, std::string nickname, User &user, int fd);
 
 };
 

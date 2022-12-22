@@ -5,7 +5,7 @@ server::server(int port)
 	listenPort = port;
 
 	createSocket();
-	makeFdNonBlock(listenerFd);
+	// makeFdNonBlock(listenerFd);
 	changeSocketOpt();
 	bindSocket();
 	listenToSocket();
@@ -111,9 +111,9 @@ void			server::handshakeNewConnection(int clientFd) throw(std::runtime_error){
 	status = send(clientFd, msg.c_str(), msg.length(), 0);
 	checkStatusAndThrow(status, SEND_ERR);
 
-	msg = this->createWelcomeMessage(this->findUserNickname(clientFd));
-	status = send(clientFd, msg.c_str(), msg.length(), 0);
-	checkStatusAndThrow(status, SEND_ERR);
+	// msg = this->createWelcomeMessage(this->findUserNickname(clientFd));
+	// status = send(clientFd, msg.c_str(), msg.length(), 0);
+	// checkStatusAndThrow(status, SEND_ERR);
 }
 
 void			server::handleNewConnection(){
@@ -124,7 +124,7 @@ void			server::handleNewConnection(){
 		std::cerr << ACCEPT_ERR << std::endl;
 	else
 	{
-		makeFdNonBlock(clientSocketFd);
+		// makeFdNonBlock(clientSocketFd);
 		addSocket(clientSocketFd, POLLIN);
 		this->addUser(clientSocketFd);
 		handshakeNewConnection(clientSocketFd);
@@ -148,9 +148,15 @@ void			server::handleExistingConnection(int socketIndex){
 	}
 	else
 	{
-		int fd = clientSockets[socketIndex].fd;
-		nick.changeNickname(buffer, users, fd);
 		std::cout << buffer << std::endl;
+		int fd = clientSockets[socketIndex].fd;
+
+		if (users[socketIndex].getNickname().empty()) {
+			users[socketIndex].initNickname(users.size());
+			std::string msg = this->createWelcomeMessage(users[socketIndex].getNickname());
+			send(fd, msg.c_str(), msg.length(), 0);
+		}
+		// nick.changeNickname(buffer, users[socketIndex].getNickname(), users[socketIndex], fd);
 	}
 }
 
@@ -172,8 +178,8 @@ void			server::loopAndHandleConnections(){
 
 void			server::addUser(int fd) {
 	users.push_back(User(fd));
-	users.at(users.size() - 1).setNickname();
-	std::cout << users.at(users.size() - 1).getNickname() << " has joined the server." << std::endl;
+	// users.at(users.size() - 1).setNickname();
+	// std::cout << users.at(users.size() - 1).getNickname() << " has joined the server." << std::endl;
 }
 
 std::string		server::findUserNickname(int fd) {

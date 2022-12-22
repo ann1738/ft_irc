@@ -12,6 +12,19 @@ int User::getFd() {
 	return this->m_fd;
 }
 
+void User::initNickname(int count) {
+	std::stringstream temp;
+	std::string nickname;
+
+	temp << "guest_" << count;
+	nickname = temp.str();
+	temp.clear();
+
+	temp << ":" << this->getNickname() << " NICK " << nickname << "\r\n";
+	this->setNickname(nickname);
+	send(this->m_fd, temp.str().c_str(), strlen(temp.str().c_str()), 0);
+}
+
 void User::setNickname() {
 	char buffer[1024] = {0};
 
