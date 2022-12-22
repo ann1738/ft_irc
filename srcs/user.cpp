@@ -26,3 +26,7 @@ void user::setNickname(string nickname) {
 string user::getNickname() {
 	return this->m_nickname;
 }
+
+void user::addChannel(string channel_name) {
+	this->m_channels.push_back(channel_name);
+}

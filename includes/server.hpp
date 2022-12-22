@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "user.hpp"
+#include "channel.hpp"
 #include "NICK.hpp"
 
 /* -------------- Macros --------------- */
@@ -61,8 +62,14 @@ private:
 	/*-----------------------------------------------------------------------*/
 
 	std::vector<user>			users;
+	std::vector<channel>		channels;
+
 	void			addUser(int fd);
 	std::string		createWelcomeMessage(std::string nickname);
+	void			sendToAllUsers(int readBytes, int src_fd, char* buffer);
+
+	void			joinChannel(char* buffer, user& new_member);
+	void			listUsers(char* buffer);
 
 	NICK						nick;
 	

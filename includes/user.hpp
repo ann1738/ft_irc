@@ -29,6 +29,8 @@ public:
 	void initNickname(int count);
 	void setNickname(string nickname);
 	string getNickname();
+
+	void addChannel(string channel_name);
 };
 
 #endif

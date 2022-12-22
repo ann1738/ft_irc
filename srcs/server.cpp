@@ -158,6 +158,10 @@ void			server::handleExistingConnection(int socketIndex){
 		}
 
 		nick.changeNickname(buffer, users[socketIndex - 1].getNickname(), users[socketIndex - 1], fd);
+
+		joinChannel(buffer, users[socketIndex - 1]);
+		listUsers(buffer);
+		sendToAllUsers(readBytes, fd, buffer);
 	}
 }
 
@@ -185,4 +189,46 @@ std::string		server::createWelcomeMessage(std::string nickname) {
 	std::stringstream msg;
 	msg << "001 " << nickname << " :Welcome to the Internet Relay Network " << nickname << "\r\n";
 	return msg.str();
+}
+
+// temp function. will be moved to a different class
+// will be modified in the future to only broadcast to users within the same channel
+void server::sendToAllUsers(int readBytes, int src_fd, char* buffer) {
+	for (int i = 0; i < fdCount; i++) {
+		int dest_fd = clientSockets[i].fd;
+
+		if (dest_fd != listenerFd && dest_fd != src_fd) {
+			send(dest_fd, buffer, readBytes, 0);
+		}
+	}
+}
+
+// temp function. will be moved to a different class
+void server::joinChannel(char* buffer, user& new_member) {
+	stringstream temp(buffer);
+	string client_message, channel_name;
+
+	temp >> client_message;
+	temp >> channel_name;
+
+	if (!client_message.compare("JOIN")) {
+		channels.push_back(channel(channel_name, channel_name));
+		channels[channels.size() - 1].addUser(new_member);
+		new_member.addChannel(channel_name);
+	}
+}
+
+// temp function. will be moved to a different class
+// will only print the users in the first channel
+void server::listUsers(char* buffer) {
+	stringstream temp(buffer);
+	string client_message;
+
+	temp >> client_message;
+
+	if (!client_message.compare("NAMES")) {
+		for (size_t i = 0; i < channels[0].getUsers().size(); i++) {
+			std::cout << channels[0].getUsers().at(i).getNickname() << std::endl;
+		}
+	}
 }
