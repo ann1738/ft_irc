@@ -179,19 +179,6 @@ void			server::loopAndHandleConnections(){
 
 void			server::addUser(int fd) {
 	users.push_back(User(fd));
-	// users.at(users.size() - 1).setNickname();
-	// std::cout << users.at(users.size() - 1).getNickname() << " has joined the server." << std::endl;
-}
-
-std::string		server::findUserNickname(int fd) {
-	std::string nickname;
-
-	for (size_t i = 0; i < users.size() && nickname.empty(); i++) {
-		if (users[i].getFd() == fd) {
-			nickname = users[i].getNickname();
-		}
-	}
-	return nickname;
 }
 
 std::string		server::createWelcomeMessage(std::string nickname) {

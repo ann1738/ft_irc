@@ -25,7 +25,6 @@ public:
 
 	int getFd();
 	void initNickname(int count);
-	void setNickname();
 	void setNickname(std::string nickname);
 	std::string getNickname();
 };

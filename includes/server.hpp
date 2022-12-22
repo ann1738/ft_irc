@@ -62,7 +62,6 @@ private:
 
 	std::vector<User>			users;
 	void			addUser(int fd);
-	std::string		findUserNickname(int fd);
 	std::string		createWelcomeMessage(std::string nickname);
 
 	NICK						nick;
