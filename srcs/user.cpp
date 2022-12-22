@@ -1,28 +1,28 @@
 #include "user.hpp"
 
-User::User() {}
+user::user() {}
 
-User::User(int fd) : m_fd(fd),
+user::user(int fd) : m_fd(fd),
                      m_hostname(""),
                      m_nickname(""),
                      m_mode("") {}
 
-User::~User() {}
+user::~user() {}
 
-int User::getFd() {
+int user::getFd() {
 	return this->m_fd;
 }
 
-void User::initNickname(int count) {
-	std::stringstream nickname;
+void user::initNickname(int count) {
+	stringstream nickname;
 	nickname << "guest_" << count;
 	this->setNickname(nickname.str());
 }
 
-void User::setNickname(std::string nickname) {
+void user::setNickname(string nickname) {
 	this->m_nickname = nickname;
 }
 
-std::string User::getNickname() {
+string user::getNickname() {
 	return this->m_nickname;
 }

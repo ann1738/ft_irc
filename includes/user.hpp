@@ -9,24 +9,26 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-class User {
+using namespace std;
+
+class user {
 
 private:
-	int                         m_fd;
-	std::string                 m_hostname;
-	std::string                 m_nickname;
-	std::string                 m_mode;
-	std::vector<std::string>    m_channels;
+	int               m_fd;
+	string            m_hostname;
+	string            m_nickname;
+	string            m_mode;
+	vector<string>    m_channels;
 
 public:
-	User();
-	User(int fd);
-	~User();
+	user();
+	user(int fd);
+	~user();
 
 	int getFd();
 	void initNickname(int count);
-	void setNickname(std::string nickname);
-	std::string getNickname();
+	void setNickname(string nickname);
+	string getNickname();
 };
 
 #endif

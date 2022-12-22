@@ -13,7 +13,7 @@ std::string NICK::buildResponse(std::string old_nickname, std::string new_nickna
 /**
  * @REMINDER: check if new nickname length is greater than 9
 */
-void NICK::changeNickname(char* buffer, std::string old_nickname, User &user, int fd) {
+void NICK::changeNickname(char* buffer, std::string old_nickname, user &user, int fd) {
 	std::stringstream temp(buffer);
 	std::string client_message, new_nickname, response;
 

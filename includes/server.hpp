@@ -60,7 +60,7 @@ private:
 
 	/*-----------------------------------------------------------------------*/
 
-	std::vector<User>			users;
+	std::vector<user>			users;
 	void			addUser(int fd);
 	std::string		createWelcomeMessage(std::string nickname);
 

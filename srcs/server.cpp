@@ -178,7 +178,7 @@ void			server::loopAndHandleConnections(){
 /*-----------------------------------------------------------------------*/
 
 void			server::addUser(int fd) {
-	users.push_back(User(fd));
+	users.push_back(user(fd));
 }
 
 std::string		server::createWelcomeMessage(std::string nickname) {
