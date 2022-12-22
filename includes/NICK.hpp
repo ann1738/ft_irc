@@ -6,14 +6,16 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
+using namespace std;
+
 class NICK {
 
 	public:
 		NICK();
 		~NICK();
 
-		std::string buildResponse(std::string nickname, std::string new_nickname);
-		void changeNickname(char* buffer, std::string nickname, user &user, int fd);
+		string buildResponse(string nickname, string new_nickname);
+		void changeNickname(char* buffer, string nickname, user &user, int fd);
 
 };
 
