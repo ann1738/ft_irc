@@ -12,6 +12,7 @@ class NICK {
 		NICK();
 		~NICK();
 
+		std::string buildResponse(std::string nickname, std::string new_nickname);
 		void changeNickname(char* buffer, std::string nickname, User &user, int fd);
 
 };

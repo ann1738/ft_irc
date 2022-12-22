@@ -2,7 +2,7 @@
 #define USER_HPP
 
 #include <vector>
-#include <string>
+#include <cstring>
 #include <sstream>
 
 #include <sys/types.h>

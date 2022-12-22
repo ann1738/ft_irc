@@ -1,10 +1,11 @@
 #include "user.hpp"
 
 User::User() {}
+
 User::User(int fd) : m_fd(fd),
-                     m_hostname(),
-                     m_nickname(),
-                     m_mode() {}
+                     m_hostname(""),
+                     m_nickname(""),
+                     m_mode("") {}
 
 User::~User() {}
 
@@ -13,16 +14,9 @@ int User::getFd() {
 }
 
 void User::initNickname(int count) {
-	std::stringstream temp;
-	std::string nickname;
-
-	temp << "guest_" << count;
-	nickname = temp.str();
-	temp.clear();
-
-	temp << ":" << this->getNickname() << " NICK " << nickname << "\r\n";
-	this->setNickname(nickname);
-	send(this->m_fd, temp.str().c_str(), strlen(temp.str().c_str()), 0);
+	std::stringstream nickname;
+	nickname << "guest_" << count;
+	this->setNickname(nickname.str());
 }
 
 void User::setNickname() {

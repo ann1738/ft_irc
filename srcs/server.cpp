@@ -151,12 +151,13 @@ void			server::handleExistingConnection(int socketIndex){
 		std::cout << buffer << std::endl;
 		int fd = clientSockets[socketIndex].fd;
 
-		if (users[socketIndex].getNickname().empty()) {
-			users[socketIndex].initNickname(users.size());
-			std::string msg = this->createWelcomeMessage(users[socketIndex].getNickname());
+		if (users[socketIndex - 1].getNickname().empty()) {
+			users[socketIndex - 1].initNickname(users.size());
+			std::string msg = this->createWelcomeMessage(users[socketIndex - 1].getNickname());
 			send(fd, msg.c_str(), msg.length(), 0);
 		}
-		// nick.changeNickname(buffer, users[socketIndex].getNickname(), users[socketIndex], fd);
+
+		nick.changeNickname(buffer, users[socketIndex - 1].getNickname(), users[socketIndex - 1], fd);
 	}
 }
 
