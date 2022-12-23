@@ -1,13 +1,13 @@
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
-using namespace std;
-
 #include <string>
 #include <vector>
 #include <algorithm>
 #include <iterator>
 #include "user.hpp"
+
+using namespace std;
 
 class channel
 {

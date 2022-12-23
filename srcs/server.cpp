@@ -161,7 +161,11 @@ void			server::handleExistingConnection(int socketIndex){
 
 		joinChannel(buffer, users[socketIndex - 1]);
 		listUsers(buffer);
-		sendToAllUsers(readBytes, fd, buffer);
+
+		// REMINDER: replace [0] with the getChannelIndex function in future commits
+		if (!channels.empty() && channels[0].getUserCount() > 1) {
+			sendToAllUsers(readBytes, fd, buffer);
+		}
 	}
 }
 
@@ -204,6 +208,30 @@ void server::sendToAllUsers(int readBytes, int src_fd, char* buffer) {
 }
 
 // temp function. will be moved to a different class
+bool server::isNewChannel(string channel_name) {
+	if (channels.empty()) {
+		return true;
+	}
+
+	for (size_t i = 0; i < channels.size(); i++) {
+		if (!channels[i].getName().compare(channel_name)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+// temp function. will be moved to a different class
+int server::getChannelIndex(string channel_name) {
+	for (size_t i = 0; i < channels.size(); i++) {
+		if (!channels[i].getName().compare(channel_name)) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+// temp function. will be moved to a different class
 void server::joinChannel(char* buffer, user& new_member) {
 	stringstream temp(buffer);
 	string client_message, channel_name;
@@ -212,9 +240,14 @@ void server::joinChannel(char* buffer, user& new_member) {
 	temp >> channel_name;
 
 	if (!client_message.compare("JOIN")) {
-		channels.push_back(channel(channel_name, channel_name));
-		channels[channels.size() - 1].addUser(new_member);
-		new_member.addChannel(channel_name);
+		if (isNewChannel(channel_name)) {
+			channels.push_back(channel(channel_name, channel_name));
+		}
+
+		if (int i = getChannelIndex(channel_name) != -1) {
+			channels[i].addUser(new_member);
+			new_member.addChannel(channel_name);
+		}
 	}
 }
 

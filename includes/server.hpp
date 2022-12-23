@@ -68,6 +68,8 @@ private:
 	std::string		createWelcomeMessage(std::string nickname);
 	void			sendToAllUsers(int readBytes, int src_fd, char* buffer);
 
+	bool			isNewChannel(string channel_name);
+	int				getChannelIndex(string channel_name);
 	void			joinChannel(char* buffer, user& new_member);
 	void			listUsers(char* buffer);
 
