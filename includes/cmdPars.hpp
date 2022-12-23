@@ -1,19 +1,7 @@
 #ifndef CMDPARSE_HPP
 # define CMDPARSE_HPP
 
-#include <iostream>
-#include <vector>
-
-struct Command {
-
-public:
-	std::string					cmd_type;
-	// std::vector<std::string>	cmd_type;
-	std::vector<std::string>	parameters;
-	std::string					client_name;
-	// std::vector<std::string>	prefix;
-
-};
+#include "Command.hpp"
 
 class cmdPars {
 
@@ -22,14 +10,19 @@ public:
 
 private:
 	value_type	cmd;
-	cmdPars();
+
+	size_t		extractCmdType(const std::string buff);
+	size_t		extractParameters(const std::string buff, size_t start_i);
+	size_t		extractClientName(const std::string buff);
 
 public:
-	cmdPars(const std::string buff);
+	cmdPars();
 
-	std::string					getCmdType() const;
-	std::vector<std::string>	getParameters() const;
-	std::string					getClientName() const;
+
+	void		parse(const std::string buff);
+	value_type	getParsedCmd() const;
+
+	~cmdPars();
 
 };
 

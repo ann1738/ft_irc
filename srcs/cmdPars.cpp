@@ -1,34 +1,41 @@
 #include "../includes/cmdPars.hpp"
 
-cmdPars::cmdPars(const std::string buff){
-	;
+cmdPars::cmdPars(): cmd() {}
+
+size_t	cmdPars::extractCmdType(const std::string buff) {
+	size_t	i = buff.find(" ");
+	this->cmd.cmd_type = buff.substr(0, (i - 1));
+	return (i);
 }
 
-std::string	cmdPars::getCmdType() const{
-	return (cmd.cmd_type);}
+size_t	cmdPars::extractParameters(const std::string buff, size_t start) {
+	size_t	end = buff.find("\n");
+	this->cmd.parameters = buff.substr(start, (end - 1));
+	return (end);
+}
 
-std::vector<std::string>	cmdPars::getParameters() const{
-	return (cmd.parameters);}
+size_t	cmdPars::extractClientName(const std::string buff) {
+	size_t	start = buff.find("WHOIS");
+	if (start == -1)
+		return (0);
+	size_t	end = buff.find("\n");
+	if (end == -1)
+		end = buff.find("\n\r");
+	if (end == -1)
+		this->cmd.parameters = buff.substr(start + 6);
+	else
+		this->cmd.parameters = buff.substr((start + 6), (end - 1));
+	return (end);
+}
 
-std::string	cmdPars::getClientName() const{
-	return (cmd.client_name);}
+void	cmdPars::parse(const std::string buff) {
+	size_t	i = extractCmdType(buff);
+	i = extractParameters(buff, (i + 1));
+	extractClientName(buff);
+}
 
-/*
+cmdPars::value_type	cmdPars::getParsedCmd() const {
+	return (cmd);
+}
 
-buff will return 3-4 lines
-first line is for the command
-second line only god know what it is
-third line could ether be (WHOIS client_name) || (client_name client_name ip client_name)
-fourth line could be empty or have (ip client_name)
-
-
------ steps for command type -----
-1- find first space 2- take everything till that space 3- put it in cmd_type variable.
-
------- steps for parameters ------
-1- start from after that space and find next ( space || comma || colon ) 2- push-back in the parameters vector 3- repeat the cycle till you reach new line
-
------- steps for client name -----
-1- starting from after the new line find the next new line 2- then from there find ( WHOIS || space ) 3- save everything after that space till another space or a new line in client_name
-
-*/
+cmdPars::~cmdPars(){}

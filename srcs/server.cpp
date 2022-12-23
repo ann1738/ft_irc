@@ -1,4 +1,5 @@
 #include "../includes/server.hpp"
+#include "../includes/cmdPars.hpp"
 
 server::server(int port)
 {
@@ -149,6 +150,12 @@ void			server::handleExistingConnection(int socketIndex){
 	{
 		std::cout << "s-------------------" << std::endl;
 		std::cout << buffer << std::endl;
+		cmdPars	t;
+		t.parse(buffer);
+		std::cout << "Command type = " << t.getParsedCmd().cmd_type << std::endl;
+		std::cout << "Parameters = " << t.getParsedCmd().parameters << std::endl;
+		std::cout << "Client name = " << t.getParsedCmd().client_name << std::endl;
+		
 		std::cout << "e-------------------" << std::endl;
 	}
 }
