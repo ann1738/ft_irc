@@ -83,16 +83,19 @@ public:
 
 	void	addUser(user User);
 	void	removeUser(user User);
+	bool	isUser(user User);
 
 	void	addOperator(user Op);
 	void	removeOperator(user Op);
+	bool	isOperator(user Op);
 	
 	void	addVoicedUser(user User);
 	void	removeVoicedUser(user User);
+	bool	isVoicedUser(user User);
 	
 	void	addInvitedUser(user User);
 	void	removeInvitedUser(user User);
+	bool	isInvitedUser(user User);
 };
-
 
 #endif 

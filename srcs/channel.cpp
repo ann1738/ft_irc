@@ -146,6 +146,12 @@ void	channel::removeUser(user User){
 	users.erase(find(users.begin(), users.end(), User));
 }
 
+bool	channel::isUser(user User){
+	if (find(users.begin(), users.end(), User) == users.end())
+		return false;
+	return true;
+}
+
 
 void	channel::addOperator(user Op){
 	users.push_back(Op);
@@ -155,6 +161,11 @@ void	channel::removeOperator(user Op){
 	users.erase(find(users.begin(), users.end(), Op));
 }
 
+bool	channel::isOperator(user Op){
+	if (find(operators.begin(), operators.end(), Op) == operators.end())
+		return false;
+	return true;
+}
 
 void	channel::addVoicedUser(user User){
 	users.push_back(User);
@@ -164,6 +175,12 @@ void	channel::removeVoicedUser(user User){
 	users.erase(find(users.begin(), users.end(), User));
 }
 
+bool	channel::isVoicedUser(user User){
+	if (find(voicedUsers.begin(), voicedUsers.end(), User) == voicedUsers.end())
+		return false;
+	return true;
+
+}
 
 void	channel::addInvitedUser(user User){
 	users.push_back(User);
@@ -171,4 +188,10 @@ void	channel::addInvitedUser(user User){
 
 void	channel::removeInvitedUser(user User){
 	users.erase(find(users.begin(), users.end(), User));
+}
+
+bool	channel::isInvitedUser(user User){
+	if (find(invitedUsers.begin(), invitedUsers.end(), User) == invitedUsers.end())
+		return false;
+	return true;
 }
