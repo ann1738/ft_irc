@@ -147,7 +147,9 @@ void			server::handleExistingConnection(int socketIndex){
 	}
 	else
 	{
+		std::cout << "s-------------------" << std::endl;
 		std::cout << buffer << std::endl;
+		std::cout << "e-------------------" << std::endl;
 	}
 }
 
