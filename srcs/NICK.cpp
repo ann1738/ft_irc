@@ -68,18 +68,24 @@ bool NICK::isNicknameTaken(vector<user> users, string nickname) {
  * If the server does not accept the new nickname supplied by the client as valid
  * (for instance, due to containing invalid characters).
  * ERR_ERRONEUSNICKNAME (432)
- * "{new nickname} :Erroneus nickname\r\n"
+ * "<nick> :Erroneus nickname\r\n"
  *
  * If the server receives a NICK command from a client where the desired nickname
  * is already in use on the network.
  * ERR_NICKNAMEINUSE (433)
- * "{new nickname} :Nickname is already in use\r\n"
+ * "<nick> :Nickname is already in use\r\n"
 */
-void NICK::sendNumericResponse(int fd, int error_type, string nickname) {
+void NICK::sendNumericResponse(int fd, int error_type, vector<string> nickname) {
 	stringstream response;
-	response << nickname << " :"
-	         << (error_type == 431 ? "No nickname given" :
-	            error_type == 432 ? "Erroneus nickname" : "Nickname is already in use")
+
+	nickname.erase(nickname.begin());
+	while (!nickname.empty()) {
+		response << nickname.front() << " ";
+		nickname.erase(nickname.begin());
+	}
+
+	response << (error_type == 431 ? " :No nickname given" :
+	            error_type == 432 ? ":Erroneus nickname" : ":Nickname is already in use")
 	         << "\r\n";
 	send(fd, response.str().c_str(), strlen(response.str().c_str()), 0);
 }
@@ -107,7 +113,9 @@ void NICK::changeNickname(user& user, string new_nickname) {
 void NICK::doNickCommand(vector<user>& users, int fd, char* buffer) {
 	vector<string> client_message = this->parseMessage(buffer);
 
-	if (client_message[0].compare("NICK")) {
+	// checks if the command received from the client is /nick
+	if (client_message[0].compare("NICK") ||
+	   (client_message.size() > 2 && !client_message[2].compare("USER"))) {    // temporary fix for mac issue
 		return;
 	}
 
@@ -116,7 +124,7 @@ void NICK::doNickCommand(vector<user>& users, int fd, char* buffer) {
 	 * example: /nick "   "
 	*/
 	else if (client_message.size() == 1) {
-		this->sendNumericResponse(fd, 431, "");
+		this->sendNumericResponse(fd, 431, client_message);
 	}
 
 	/**
@@ -125,12 +133,12 @@ void NICK::doNickCommand(vector<user>& users, int fd, char* buffer) {
 	 * example: /nick "hello world !"
 	*/
 	else if (!this->isNicknameValid(client_message[1]) || client_message.size() > 2) {
-		this->sendNumericResponse(fd, 432, client_message[1]);
+		this->sendNumericResponse(fd, 432, client_message);
 	}
 
 	// ensures that every user connected to the server will have a unique nickname
 	else if (this->isNicknameTaken(users, client_message[1])) {
-		this->sendNumericResponse(fd, 433, client_message[1]);
+		this->sendNumericResponse(fd, 433, client_message);
 	}
 
 	// change a user's nickname if no error(s) have been encountered
