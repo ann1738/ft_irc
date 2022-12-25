@@ -12,6 +12,16 @@ channel::channel(string name, string topic): m_name(name), m_topic(topic)
 {
 }
 
+/* helper function */
+vector<user>::iterator	channel::findUser(vector<user> userList, user User){
+	for (vector<user>::iterator it = userList.begin(); it != userList.end(); it++)
+	{
+		if (it->getNickname() == User.getNickname())
+			return it;
+	}
+	return userList.end();
+}
+
 /* getters */
 string	channel::getName(){
 	return m_name;
@@ -93,7 +103,7 @@ void	channel::setTopic(string topic){
 
 
 void	channel::setKey(string Key){
-	m_key = Key
+	m_key = Key;
 }
 
 void	channel::setUserCountLimit(int limit){
@@ -143,11 +153,17 @@ void	channel::addUser(user User){
 }
 
 void	channel::removeUser(user User){
-	users.erase(find(users.begin(), users.end(), User));
+	users.erase(findUser(users, User));
+	if (isOperator(User))
+		removeOperator(User);
+	if (isInvitedUser(User))
+		removeInvitedUser(User);
+	if (isVoicedUser(User))
+		removeVoicedUser(User);
 }
 
 bool	channel::isUser(user User){
-	if (find(users.begin(), users.end(), User) == users.end())
+	if (users.empty() || findUser(users, User) == users.end())
 		return false;
 	return true;
 }
@@ -158,11 +174,11 @@ void	channel::addOperator(user Op){
 }
 
 void	channel::removeOperator(user Op){
-	users.erase(find(users.begin(), users.end(), Op));
+	users.erase(findUser(operators, Op));
 }
 
 bool	channel::isOperator(user Op){
-	if (find(operators.begin(), operators.end(), Op) == operators.end())
+	if (operators.empty() || findUser(operators, Op) == operators.end())
 		return false;
 	return true;
 }
@@ -172,11 +188,11 @@ void	channel::addVoicedUser(user User){
 }
 
 void	channel::removeVoicedUser(user User){
-	users.erase(find(users.begin(), users.end(), User));
+	users.erase(findUser(voicedUsers, User));
 }
 
 bool	channel::isVoicedUser(user User){
-	if (find(voicedUsers.begin(), voicedUsers.end(), User) == voicedUsers.end())
+	if (voicedUsers.empty() || findUser(voicedUsers, User) == voicedUsers.end())
 		return false;
 	return true;
 
@@ -187,11 +203,11 @@ void	channel::addInvitedUser(user User){
 }
 
 void	channel::removeInvitedUser(user User){
-	users.erase(find(users.begin(), users.end(), User));
+	users.erase(findUser(invitedUsers, User));
 }
 
 bool	channel::isInvitedUser(user User){
-	if (find(invitedUsers.begin(), invitedUsers.end(), User) == invitedUsers.end())
+	if (invitedUsers.empty() || findUser(invitedUsers, User) == invitedUsers.end())
 		return false;
 	return true;
 }

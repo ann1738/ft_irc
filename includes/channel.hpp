@@ -32,15 +32,17 @@ private:
 	vector<user> invitedUsers;   //empty if channel is not invite-only (+i)
 	vector<user> voicedUsers;    //empty if channel is not moderated (+m)
 
+	vector<user>::iterator	findUser(vector<user> userList, user User);
+
 	/*** modes to debate: b (ban user mask), 
 	 *   modes that are currently confusing (because they are for users): v (voiced users), o (operators)
 	 * */
 
 	channel();
-	~channel();
 
 public:
 	channel(string name, string topic);
+	~channel();
 
 	/* getters */
 	string	getName();
