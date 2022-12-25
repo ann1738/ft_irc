@@ -155,16 +155,16 @@ void			server::handleExistingConnection(int socketIndex){
 			users[socketIndex - 1].initNickname(users.size());
 			std::string msg = this->createWelcomeMessage(users[socketIndex - 1].getNickname());
 			send(fd, msg.c_str(), msg.length(), 0);
-		}
+		} else {
+			nick.doNickCommand(users, fd, buffer);
 
-		nick.changeNickname(buffer, users[socketIndex - 1].getNickname(), users[socketIndex - 1], fd);
+			joinChannel(buffer, users[socketIndex - 1]);
+			listUsers(buffer);
 
-		joinChannel(buffer, users[socketIndex - 1]);
-		listUsers(buffer);
-
-		// REMINDER: replace [0] with the getChannelIndex function in future commits
-		if (!channels.empty() && channels[0].getUserCount() > 1) {
-			sendToAllUsers(readBytes, fd, buffer);
+			// REMINDER: replace [0] with the getChannelIndex function in future commits
+			if (!channels.empty() && channels[0].getUserCount() > 1) {
+				sendToAllUsers(readBytes, fd, buffer);
+			}
 		}
 	}
 }

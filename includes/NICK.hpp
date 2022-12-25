@@ -10,18 +10,18 @@ using namespace std;
 
 class NICK {
 
-	private:
-		user    m_user_list;
-
 	public:
 		NICK();
 		~NICK();
 
-		NICK(user users);
-		bool nicknameIsValid(string nickname);
+		vector<string> parseMessage(char* buffer);
+		int getUserIndex(vector<user> users, int fd);
+		bool isNicknameValid(string nickname);
+		bool isNicknameTaken(vector<user> users, string nickname);
 		void sendNumericResponse(int fd, int error_type, string nickname);
 		string buildResponse(string nickname, string new_nickname);
-		void changeNickname(char* buffer, string nickname, user &user, int fd);
+		void changeNickname(user& user, string new_nickname);
+		void doNickCommand(vector<user>& users, int fd, char* buffer);
 
 };
 

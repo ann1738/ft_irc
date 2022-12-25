@@ -4,16 +4,39 @@ NICK::NICK() {}
 
 NICK::~NICK() {}
 
-NICK::NICK(user users) : m_user_list(users) {}
+/**
+ * splits the buffer into individual strings, which will be stored in a vector
+*/
+vector<string> NICK::parseMessage(char* buffer) {
+	stringstream temp(buffer);
+	vector<string> client_message;
+	string placeholder;
 
-string NICK::buildResponse(string old_nickname, string new_nickname) {
-	stringstream response;
-
-	response << ":" << old_nickname << " NICK " << new_nickname << "\r\n";
-	return response.str();
+	while (temp >> placeholder) {
+		client_message.push_back(placeholder);
+	}
+	return client_message;
 }
 
-bool NICK::nicknameIsValid(string nickname) {
+/**
+ * searches for a specific user by comparing its file descriptor with the
+ * file descriptor provided by the server class
+*/
+int NICK::getUserIndex(vector<user> users, int fd) {
+	int i = 0;
+	for (vector<user>::iterator iter = users.begin(); iter != users.end(); iter++, i++) {
+		if (iter->getFd() == fd) {
+			return i;
+		}
+	}
+	return 0;
+}
+
+/**
+ * checks if the desired nickname only consists of valid characters and if its length
+ * does not exceed 9 characters
+*/
+bool NICK::isNicknameValid(string nickname) {
 	string alpha("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"),
 	       digits("0123456789"),
 	       special("`|-_^{}[]\\");
@@ -22,9 +45,38 @@ bool NICK::nicknameIsValid(string nickname) {
 	       nickname.find_first_not_of(alpha + digits + special) == string::npos;
 }
 
+/**
+ * checks every user's nickname in the server and returns true if the desired nickname is
+ * already being used or false if the desired nickname is available for use
+*/
+bool NICK::isNicknameTaken(vector<user> users, string nickname) {
+	for (vector<user>::iterator iter = users.begin(); iter != users.end(); iter++) {
+		if (!iter->getNickname().compare(nickname)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * sends a response to the client in the following formats
+ *
+ * If the server does not receive the <nickname> parameter with the NICK command.
+ * ERR_NONICKNAMEGIVEN (431)
+ * " :No nickname given\r\n"
+ *
+ * If the server does not accept the new nickname supplied by the client as valid
+ * (for instance, due to containing invalid characters).
+ * ERR_ERRONEUSNICKNAME (432)
+ * "{new nickname} :Erroneus nickname\r\n"
+ *
+ * If the server receives a NICK command from a client where the desired nickname
+ * is already in use on the network.
+ * ERR_NICKNAMEINUSE (433)
+ * "{new nickname} :Nickname is already in use\r\n"
+*/
 void NICK::sendNumericResponse(int fd, int error_type, string nickname) {
 	stringstream response;
-
 	response << nickname << " :"
 	         << (error_type == 431 ? "No nickname given" :
 	            error_type == 432 ? "Erroneus nickname" : "Nickname is already in use")
@@ -32,30 +84,57 @@ void NICK::sendNumericResponse(int fd, int error_type, string nickname) {
 	send(fd, response.str().c_str(), strlen(response.str().c_str()), 0);
 }
 
-void NICK::changeNickname(char* buffer, string old_nickname, user &user, int fd) {
-	stringstream temp(buffer);
-	string client_message, new_nickname, extra, response;
+/**
+ * builds a string in the following format
+ * ":<old nickname> NICK <new nickname>\r\n"
+*/
+string NICK::buildResponse(string old_nickname, string new_nickname) {
+	stringstream response;
+	response << ":" << old_nickname << " NICK " << new_nickname << "\r\n";
+	return response.str();
+}
 
-	temp >> client_message;
-	temp >> new_nickname;
-	temp >> extra;
+/**
+ * informs the client that it has been issued a new nickname
+ * and then updates the user's nickname in the user class
+*/
+void NICK::changeNickname(user& user, string new_nickname) {
+	string response = this->buildResponse(user.getNickname(), new_nickname);
+	send(user.getFd(), response.c_str(), strlen(response.c_str()), 0);
+	user.setNickname(new_nickname);
+}
 
-	if (!client_message.compare("NICK")) {
+void NICK::doNickCommand(vector<user>& users, int fd, char* buffer) {
+	vector<string> client_message = this->parseMessage(buffer);
 
-		// ERR_NONICKNAMEGIVEN (431)
-		if (new_nickname.empty()) {
-			this->sendNumericResponse(fd, 431, new_nickname);
-			return;
-		}
+	if (client_message[0].compare("NICK")) {
+		return;
+	}
 
-		// ERR_ERRONEUSNICKNAME (432)
-		if (!this->nicknameIsValid(new_nickname) || !extra.empty()) {
-			this->sendNumericResponse(fd, 432, new_nickname);
-			return;
-		}
+	/**
+	 * prevents a nickname that only contains spaces
+	 * example: /nick "   "
+	*/
+	else if (client_message.size() == 1) {
+		this->sendNumericResponse(fd, 431, "");
+	}
 
-		response = this->buildResponse(old_nickname, new_nickname);
-		send(fd, response.c_str(), strlen(response.c_str()), 0);
-		user.setNickname(new_nickname);
+	/**
+	 * checks if the desired nickname only consists of valid characters or
+	 * if the parameters received from the client is equal to two
+	 * example: /nick "hello world !"
+	*/
+	else if (!this->isNicknameValid(client_message[1]) || client_message.size() > 2) {
+		this->sendNumericResponse(fd, 432, client_message[1]);
+	}
+
+	// ensures that every user connected to the server will have a unique nickname
+	else if (this->isNicknameTaken(users, client_message[1])) {
+		this->sendNumericResponse(fd, 433, client_message[1]);
+	}
+
+	// change a user's nickname if no error(s) have been encountered
+	else {
+		this->changeNickname(users[this->getUserIndex(users, fd)], client_message[1]);
 	}
 }
