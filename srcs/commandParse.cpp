@@ -23,7 +23,7 @@ size_t	commandParse::extractRemaining(const std::string &buff, size_t start) {
 	return (end);
 }
 
-void	commandParse::parse(const std::string buff) {
+void	commandParse::parse(const std::string &buff) {
 	size_t	i = extractCmdType(buff);
 	if (i != buff.find('\n'))
 		i = extractParameters(buff, (i + 1));

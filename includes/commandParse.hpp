@@ -29,7 +29,7 @@ public:
 	commandParse();
 
 
-	void		parse(const std::string buff);
+	void		parse(const std::string &buff);
 	value_type	getParsedCmd() const;
 
 	void		test() const; // will be removed in final cleaning 
