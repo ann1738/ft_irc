@@ -23,6 +23,8 @@ private:
 	// string            m_mode;
 	vector<string>    m_channels;
 
+	vector<string> parseMessage(char* buffer);
+
 public:
 	user();
 	~user();
@@ -31,7 +33,6 @@ public:
 	int getFd();
 
 	void initNickname();
-	vector<string> parseMessage(char* buffer);
 	void saveUserInfo(char* buffer);
 
 	void setUsername(string username);
@@ -47,6 +48,7 @@ public:
 	string getNickname() const;
 
 	void addChannel(string channel_name);
+
 };
 
 #endif

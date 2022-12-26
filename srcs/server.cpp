@@ -148,7 +148,13 @@ void			server::handleExistingConnection(int socketIndex){
 	}
 	else
 	{
+		std::cout << "s-------------------" << std::endl;
 		std::cout << buffer << std::endl;
+		std::cout << "e-------------------" << std::endl;
+		
+		cmdParse	t;
+		t.parse(buffer);
+
 		int fd = clientSockets[socketIndex].fd;
 
 		if (users[socketIndex - 1].getNickname().empty()) {
@@ -158,14 +164,6 @@ void			server::handleExistingConnection(int socketIndex){
 		} else {
 			users[socketIndex - 1].saveUserInfo(buffer);
 			nick.doNickCommand(users, fd, buffer);
-
-			joinChannel(buffer, users[socketIndex - 1]);
-			listUsers(buffer);
-
-			// REMINDER: replace [0] with the getChannelIndex function in future commits
-			if (!channels.empty() && channels[0].getUserCount() > 1) {
-				sendToAllUsers(readBytes, fd, buffer);
-			}
 		}
 	}
 }
@@ -194,75 +192,4 @@ std::string		server::createWelcomeMessage(std::string nickname) {
 	std::stringstream msg;
 	msg << "001 " << nickname << " :Welcome to the Internet Relay Network " << nickname << "\r\n";
 	return msg.str();
-}
-
-// temp function. will be moved to a different class
-// will be modified in the future to only broadcast to users within the same channel
-void server::sendToAllUsers(int readBytes, int src_fd, char* buffer) {
-	for (int i = 0; i < fdCount; i++) {
-		int dest_fd = clientSockets[i].fd;
-
-		if (dest_fd != listenerFd && dest_fd != src_fd) {
-			send(dest_fd, buffer, readBytes, 0);
-		}
-	}
-}
-
-// temp function. will be moved to a different class
-bool server::isNewChannel(string channel_name) {
-	if (channels.empty()) {
-		return true;
-	}
-
-	for (size_t i = 0; i < channels.size(); i++) {
-		if (!channels[i].getName().compare(channel_name)) {
-			return true;
-		}
-	}
-	return false;
-}
-
-// temp function. will be moved to a different class
-int server::getChannelIndex(string channel_name) {
-	for (size_t i = 0; i < channels.size(); i++) {
-		if (!channels[i].getName().compare(channel_name)) {
-			return i;
-		}
-	}
-	return -1;
-}
-
-// temp function. will be moved to a different class
-void server::joinChannel(char* buffer, user& new_member) {
-	stringstream temp(buffer);
-	string client_message, channel_name;
-
-	temp >> client_message;
-	temp >> channel_name;
-
-	if (!client_message.compare("JOIN")) {
-		if (isNewChannel(channel_name)) {
-			channels.push_back(channel(channel_name, channel_name));
-		}
-
-		if (int i = getChannelIndex(channel_name) != -1) {
-			channels[i].addUser(new_member);
-			new_member.addChannel(channel_name);
-		}
-	}
-}
-
-// temp function. will be moved to a different class
-// will only print the users in the first channel
-void server::listUsers(char* buffer) {
-	stringstream temp(buffer);
-	string client_message;
-
-	temp >> client_message;
-
-	if (!client_message.compare("NAMES")) {
-		for (size_t i = 0; i < channels[0].getUsers().size(); i++) {
-			std::cout << channels[0].getUsers().at(i).getNickname() << std::endl;
-		}
-	}
 }

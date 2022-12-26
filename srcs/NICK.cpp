@@ -1,8 +1,12 @@
 #include "NICK.hpp"
 
-NICK::NICK() {}
+NICK::NICK()
+{
+}
 
-NICK::~NICK() {}
+NICK::~NICK()
+{
+}
 
 /**
  * splits the buffer into individual strings, which will be stored in a vector
