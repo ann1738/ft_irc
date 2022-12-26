@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <iostream>
 
-#include "../includes/cmdParse.hpp"
+#include "commandParse.hpp"
 
 /* -------------- Macros --------------- */
 #define TIMEOUT 100000
