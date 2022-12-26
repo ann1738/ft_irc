@@ -1,12 +1,12 @@
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
-using namespace std;
-
 #include <string>
 #include <vector>
 #include <algorithm>
 #include "user.hpp"
+
+using namespace std;
 
 class channel
 {
@@ -32,15 +32,15 @@ private:
 	vector<user> invitedUsers;   //empty if channel is not invite-only (+i)
 	vector<user> voicedUsers;    //empty if channel is not moderated (+m)
 
-	vector<user>::iterator	findUser(vector<user> userList, user User);
+	vector<user>::iterator	findUser(vector<user> &userList, user User);
 
 	/*** modes to debate: b (ban user mask), 
 	 *   modes that are currently confusing (because they are for users): v (voiced users), o (operators)
 	 * */
 
-	channel();
 
 public:
+	channel();
 	channel(string name, string topic);
 	~channel();
 

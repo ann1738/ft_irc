@@ -13,7 +13,7 @@ channel::channel(string name, string topic): m_name(name), m_topic(topic)
 }
 
 /* helper function */
-vector<user>::iterator	channel::findUser(vector<user> userList, user User){
+vector<user>::iterator	channel::findUser(vector<user> &userList, user User){
 	for (vector<user>::iterator it = userList.begin(); it != userList.end(); it++)
 	{
 		if (it->getNickname() == User.getNickname())
