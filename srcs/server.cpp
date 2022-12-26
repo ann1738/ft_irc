@@ -124,7 +124,7 @@ void			server::handleNewConnection(){
 		std::cerr << ACCEPT_ERR << std::endl;
 	else
 	{
-		// makeFdNonBlock(clientSocketFd);
+		makeFdNonBlock(clientSocketFd);
 		addSocket(clientSocketFd, POLLIN);
 		this->addUser(clientSocketFd);
 		handshakeNewConnection(clientSocketFd);
@@ -162,7 +162,7 @@ void			server::handleExistingConnection(int socketIndex){
 			std::string msg = this->createWelcomeMessage(users[socketIndex - 1].getNickname());
 			send(fd, msg.c_str(), msg.length(), 0);
 		} else {
-			users[socketIndex - 1].saveUserInfo(buffer);
+			NICK nick;
 			nick.doNickCommand(users, fd, buffer);
 		}
 	}

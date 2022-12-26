@@ -11,7 +11,7 @@ NICK::~NICK()
 /**
  * splits the buffer into individual strings, which will be stored in a vector
 */
-vector<string> NICK::parseMessage(char* buffer) {
+vector<string> NICK::parseMessage(char* buffer) const {
 	stringstream temp(buffer);
 	vector<string> client_message;
 	string placeholder;
@@ -26,9 +26,9 @@ vector<string> NICK::parseMessage(char* buffer) {
  * searches for a specific user by comparing its file descriptor with the
  * file descriptor provided by the server class
 */
-int NICK::getUserIndex(vector<user> users, int fd) {
+int NICK::getUserIndex(const vector<user>& users, int fd) const {
 	int i = 0;
-	for (vector<user>::iterator iter = users.begin(); iter != users.end(); iter++, i++) {
+	for (vector<user>::const_iterator iter = users.begin(); iter != users.end(); iter++, i++) {
 		if (iter->getFd() == fd) {
 			return i;
 		}
@@ -40,7 +40,7 @@ int NICK::getUserIndex(vector<user> users, int fd) {
  * checks if the desired nickname only consists of valid characters and if its length
  * does not exceed 9 characters
 */
-bool NICK::isNicknameValid(string nickname) {
+bool NICK::isNicknameValid(const string& nickname) const {
 	string alpha("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"),
 	       digits("0123456789"),
 	       special("`|-_^{}[]\\");
@@ -53,8 +53,8 @@ bool NICK::isNicknameValid(string nickname) {
  * checks every user's nickname in the server and returns true if the desired nickname is
  * already being used or false if the desired nickname is available for use
 */
-bool NICK::isNicknameTaken(vector<user> users, string nickname) {
-	for (vector<user>::iterator iter = users.begin(); iter != users.end(); iter++) {
+bool NICK::isNicknameTaken(const vector<user>& users, const string& nickname) const {
+	for (vector<user>::const_iterator iter = users.begin(); iter != users.end(); iter++) {
 		if (!iter->getNickname().compare(nickname)) {
 			return true;
 		}
@@ -79,7 +79,7 @@ bool NICK::isNicknameTaken(vector<user> users, string nickname) {
  * ERR_NICKNAMEINUSE (433)
  * "<nick> :Nickname is already in use\r\n"
 */
-void NICK::sendNumericResponse(int fd, int error_type, vector<string> nickname) {
+void NICK::sendNumericResponse(int fd, int error_type, vector<string>& nickname) {
 	stringstream response;
 
 	nickname.erase(nickname.begin());
@@ -98,7 +98,7 @@ void NICK::sendNumericResponse(int fd, int error_type, vector<string> nickname) 
  * builds a string in the following format
  * ":<old nickname> NICK <new nickname>\r\n"
 */
-string NICK::buildResponse(string old_nickname, string new_nickname) {
+string NICK::buildResponse(const string& old_nickname, const string& new_nickname) {
 	stringstream response;
 	response << ":" << old_nickname << " NICK " << new_nickname << "\r\n";
 	return response.str();
@@ -108,13 +108,16 @@ string NICK::buildResponse(string old_nickname, string new_nickname) {
  * informs the client that it has been issued a new nickname
  * and then updates the user's nickname in the user class
 */
-void NICK::changeNickname(user& user, string new_nickname) {
+void NICK::changeNickname(user& user, const string& new_nickname) {
 	string response = this->buildResponse(user.getNickname(), new_nickname);
 	send(user.getFd(), response.c_str(), strlen(response.c_str()), 0);
 	user.setNickname(new_nickname);
 }
 
 void NICK::doNickCommand(vector<user>& users, int fd, char* buffer) {
+	user User = users[this->getUserIndex(users, fd)];
+	User.saveUserInfo(buffer);
+
 	vector<string> client_message = this->parseMessage(buffer);
 
 	// checks if the command received from the client is /nick

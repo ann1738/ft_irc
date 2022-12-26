@@ -61,7 +61,6 @@ private:
 	/*-----------------------------------------------------------------------*/
 
 	std::vector<user>			users;
-	NICK						nick;
 
 	void			addUser(int fd);
 	std::string		createWelcomeMessage(std::string nickname);

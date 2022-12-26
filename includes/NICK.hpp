@@ -11,13 +11,13 @@ using namespace std;
 class NICK {
 
 private:
-	vector<string> parseMessage(char* buffer);
-	int getUserIndex(vector<user> users, int fd);
-	bool isNicknameValid(string nickname);
-	bool isNicknameTaken(vector<user> users, string nickname);
-	void sendNumericResponse(int fd, int error_type, vector<string> nickname);
-	string buildResponse(string nickname, string new_nickname);
-	void changeNickname(user& user, string new_nickname);
+	vector<string> parseMessage(char* buffer) const;
+	int getUserIndex(const vector<user>& users, int fd) const;
+	bool isNicknameValid(const string& nickname) const;
+	bool isNicknameTaken(const vector<user>& users, const string& nickname) const;
+	void sendNumericResponse(int fd, int error_type, vector<string>& nickname);
+	string buildResponse(const string& old_nickname, const string& new_nickname);
+	void changeNickname(user& user, const string& new_nickname);
 
 public:
 	NICK();

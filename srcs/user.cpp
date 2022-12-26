@@ -15,7 +15,7 @@ user::user(int fd) : m_fd(fd),
 {
 }
 
-int user::getFd() {
+int user::getFd() const {
 	return this->m_fd;
 }
 
@@ -29,7 +29,7 @@ void user::initNickname() {
 	this->setNickname(nickname.str());
 }
 
-vector<string> user::parseMessage(char* buffer) {
+vector<string> user::parseMessage(char* buffer) const {
 	stringstream temp(buffer);
 	vector<string> client_message;
 	string placeholder;

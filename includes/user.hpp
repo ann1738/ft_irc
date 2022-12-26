@@ -23,14 +23,14 @@ private:
 	// string            m_mode;
 	vector<string>    m_channels;
 
-	vector<string> parseMessage(char* buffer);
+	vector<string> parseMessage(char* buffer) const;
 
 public:
 	user();
 	~user();
 
 	user(int fd);
-	int getFd();
+	int getFd() const;
 
 	void initNickname();
 	void saveUserInfo(char* buffer);
