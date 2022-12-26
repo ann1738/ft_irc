@@ -1,5 +1,4 @@
 #include "../includes/server.hpp"
-#include "../includes/cmdPars.hpp"
 
 server::server(int port)
 {
@@ -134,7 +133,7 @@ void			server::handleNewConnection(){
 void			server::handleExistingConnection(int socketIndex){
 	char	buffer[MAX_MSG_LENGTH];
 	int		readBytes;
-	
+
 	readBytes = recv(clientSockets[socketIndex].fd, buffer, sizeof(buffer), 0);
 	if (readBytes == -1)
 	{
@@ -148,15 +147,16 @@ void			server::handleExistingConnection(int socketIndex){
 	}
 	else
 	{
+		buffer[readBytes] = '\0';
 		std::cout << "s-------------------" << std::endl;
 		std::cout << buffer << std::endl;
-		cmdPars	t;
-		t.parse(buffer);
-		std::cout << "Command type = " << t.getParsedCmd().cmd_type << std::endl;
-		std::cout << "Parameters = " << t.getParsedCmd().parameters << std::endl;
-		std::cout << "Client name = " << t.getParsedCmd().client_name << std::endl;
 		
 		std::cout << "e-------------------" << std::endl;
+		cmdPars	t;
+		t.parse(buffer);
+		std::cout << GREEN << "Command type = " << t.getParsedCmd().cmd_type << WHITE << std::endl;
+		std::cout << BLUE << "Parameters = " << t.getParsedCmd().parameters << WHITE << std::endl;
+		std::cout << YELLOW << "Remaining = " << t.getParsedCmd().remaining << WHITE << std::endl;
 	}
 }
 

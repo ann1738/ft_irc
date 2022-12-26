@@ -10,8 +10,7 @@ public:
 
 	std::string	cmd_type;
 	std::string	parameters;
-	std::string	client_name;
-	// std::vector<std::string>	prefix;
+	std::string	remaining;
 
 	~Command();
 

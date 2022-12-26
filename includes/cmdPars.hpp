@@ -13,7 +13,7 @@ private:
 
 	size_t		extractCmdType(const std::string buff);
 	size_t		extractParameters(const std::string buff, size_t start_i);
-	size_t		extractClientName(const std::string buff);
+	size_t		extractRemaining(const std::string buff, size_t start);
 
 public:
 	cmdPars();
