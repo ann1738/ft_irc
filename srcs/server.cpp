@@ -5,8 +5,8 @@ server::server(int port)
 	listenPort = port;
 
 	createSocket();
-	// makeFdNonBlock(listenerFd);
 	changeSocketOpt();
+	makeFdNonBlock(listenerFd);
 	bindSocket();
 	listenToSocket();
 	setupPoll();
@@ -152,10 +152,11 @@ void			server::handleExistingConnection(int socketIndex){
 		int fd = clientSockets[socketIndex].fd;
 
 		if (users[socketIndex - 1].getNickname().empty()) {
-			users[socketIndex - 1].initNickname(users.size());
+			users[socketIndex - 1].initNickname();
 			std::string msg = this->createWelcomeMessage(users[socketIndex - 1].getNickname());
 			send(fd, msg.c_str(), msg.length(), 0);
 		} else {
+			users[socketIndex - 1].saveUserInfo(buffer);
 			nick.doNickCommand(users, fd, buffer);
 
 			joinChannel(buffer, users[socketIndex - 1]);
