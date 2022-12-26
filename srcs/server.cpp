@@ -131,7 +131,7 @@ void			server::handleNewConnection(){
 }
 
 void			server::handleExistingConnection(int socketIndex){
-	char	buffer[MAX_MSG_LENGTH];
+	char	buffer[MAX_MSG_LENGTH] = {0};
 	int		readBytes;
 
 	readBytes = recv(clientSockets[socketIndex].fd, buffer, sizeof(buffer), 0);
@@ -147,16 +147,12 @@ void			server::handleExistingConnection(int socketIndex){
 	}
 	else
 	{
-		buffer[readBytes] = '\0';
 		std::cout << "s-------------------" << std::endl;
 		std::cout << buffer << std::endl;
-		
 		std::cout << "e-------------------" << std::endl;
-		cmdPars	t;
+		
+		cmdParse	t;
 		t.parse(buffer);
-		std::cout << GREEN << "Command type = " << t.getParsedCmd().cmd_type << WHITE << std::endl;
-		std::cout << BLUE << "Parameters = " << t.getParsedCmd().parameters << WHITE << std::endl;
-		std::cout << YELLOW << "Remaining = " << t.getParsedCmd().remaining << WHITE << std::endl;
 	}
 }
 

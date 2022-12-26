@@ -1,8 +1,5 @@
-#include "../includes/Command.hpp"
+#include "../includes/command.hpp"
 
-Command::Command(): cmd_type(), parameters(), remaining(){
-}
+command::command(): cmd_type(), parameters(), remaining() {}
 
-Command::~Command() {
-	;
-}
+command::~command() {}

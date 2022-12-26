@@ -1,18 +1,18 @@
-#ifndef	COMMAND_HPP
-# define COMMAND_HPP
+#ifndef	cOMMAND_HPP
+# define cOMMAND_HPP
 
 #include <iostream>
 
-struct Command {
+struct command {
 
 public:
-	Command();
+	command();
 
 	std::string	cmd_type;
 	std::string	parameters;
 	std::string	remaining;
 
-	~Command();
+	~command();
 
 };
 
