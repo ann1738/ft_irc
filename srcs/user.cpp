@@ -10,9 +10,9 @@ user::~user()
 
 user::user(int fd) : m_fd(fd),
                      m_hostname(""),
-                     m_nickname("")
-                    //  m_mode("")
-{
+                     m_nickname(""),
+                     m_entered_server(false) {
+	this->initNickname();
 }
 
 int user::getFd() const {
@@ -27,6 +27,12 @@ void user::initNickname() {
 	stringstream nickname;
 	nickname << "guest_" << this->getFd() - 3;
 	this->setNickname(nickname.str());
+}
+
+string user::createWelcomeMessage() {
+	std::stringstream message;
+	message << "001 " << this->getNickname() << " :Welcome to the Internet Relay Network " << this->getNickname() << "\r\n";
+	return message.str();
 }
 
 vector<string> user::parseMessage(char* buffer) const {
@@ -100,4 +106,12 @@ string user::getNickname() const {
 
 void user::addChannel(string channel_name) {
 	this->m_channels.push_back(channel_name);
+}
+
+void user::enterServer() {
+	if (!m_entered_server) {
+		string message = this->createWelcomeMessage();
+		send(this->getFd(), message.c_str(), message.length(), 0);
+		m_entered_server = true;
+	}
 }

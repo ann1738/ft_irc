@@ -63,8 +63,8 @@ private:
 	std::vector<user>			users;
 
 	void			addUser(int fd);
-	std::string		createWelcomeMessage(std::string nickname);
-	
+	user&			getUser(int fd);
+
 public:
 	server(int port);
 	~server();

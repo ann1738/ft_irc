@@ -22,8 +22,11 @@ private:
 	string            m_nickname;
 	// string            m_mode;
 	vector<string>    m_channels;
+	bool              m_entered_server;
 
 	vector<string> parseMessage(char* buffer) const;
+	void initNickname();
+	string createWelcomeMessage();
 
 public:
 	user();
@@ -32,7 +35,6 @@ public:
 	user(int fd);
 	int getFd() const;
 
-	void initNickname();
 	void saveUserInfo(char* buffer);
 
 	void setUsername(string username);
@@ -48,7 +50,7 @@ public:
 	string getNickname() const;
 
 	void addChannel(string channel_name);
-
+	void enterServer();
 };
 
 #endif

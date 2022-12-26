@@ -156,15 +156,10 @@ void			server::handleExistingConnection(int socketIndex){
 		t.parse(buffer);
 
 		int fd = clientSockets[socketIndex].fd;
+		users[socketIndex - 1].enterServer();
 
-		if (users[socketIndex - 1].getNickname().empty()) {
-			users[socketIndex - 1].initNickname();
-			std::string msg = this->createWelcomeMessage(users[socketIndex - 1].getNickname());
-			send(fd, msg.c_str(), msg.length(), 0);
-		} else {
-			NICK nick;
-			nick.doNickCommand(users, fd, buffer);
-		}
+		NICK nick;
+		nick.doNickCommand(users, fd, buffer);
 	}
 }
 
@@ -188,8 +183,11 @@ void			server::addUser(int fd) {
 	users.push_back(user(fd));
 }
 
-std::string		server::createWelcomeMessage(std::string nickname) {
-	std::stringstream msg;
-	msg << "001 " << nickname << " :Welcome to the Internet Relay Network " << nickname << "\r\n";
-	return msg.str();
+user&			server::getUser(int fd) {
+	for (vector<user>::iterator iter = users.begin(); iter != users.end(); iter++) {
+		if (iter->getFd() == fd) {
+			return users[iter - users.begin()];
+		}
+	}
+	return users[0];
 }
