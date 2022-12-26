@@ -1,5 +1,5 @@
-#ifndef	cOMMAND_HPP
-# define cOMMAND_HPP
+#ifndef	COMMAND_HPP
+# define COMMAND_HPP
 
 #include <iostream>
 

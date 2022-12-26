@@ -1,5 +1,5 @@
-#ifndef CMDPARSeE_HPP
-# define CMDPARSeE_HPP
+#ifndef COMMANDPARSE_HPP
+# define COMMANDPARSE_HPP
 
 #include "command.hpp"
 
@@ -13,7 +13,7 @@
 #define CYAN	"\x1b[0;36m"
 #define WHITE	"\033[0;37m"
 
-class cmdParse {
+class commandParse {
 
 public:
 	typedef	command				value_type;
@@ -26,7 +26,7 @@ private:
 	size_t		extractRemaining(const std::string &buff, size_t start);
 
 public:
-	cmdParse();
+	commandParse();
 
 
 	void		parse(const std::string buff);
@@ -34,7 +34,7 @@ public:
 
 	void		test() const; // will be removed in final cleaning 
 
-	~cmdParse();
+	~commandParse();
 
 };
 
