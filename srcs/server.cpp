@@ -131,9 +131,9 @@ void			server::handleNewConnection(){
 }
 
 void			server::handleExistingConnection(int socketIndex){
-	char	buffer[MAX_MSG_LENGTH];
+	char	buffer[MAX_MSG_LENGTH] = {0};
 	int		readBytes;
-	
+
 	readBytes = recv(clientSockets[socketIndex].fd, buffer, sizeof(buffer), 0);
 	if (readBytes == -1)
 	{
@@ -147,7 +147,12 @@ void			server::handleExistingConnection(int socketIndex){
 	}
 	else
 	{
+		std::cout << "s-------------------" << std::endl;
 		std::cout << buffer << std::endl;
+		std::cout << "e-------------------" << std::endl;
+		
+		cmdParse	t;
+		t.parse(buffer);
 	}
 }
 

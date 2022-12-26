@@ -10,6 +10,8 @@
 #include <stdexcept>
 #include <iostream>
 
+#include "commandParse.hpp"
+
 /* -------------- Macros --------------- */
 #define TIMEOUT 100000
 #define MAX_CONNECTIONS 10
