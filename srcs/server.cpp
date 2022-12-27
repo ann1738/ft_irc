@@ -189,5 +189,5 @@ const user&		server::getUser(int fd) {
 			return *iter;
 		}
 	}
-	return *users.end();
+	return users[0];
 }
