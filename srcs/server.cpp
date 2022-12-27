@@ -5,8 +5,8 @@ server::server(int port)
 	listenPort = port;
 
 	createSocket();
-	makeFdNonBlock(listenerFd);
 	changeSocketOpt();
+	makeFdNonBlock(listenerFd);
 	bindSocket();
 	listenToSocket();
 	setupPoll();
@@ -106,14 +106,14 @@ void			server::handshakeNewConnection(int clientFd) throw(std::runtime_error){
 	//change the message to be customizable to the specific user
 	int 		status;
 	std::string msg;
-	
+
 	msg = "CAP * ACK multi-prefix\r\n";
 	status = send(clientFd, msg.c_str(), msg.length(), 0);
 	checkStatusAndThrow(status, SEND_ERR);
 
-	msg = "001 root :Welcome to the Internet Relay Network root\r\n";
-	status = send(clientFd, msg.c_str(), msg.length(), 0);
-	checkStatusAndThrow(status, SEND_ERR);
+	// msg = this->createWelcomeMessage(this->findUserNickname(clientFd));
+	// status = send(clientFd, msg.c_str(), msg.length(), 0);
+	// checkStatusAndThrow(status, SEND_ERR);
 }
 
 void			server::handleNewConnection(){
@@ -125,7 +125,8 @@ void			server::handleNewConnection(){
 	else
 	{
 		makeFdNonBlock(clientSocketFd);
-		addSocket(clientSocketFd, POLLIN);		
+		addSocket(clientSocketFd, POLLIN);
+		this->addUser(clientSocketFd);
 		handshakeNewConnection(clientSocketFd);
 	}
 }
@@ -153,6 +154,12 @@ void			server::handleExistingConnection(int socketIndex){
 		
 		cmdParse	t;
 		t.parse(buffer);
+
+		int fd = clientSockets[socketIndex].fd;
+		users[socketIndex - 1].enterServer();
+
+		NICK nick;
+		nick.doNickCommand(users, fd, buffer);
 	}
 }
 
@@ -167,4 +174,20 @@ void			server::loopAndHandleConnections(){
 				handleExistingConnection(i);
 		}
 	}
+}
+
+
+/*-----------------------------------------------------------------------*/
+
+void			server::addUser(int fd) {
+	users.push_back(user(fd));
+}
+
+const user&		server::getUser(int fd) {
+	for (vector<user>::iterator iter = users.begin(); iter != users.end(); iter++) {
+		if (iter->getFd() == fd) {
+			return *iter;
+		}
+	}
+	return users[0];
 }

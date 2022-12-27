@@ -10,6 +10,9 @@
 #include <stdexcept>
 #include <iostream>
 
+
+#include "user.hpp"
+#include "NICK.hpp"
 #include "commandParse.hpp"
 
 /* -------------- Macros --------------- */
@@ -55,7 +58,15 @@ private:
 	void			listenToSocket() throw(std::runtime_error);
 	void			pollClients() throw(std::runtime_error);
 	void			loopAndHandleConnections();
-	
+
+
+	/*-----------------------------------------------------------------------*/
+
+	std::vector<user>			users;
+
+	void			addUser(int fd);
+	const user&		getUser(int fd);
+
 public:
 	server(int port);
 	~server();

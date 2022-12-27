@@ -1,14 +1,14 @@
 NAME = ircserv
 
 CXX = c++
-CPPFLAGS = -Wall -Werror -Wextra -std=c++98
+CPPFLAGS = -Wall -Werror -Wextra -std=c++98 -g3
 REMOVE = rm -rf
 
 SRCS_DIR = srcs
 OBJS_DIR = objs
 INCLUDES_DIR = includes
 
-SRCS =  initialParse.cpp server.cpp channel.cpp main.cpp cmdParse.cpp command.cpp
+SRCS =  main.cpp initialParse.cpp server.cpp user.cpp channel.cpp cmdParse.cpp command.cpp NICK.cpp 
 OBJS = $(addprefix ${OBJS_DIR}/, $(SRCS:%.cpp=%.o))
 
 #Manadatory Rules
