@@ -7,6 +7,7 @@ REMOVE = rm -rf
 SRCS_DIR = srcs
 OBJS_DIR = objs
 INCLUDES_DIR = includes
+INCLUDES_COMMAND_DIR = includes/commands
 
 SRCS =  main.cpp initialParse.cpp server.cpp user.cpp channel.cpp commandParse.cpp command.cpp NICK.cpp 
 OBJS = $(addprefix ${OBJS_DIR}/, $(SRCS:%.cpp=%.o))
@@ -19,10 +20,10 @@ ${NAME}: ${OBJS_DIR} ${OBJS}
 	${CXX} ${CPPFLAGS} ${OBJS} -o ${NAME}
 
 ${OBJS_DIR}/%.o: ${SRCS_DIR}/%.cpp 
-	${CXX} ${CPPFLAGS} -I${INCLUDES_DIR} -c $< -o $@
+	${CXX} ${CPPFLAGS} -I${INCLUDES_DIR} -I${INCLUDES_COMMAND_DIR} -c $< -o $@
 
 ${OBJS_DIR}/%.o: %.cpp
-	${CXX} ${CPPFLAGS} -I${INCLUDES_DIR} -c $< -o $@
+	${CXX} ${CPPFLAGS} -I${INCLUDES_DIR} -I${INCLUDES_COMMAND_DIR} -c $< -o $@
 
 clean:
 	@echo "Cleaning..."

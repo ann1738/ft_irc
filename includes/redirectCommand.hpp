@@ -3,8 +3,7 @@
 
 #include <string>
 #include "command.hpp"
-#include "TOPIC.hpp"
-#include "NICK.hpp"
+#include "command_headers.hpp"
 
 using namespace std;
 
@@ -30,7 +29,6 @@ redirectCommand::~redirectCommand()
 {
 }
 
-
 string	redirectCommand::redirect(const command &message, vector<user> &globalUserList, vector<channel> &globalChannelList){
 	user u1;
 
@@ -45,10 +43,9 @@ string	redirectCommand::redirect(const command &message, vector<user> &globalUse
 		nick.doNickCommand(globalUserList, message.getClient().getFd(), (char *)(message.getCmdType() + message.getParameters()).c_str());
 		return nick.buildResponse(temp, message.getClient().getNickname());
 	}
-	else if (cmd == "PING")
-		;
-	// else
-	// 	return string(":weberebears 421 " + message.getClient().getNickname() + " UNKNOWN_COMMAND :Unknown command");
+	/* ADD IF CONDITION FOR YOUR COMMAND AND RETURN <YOUR_COMMAND>::execute() METHOD*/
+	else
+		; //return ERR_UNKNOWNCOMMAND
 	return "";
 }
 
