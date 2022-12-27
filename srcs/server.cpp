@@ -152,14 +152,16 @@ void			server::handleExistingConnection(int socketIndex){
 		std::cout << buffer << std::endl;
 		std::cout << "e-------------------" << std::endl;
 		
-		cmdParse	t;
-		t.parse(buffer);
-
 		int fd = clientSockets[socketIndex].fd;
+		commandParse	t;
+
+		t.parse(buffer, getUser(fd));
 		users[socketIndex - 1].enterServer();
 
 		NICK nick;
 		nick.doNickCommand(users, fd, buffer);
+
+		t.test();
 	}
 }
 
@@ -183,7 +185,7 @@ void			server::addUser(int fd) {
 	users.push_back(user(fd));
 }
 
-const user&		server::getUser(int fd) {
+user&		server::getUser(int fd){
 	for (vector<user>::iterator iter = users.begin(); iter != users.end(); iter++) {
 		if (iter->getFd() == fd) {
 			return *iter;
