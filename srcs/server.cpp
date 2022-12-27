@@ -161,7 +161,6 @@ void			server::handleExistingConnection(int socketIndex){
 		NICK nick;
 		nick.doNickCommand(users, fd, buffer);
 
-		t.test();
 	}
 }
 
