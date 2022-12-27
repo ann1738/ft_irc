@@ -10,8 +10,10 @@
 #include <stdexcept>
 #include <iostream>
 
+
 #include "user.hpp"
 #include "NICK.hpp"
+#include "commandParse.hpp"
 
 /* -------------- Macros --------------- */
 #define TIMEOUT 100000

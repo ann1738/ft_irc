@@ -134,7 +134,7 @@ void			server::handleNewConnection(){
 void			server::handleExistingConnection(int socketIndex){
 	char	buffer[MAX_MSG_LENGTH] = {0};
 	int		readBytes;
-	
+
 	readBytes = recv(clientSockets[socketIndex].fd, buffer, sizeof(buffer), 0);
 	if (readBytes == -1)
 	{
