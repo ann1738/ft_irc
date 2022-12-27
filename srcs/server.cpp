@@ -186,8 +186,8 @@ void			server::addUser(int fd) {
 const user&		server::getUser(int fd) {
 	for (vector<user>::iterator iter = users.begin(); iter != users.end(); iter++) {
 		if (iter->getFd() == fd) {
-			return users[iter - users.begin()];
+			return *iter;
 		}
 	}
-	return users[0];
+	return *users.end();
 }
