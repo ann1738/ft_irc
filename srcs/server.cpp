@@ -1,4 +1,6 @@
 #include "../includes/server.hpp"
+#include "channel.hpp"
+#include "redirectCommand.hpp"
 
 server::server(int port)
 {
@@ -160,7 +162,13 @@ void			server::handleExistingConnection(int socketIndex){
 
 		NICK nick;
 		nick.doNickCommand(users, fd, buffer);
-
+		vector<channel> channels;
+		redirectCommand	funnel;
+		string reply = funnel.redirect(t.getParsedCmd(), users, channels);
+		send(fd, reply.c_str(), reply.size(), 0);
+		cout << "******* sent reply start *******" << endl;
+		cout << reply << endl;
+		cout << "******* sent reply end *******" << endl;
 	}
 }
 
