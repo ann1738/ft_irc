@@ -65,7 +65,7 @@ private:
 	std::vector<user>			users;
 
 	void			addUser(int fd);
-	const user&		getUser(int fd);
+	user&			getUser(int fd);
 
 public:
 	server(int port);

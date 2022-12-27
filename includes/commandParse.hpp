@@ -21,15 +21,13 @@ public:
 private:
 	value_type	cmd;
 
-	size_t		extractCmdType(const std::string &buff);
-	size_t		extractParameters(const std::string &buff, size_t start_i);
-	size_t		extractRemaining(const std::string &buff, size_t start);
+	size_t		extractCmdType(const string &buff);
+	size_t		extractParameters(const string &buff, size_t start_i);
 
 public:
 	commandParse();
 
-
-	void		parse(const std::string &buff);
+	void		parse(const string &buff, user& u);
 	value_type	getParsedCmd() const;
 
 	void		test() const; // will be removed in final cleaning 

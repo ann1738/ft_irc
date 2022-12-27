@@ -1,4 +1,5 @@
 *.o
 ircserv
 .vscode
+.DS_STORE
 objs
