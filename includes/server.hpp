@@ -11,6 +11,7 @@
 #include <iostream>
 
 
+#include "channel.hpp"
 #include "user.hpp"
 #include "NICK.hpp"
 #include "commandParse.hpp"
@@ -63,6 +64,7 @@ private:
 	/*-----------------------------------------------------------------------*/
 
 	std::vector<user>			users;
+	std::vector<channel>		channels;
 
 	void			addUser(int fd);
 	user&			getUser(int fd);

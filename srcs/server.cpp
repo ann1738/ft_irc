@@ -1,4 +1,5 @@
 #include "../includes/server.hpp"
+#include "JOIN.hpp"
 
 server::server(int port)
 {
@@ -161,6 +162,13 @@ void			server::handleExistingConnection(int socketIndex){
 		NICK nick;
 		nick.doNickCommand(users, fd, buffer);
 
+		// will be removed before merging to master branch
+		t.test();
+
+		if (t.getParsedCmd().getCmdType() == "JOIN") {
+			JOIN j;
+			j.execute(t.getParsedCmd(), this->users, this->channels);
+		}
 	}
 }
 
