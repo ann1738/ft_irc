@@ -1,6 +1,9 @@
 #include "channel.hpp"
 
-channel::channel(): m_name(""), m_topic("")
+channel::channel(): 
+m_name(""), m_topic(""), m_key(""), m_userCountLimit(0), m_userCount(0), isInviteOnly(false), 
+isModerated(false), isNoExternalMsg(false), isPrivate(false), isSecret(false), isTopicSafe(false), 
+isKeyEnabled(false), isUserCountLimited(false)
 {
 }
 
@@ -8,10 +11,11 @@ channel::~channel()
 {
 }
 
-channel::channel(string name, string topic): m_name(name), m_topic(topic)
+channel::channel(string name, string topic): m_name(name), m_topic(topic), m_key(""), m_userCountLimit(0), m_userCount(0), isInviteOnly(false), 
+isModerated(false), isNoExternalMsg(false), isPrivate(false), isSecret(false), isTopicSafe(false), 
+isKeyEnabled(false), isUserCountLimited(false)
 {
 }
-
 /* helper function */
 vector<user>::const_iterator	channel::findUser(vector<user> const &userList, user User) const{
 	for (vector<user>::const_iterator it = userList.begin(); it != userList.end(); it++)
@@ -162,7 +166,7 @@ void	channel::removeUser(user const &User){
 		removeVoicedUser(User);
 }
 
-bool	channel::isUser(user const &User) const{
+bool	channel::isUser(user const &User) const{	
 	if (users.empty() || findUser(users, User) == users.end())
 		return false;
 	return true;
@@ -170,11 +174,11 @@ bool	channel::isUser(user const &User) const{
 
 
 void	channel::addOperator(user const &Op){
-	users.push_back(Op);
+	operators.push_back(Op);
 }
 
 void	channel::removeOperator(user const &Op){
-	users.erase(findUser(operators, Op));
+	operators.erase(findUser(operators, Op));
 }
 
 bool	channel::isOperator(user const &Op) const{
@@ -184,11 +188,11 @@ bool	channel::isOperator(user const &Op) const{
 }
 
 void	channel::addVoicedUser(user const &User){
-	users.push_back(User);
+	voicedUsers.push_back(User);
 }
 
 void	channel::removeVoicedUser(user const &User){
-	users.erase(findUser(voicedUsers, User));
+	voicedUsers.erase(findUser(voicedUsers, User));
 }
 
 bool	channel::isVoicedUser(user const &User) const{
@@ -199,11 +203,11 @@ bool	channel::isVoicedUser(user const &User) const{
 }
 
 void	channel::addInvitedUser(user const &User){
-	users.push_back(User);
+	invitedUsers.push_back(User);
 }
 
 void	channel::removeInvitedUser(user const &User){
-	users.erase(findUser(invitedUsers, User));
+	invitedUsers.erase(findUser(invitedUsers, User));
 }
 
 bool	channel::isInvitedUser(user const &User) const{

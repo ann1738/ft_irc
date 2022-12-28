@@ -9,7 +9,8 @@ OBJS_DIR = objs
 INCLUDES_DIR = includes
 INCLUDES_COMMAND_DIR = includes/commands
 
-SRCS =  main.cpp initialParse.cpp server.cpp user.cpp channel.cpp commandParse.cpp command.cpp redirectCommand.cpp NICK.cpp 
+CMD_SRCS = NICK.cpp TOPIC.cpp
+SRCS =  main.cpp initialParse.cpp server.cpp user.cpp channel.cpp commandParse.cpp command.cpp redirectCommand.cpp ${CMD_SRCS}
 OBJS = $(addprefix ${OBJS_DIR}/, $(SRCS:%.cpp=%.o))
 
 #Manadatory Rules
