@@ -169,6 +169,21 @@ void			server::handleExistingConnection(int socketIndex){
 			JOIN j;
 			j.execute(t.getParsedCmd(), this->users, this->channels);
 		}
+		// testing ...
+		cout << "Show All Channels:" << endl;
+		for (size_t i = 0; i < this->channels.size(); i++) {
+			cout << this->channels[i].getName() << " => ";
+			vector<user> v = this->channels[i].getUsers();
+			for (size_t ii = 0; ii < v.size(); ii++)
+				cout << v[ii].getNickname() << ", ";
+			cout << endl;
+		}
+
+		cout << "Show All Users:" << endl;
+		for (size_t i = 0; i < this->users.size(); i++)
+			cout << this->users[i].getNickname() << " .. ";
+		cout << endl;
+		//
 	}
 }
 

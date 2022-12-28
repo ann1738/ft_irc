@@ -44,14 +44,90 @@ void	JOIN::testingPars() const {
 		cout << "Key: " << *it << endl;
 }
 
+bool	JOIN::inviteError(user& client, vector<channel> &globalChannelList, size_t i) const{
+	if (globalChannelList[i].getInviteOnly()) {
+		if (!globalChannelList[i].isInvitedUser(client))
+			return (true);
+	}
+	return (false);
+}
+
+bool	JOIN::keyError(vector<channel> &globalChannelList, size_t i, size_t position) const{
+	if (globalChannelList[i].getKeyEnabled()) {
+		if (this->keys.size() && this->keys[position] != globalChannelList[i].getKey())
+			return (true);
+	}
+	return (false);
+}
+
+bool	JOIN::channelLimitError(vector<channel> &globalChannelList, size_t i) const{
+	if (globalChannelList[i].getUserCountLimited()) {
+		if (globalChannelList[i].getUserCount() == globalChannelList[i].getUserCountLimit())
+			return (true);
+	}
+	return (false);
+}
+
+
+pair<size_t, string>	JOIN::goThroughErrors(user& client, size_t position, vector<channel> &globalChannelList){
+	size_t	i = 0;
+	bool	chan_not_found = true;
+	
+	for (; !globalChannelList.empty() && i < globalChannelList.size(); i++){
+		if (globalChannelList[i].getName() == this->channel_names[position]) {
+			chan_not_found = false;
+
+			if (this->inviteError(client, globalChannelList, i))
+				return (make_pair(i, ERR_INVITEONLYCHAN(client.getServername(), "473", this->channel_names[position])));//ERR_INVITEONLYCHAN 473
+			
+			if (this->keyError(globalChannelList, i, position))
+				return (make_pair(i, ERR_BADCHANNELKEY(client.getServername(), "475", this->channel_names[position])));// ERR_BADCHANNELKEY 475
+
+			if (this->channelLimitError(globalChannelList, i))
+				return (make_pair(i, ERR_CHANNELISFULL(client.getServername(), "471", this->channel_names[position])));// ERR_CHANNELISFULL 471
+
+			// channel mask
+			// user limit
+
+			break ;
+		}
+	}
+	if (chan_not_found)
+		globalChannelList.push_back(channel(this->channel_names[position], ""));
+
+	cout << "i = " << i << endl;
+	return (pair<size_t, string>(i, ""));
+	// if channel doesn't exist return
+	// if channel is invite only and this user is not in the list ERROR >> ERR_INVITEONLYCHAN 473
+	// if channel require key .. but there is no key or the key is wrong ERROR >> ERR_BADCHANNELKEY 475
+	// if channel is full ERROR >> ERR_CHANNELISFULL 471
+	// <I don't know what this means> if channel mask is wrong ERROR >> ERR_BADCHANMASK 476
+	// if user reached the maximum number of channels they can join ERROR >> ERR_TOOMANYCHANNELS 405
+
+}
+
+string	JOIN::doJoinAction(user& client, vector<channel> &globalChannelList){
+	string ret;
+	for(size_t i = 0; i < this->channel_names.size(); i++){
+		pair<size_t, string> temp  = this->goThroughErrors(client, i, globalChannelList);
+		
+		if (!temp.second.size()) {
+			client.addChannel(this->channel_names[i]);
+			globalChannelList[temp.first].addUser(client);
+			temp.second = JOIN_CORRECT(client.getNickname(), this->channel_names[i]);
+		}
+		
+		ret.push_back('\n');
+		ret += temp.second;
+	}
+	return (ret);
+}
+
 string	JOIN::execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList){
 	(void)globalUserList;
-	(void)globalChannelList;
+
 	this->parseCmdParameters(msg.getParameters());
-	
-	return ("hi");
+	return (this->doJoinAction(msg.getClient(), globalChannelList));
 }
 
 JOIN::~JOIN(){}
-
-
