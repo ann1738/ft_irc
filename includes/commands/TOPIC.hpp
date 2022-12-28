@@ -7,14 +7,7 @@
 
 using namespace std;
 
-// #define RPL_NOTOPIC 331
-// #define RPL_TOPIC 332
-// #define TOPIC_SUCCESS(nickname, channel, topic) nickname + " changed the topic of " + channel + "to: " + topic
-
-// #define RPL_NOTOPIC(servername, nickname, channel) (":" servername " 331 " nickname " " + channel + " :No topic is set" + "\n")
-// #define RPL_TOPIC(servername, nickname, channel, topic) (":" + servername + " 332 " + nickname + " " + channel + " :" + topic + "\n")
-
-// no topic set is handled by irssi
+#define SERVERNAME "WeBareBears"
 
 /***
  * 
@@ -24,13 +17,6 @@ using namespace std;
  * 
  ***/
 
-string rpl_topic(string servername, string nickname, string channel, string topic)
-{
-	string msg(""); 
-	msg = msg + ":" + servername + " 332 " + nickname + " " + channel + " :" + topic + "\n";
-	return(msg);
-}
-
 
 class TOPIC
 {
@@ -38,62 +24,36 @@ private:
 	user	m_user;
 	channel	m_channel;
 
-	
+	string	m_parsedChannelName;
+	string	m_parsedChannelTopic;
 
-	void	setTopic(string newTopic);
-	string	getTopic();
-	bool	checkIfTopicSafe();
+	string	m_reply;
+
+	bool	topicChangeRequested;
+
+	string	getTopic() const;
+	void	setTopic(const string &newTopic);
+
+	void	organizeInfo(command msg);
+	bool	isTopicChangeRequested();
+	bool	isSafeTopicModeOn();
+	bool	isUserOnChannel();
+
+	vector<channel>::iterator	findChannel(const string &channelName, vector<channel> &globalChannelList);
+
+	void	build_RPL_TOPIC(string servername, string nickname, string channel, string topic);
+	void	build_RPL_NOTOPIC(string servername, string nickname, string channel);
+	void	build_ERR_NEEDMOREPARAMS(string servername, string nickname);
+	void	build_ERR_NOTONCHANNEL(string servername, string nickname, string channel);
+	void	build_ERR_NOSUCHCHANNEL(string servername, string nickname, string channel);
+	void	build_ERR_CHANOPRIVSNEEDED(string servername, string nickname, string channel);
 
 public:
 	TOPIC();
 	~TOPIC();
 
 	string	execute(const command &message, vector<user> &globalUserList, vector<channel> &globalChannelList);
-	void	doTopic(user User, channel Channel, string newTopic, int fd/*, <command_struct> Command*/);
 };
-
-TOPIC::TOPIC()
-{
-}
-
-TOPIC::~TOPIC()
-{
-}
-
-void		TOPIC::setTopic(string newTopic){
-	// if (checkIfTopicSafe() == true && m_channel.isOperator(m_user) == false)
-	// {
-	// 	// return appropriate error
-	// }
-
-	m_channel.setTopic(newTopic);
-}
-
-std::string	TOPIC::getTopic(){
-	return m_channel.getTopic();
-}
-
-bool		TOPIC::checkIfTopicSafe(){
-	return m_channel.getTopicSafe();
-}
-
-#define ERR_NICKNAMEINUSE(servername, nick) (":" + servername + " 433 * " + nick + " :Nickname is already in use\n")
-
-#define RPL_TOPIC(server, client, channel, topic) (": " server " 332 " client " " channel " :" topic)
-
-string		TOPIC::execute(const command &message, vector<user> &globalUserList, vector<channel> &globalChannelList){
-	(void)message;
-	(void)globalUserList;
-	(void)globalChannelList;
-	// setTopic(newTopic);
-	// string msg("");
-	// msg = msg + ":" + "webarebears" + " 332 " + User.getNickname() + " " + Channel.getName() + " :" + newTopic + "\n";
-	// send(fd, msg.c_str(), msg.size(), 0);
-	// std::cout << msg << std::endl;
-	string msg = rpl_topic("fdsjn", globalUserList[0].getNickname(), "wee", message.getParameters().substr(6));
-	std::cout << msg << std::endl;
-	return msg;
-}
 
 
 #endif
