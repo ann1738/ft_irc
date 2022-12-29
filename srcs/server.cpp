@@ -163,7 +163,7 @@ void			server::handleExistingConnection(int socketIndex){
 
 		NICK nick;
 		nick.doNickCommand(users, fd, buffer);
-		vector<channel> channels;
+
 		redirectCommand	funnel;
 		string reply = funnel.redirect(t.getParsedCmd(), users, channels);
 		send(fd, reply.c_str(), reply.size(), 0);

@@ -166,7 +166,7 @@ void	channel::removeUser(user const &User){
 		removeVoicedUser(User);
 }
 
-bool	channel::isUser(user const &User) const{	
+bool	channel::isUser(user const &User) const{
 	if (users.empty() || findUser(users, User) == users.end())
 		return false;
 	return true;
