@@ -162,29 +162,6 @@ void			server::handleExistingConnection(int socketIndex){
 		NICK nick;
 		nick.doNickCommand(users, fd, buffer);
 
-		// will be removed before merging to master branch
-		t.test();
-
-		if (t.getParsedCmd().getCmdType() == "JOIN") {
-			JOIN j;
-			string s = j.execute(t.getParsedCmd(), this->users, this->channels);
-			send(clientSockets[socketIndex].fd, s.c_str(), strlen(s.c_str()), 0);
-		}
-		// testing ...
-		cout << "Show All Channels:" << endl;
-		for (size_t i = 0; i < this->channels.size(); i++) {
-			cout << this->channels[i].getName() << " => ";
-			vector<user> v = this->channels[i].getUsers();
-			for (size_t ii = 0; ii < v.size(); ii++)
-				cout << v[ii].getNickname() << ", ";
-			cout << endl;
-		}
-
-		cout << "Show All Users:" << endl;
-		for (size_t i = 0; i < this->users.size(); i++)
-			cout << this->users[i].getNickname() << " .. ";
-		cout << endl;
-		//
 	}
 }
 
