@@ -1,6 +1,6 @@
 #include "redirectCommand.hpp"
 
-redirectCommand::redirectCommand(/* args */)
+redirectCommand::redirectCommand()
 {
 }
 

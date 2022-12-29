@@ -5,6 +5,7 @@ CPPFLAGS = -Wall -Werror -Wextra -std=c++98 -g3
 REMOVE = rm -rf
 
 SRCS_DIR = srcs
+SRCS_COMMAND_DIR = srcs/commands
 OBJS_DIR = objs
 INCLUDES_DIR = includes
 INCLUDES_COMMAND_DIR = includes/commands
@@ -21,6 +22,9 @@ ${NAME}: ${OBJS_DIR} ${OBJS}
 	${CXX} ${CPPFLAGS} ${OBJS} -o ${NAME}
 
 ${OBJS_DIR}/%.o: ${SRCS_DIR}/%.cpp 
+	${CXX} ${CPPFLAGS} -I${INCLUDES_DIR} -I${INCLUDES_COMMAND_DIR} -c $< -o $@
+
+${OBJS_DIR}/%.o: ${SRCS_COMMAND_DIR}/%.cpp 
 	${CXX} ${CPPFLAGS} -I${INCLUDES_DIR} -I${INCLUDES_COMMAND_DIR} -c $< -o $@
 
 ${OBJS_DIR}/%.o: %.cpp
