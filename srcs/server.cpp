@@ -1,5 +1,4 @@
 #include "../includes/server.hpp"
-#include "JOIN.hpp"
 
 server::server(int port)
 {
