@@ -3,5 +3,7 @@
 
 #include "TOPIC.hpp"
 #include "NICK.hpp"
+#include "JOIN.hpp"
+#include "PART.hpp"
 
 #endif

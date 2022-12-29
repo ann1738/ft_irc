@@ -13,6 +13,8 @@ private:
 	/* IRC COMMANDS ARE DECLARED HERE */
 	TOPIC topic;
 	NICK nick;
+	JOIN join;
+	PART part;
 
 public:
 	redirectCommand();
