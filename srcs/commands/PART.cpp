@@ -12,9 +12,9 @@ size_t	PART::getEnd(const string& s, size_t start){
 
 void	PART::parseCmdParameters(const string& parameters){
 	for (size_t start = (parameters[0] == '#')? parameters.find_last_of(" :"): 0; start != (size_t)(-1); start = parameters.find(',', start)){
-		size_t end = this->getEnd(parameters, (start + 1));
 		if (start)
 			start++;
+		size_t end = this->getEnd(parameters, start);
 		this->channel_names.push_back(parameters.substr(start, (end - start)));
 		if (!start)
 			start++;
@@ -46,7 +46,6 @@ string	PART::doPartAction(user& client, vector<channel> &globalChannelList){
 		pair<size_t, string> temp  = this->goThroughErrors(client, i, globalChannelList);
 
 		if (!temp.second.size()) {
-			cout << "HI" << ret << endl;
 			// client.removeChannel(this->channel_names[i]);
 			globalChannelList[temp.first].removeUser(client);
 			temp.second = PART_CORRECT(client.getNickname(), this->channel_names[i]);
