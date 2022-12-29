@@ -33,6 +33,7 @@ struct pollfd	server::createPollStruct(int fd, short events){
 
 	temp.fd = fd;
 	temp.events = events;
+	temp.revents = 0;
 
 	return temp;
 }
