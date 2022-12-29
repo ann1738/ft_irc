@@ -167,7 +167,8 @@ void			server::handleExistingConnection(int socketIndex){
 
 		if (t.getParsedCmd().getCmdType() == "JOIN") {
 			JOIN j;
-			j.execute(t.getParsedCmd(), this->users, this->channels);
+			string s = j.execute(t.getParsedCmd(), this->users, this->channels);
+			send(clientSockets[socketIndex].fd, s.c_str(), strlen(s.c_str()), 0);
 		}
 		// testing ...
 		cout << "Show All Channels:" << endl;
