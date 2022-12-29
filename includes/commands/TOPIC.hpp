@@ -39,7 +39,7 @@ class TOPIC
 {
 private:
 	user	m_user;
-	channel	m_channel;
+	channel	*m_channel;
 
 	string	m_parsedChannelName;
 	string	m_parsedChannelTopic;
