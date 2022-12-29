@@ -44,7 +44,7 @@ void	JOIN::testingPars() const {
 		cout << "Key: " << *it << endl;
 }
 
-bool	JOIN::inviteError(user& client, vector<channel> &globalChannelList, size_t i) const{
+bool	JOIN::isInviteError(user& client, vector<channel> &globalChannelList, size_t i) const{
 	if (globalChannelList[i].getInviteOnly()) {
 		if (!globalChannelList[i].isInvitedUser(client))
 			return (true);
@@ -52,7 +52,7 @@ bool	JOIN::inviteError(user& client, vector<channel> &globalChannelList, size_t 
 	return (false);
 }
 
-bool	JOIN::keyError(vector<channel> &globalChannelList, size_t i, size_t position) const{
+bool	JOIN::isKeyError(vector<channel> &globalChannelList, size_t i, size_t position) const{
 	if (globalChannelList[i].getKeyEnabled()) {
 		if (!this->keys.size() || this->keys[position] != globalChannelList[i].getKey())
 			return (true);
@@ -60,7 +60,7 @@ bool	JOIN::keyError(vector<channel> &globalChannelList, size_t i, size_t positio
 	return (false);
 }
 
-bool	JOIN::channelLimitError(vector<channel> &globalChannelList, size_t i) const{
+bool	JOIN::isChannelLimitError(vector<channel> &globalChannelList, size_t i) const{
 	if (globalChannelList[i].getUserCountLimited()) {
 		if (globalChannelList[i].getUserCount() == globalChannelList[i].getUserCountLimit())
 			return (true);
@@ -77,13 +77,13 @@ pair<size_t, string>	JOIN::goThroughErrors(user& client, size_t position, vector
 		if (globalChannelList[i].getName() == this->channel_names[position]) {
 			chan_not_found = false;
 
-			if (this->inviteError(client, globalChannelList, i))
+			if (this->isInviteError(client, globalChannelList, i))
 				return (make_pair(i, ERR_INVITEONLYCHAN(client.getServername(), client.getNickname(), this->channel_names[position])));//ERR_INVITEONLYCHAN 473
 			
-			if (this->keyError(globalChannelList, i, position))
+			if (this->isKeyError(globalChannelList, i, position))
 				return (make_pair(i, ERR_BADCHANNELKEY(client.getServername(), client.getNickname(), this->channel_names[position])));// ERR_BADCHANNELKEY 475
 
-			if (this->channelLimitError(globalChannelList, i))
+			if (this->isChannelLimitError(globalChannelList, i))
 				return (make_pair(i, ERR_CHANNELISFULL(client.getServername(), client.getNickname(), this->channel_names[position])));// ERR_CHANNELISFULL 471
 
 			// ?? channel mask ERR_BADCHANMASK 476 ??

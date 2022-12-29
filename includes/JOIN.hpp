@@ -32,9 +32,9 @@ private:
 	/* ------------------------------------------------- */
 
 	/* ------------------- executing ------------------- */
-	bool	inviteError(user& client, vector<channel> &globalChannelList, size_t i) const;
-	bool	keyError(vector<channel> &globalChannelList, size_t i, size_t position) const;
-	bool	channelLimitError(vector<channel> &globalChannelList, size_t i) const;
+	bool	isInviteError(user& client, vector<channel> &globalChannelList, size_t i) const;
+	bool	isKeyError(vector<channel> &globalChannelList, size_t i, size_t position) const;
+	bool	isChannelLimitError(vector<channel> &globalChannelList, size_t i) const;
 	// bool	channelMaskError();
 	// bool	userLimitError();
 	pair<size_t, string>	goThroughErrors(user& client, size_t position, vector<channel> &globalChannelList);
