@@ -1,4 +1,6 @@
 #include "../includes/server.hpp"
+#include "channel.hpp"
+#include "redirectCommand.hpp"
 
 server::server(int port)
 {
@@ -31,6 +33,7 @@ struct pollfd	server::createPollStruct(int fd, short events){
 
 	temp.fd = fd;
 	temp.events = events;
+	temp.revents = 0;
 
 	return temp;
 }
@@ -161,6 +164,12 @@ void			server::handleExistingConnection(int socketIndex){
 		NICK nick;
 		nick.doNickCommand(users, fd, buffer);
 
+		redirectCommand	funnel;
+		string reply = funnel.redirect(t.getParsedCmd(), users, channels);
+		send(fd, reply.c_str(), reply.size(), 0);
+		cout << "******* sent reply start *******" << endl;
+		cout << reply << endl;
+		cout << "******* sent reply end *******" << endl;
 	}
 }
 
