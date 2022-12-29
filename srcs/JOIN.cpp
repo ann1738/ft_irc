@@ -37,10 +37,10 @@ void	JOIN::parseCmdParameters(const string& parameters){
 }
 
 void	JOIN::testingPars() const {
-	for (vector<string>::const_iterator it = this->channel_names.cbegin(); it != this->channel_names.cend(); it++)
+	for (vector<string>::const_iterator it = this->channel_names.begin(); it != this->channel_names.end(); it++)
 		cout << "Channel: " << *it << endl;
 
-	for (vector<string>::const_iterator it = this->keys.cbegin(); it != this->keys.cend(); it++)
+	for (vector<string>::const_iterator it = this->keys.begin(); it != this->keys.end(); it++)
 		cout << "Key: " << *it << endl;
 }
 
@@ -95,7 +95,7 @@ pair<size_t, string>	JOIN::goThroughErrors(user& client, size_t position, vector
 	if (chan_not_found)
 		globalChannelList.push_back(channel(this->channel_names[position], ""));
 
-	return (pair<size_t, string>(i, ""));
+	return (make_pair(i, ""));
 }
 
 string	JOIN::doJoinAction(user& client, vector<channel> &globalChannelList){
