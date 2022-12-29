@@ -10,7 +10,7 @@
 #include "channel.hpp"
 #include "command.hpp"
 
-#define JOIN_CORRECT(server_name, client_nickname, channel_name) (":" + server_name  + " 001 " + client_nickname + " #" + channel_name)
+#define JOIN_CORRECT(client_nickname, channel_name) (":" + client_nickname + " JOIN #" + channel_name)
 #define ERR_INVITEONLYCHAN(server_name, client_name, channel_name) (":" + server_name + " 473 " + client_name + " #" + channel_name + " :Cannot join channel (+i)")
 #define ERR_BADCHANNELKEY(server_name, client_name, channel_name) (":" + server_name + " 475 " + client_name + " #" + channel_name + " :Cannot join channel (+k)")
 #define ERR_CHANNELISFULL(server_name, client_name, channel_name) (":" + server_name + " 471 " + client_name + " #" + channel_name + " :Cannot join channel (+l)")
