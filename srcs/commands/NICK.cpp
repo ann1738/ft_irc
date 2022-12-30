@@ -115,9 +115,6 @@ void NICK::changeNickname(user& user, const string& new_nickname) {
 }
 
 void NICK::doNickCommand(vector<user>& users, int fd, char* buffer) {
-	user User = users[this->getUserIndex(users, fd)];
-	User.saveUserInfo(buffer);
-
 	vector<string> client_message = this->parseMessage(buffer);
 
 	// checks if the command received from the client is /nick

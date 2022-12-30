@@ -68,6 +68,9 @@ private:
 
 	void			addUser(int fd);
 	user&			getUser(int fd);
+	bool			shouldNotBroadcast(const string& message) const;
+	void			sendToSelf(int fd, string message);
+	void			sendToAll(int senderFd, string message);
 
 public:
 	server(int port);

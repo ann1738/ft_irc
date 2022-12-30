@@ -160,6 +160,7 @@ void			server::handleExistingConnection(int socketIndex){
 
 		parser.parse(buffer, getUser(fd));
 		users[socketIndex - 1].enterServer();
+		users[socketIndex - 1].saveUserInfo(buffer);
 
 		NICK nick;
 		nick.doNickCommand(users, fd, buffer);
@@ -168,7 +169,8 @@ void			server::handleExistingConnection(int socketIndex){
 
 		for (size_t i = 0; i < parser.getCommandAmount(); i++){
 			string reply = funnel.redirect(parser.getParsedCmd(i), users, channels);
-			send(fd, reply.c_str(), reply.size(), 0);
+			this->shouldNotBroadcast(reply) ? this->sendToSelf(fd, reply) : this->sendToAll(fd, reply);
+			// send(fd, reply.c_str(), reply.size(), 0);
 			cout << "******* sent reply start *******" << endl;
 			cout << reply << endl;
 			cout << "******* sent reply end *******" << endl;
@@ -203,4 +205,34 @@ user&		server::getUser(int fd){
 		}
 	}
 	return users[0];
+}
+
+/**
+ * checks if the reply message contains any of the following strings to determine if the
+ * reply will be sent to every other client in the server or only to the client who initiated
+ * the command
+*/
+bool		server::shouldNotBroadcast(const string& message) const {
+	return (message.find("No such nick/channel") != string::npos) ? true :
+	       (message.find("No text to send") != string::npos) ? true : false;
+}
+
+/**
+ * sender function typically used to inform a client that the command they attempted to use
+ * encountered an error and thus will not be broadcasted to other clients in the server
+*/
+void		server::sendToSelf(int fd, string message) {
+	send(fd, message.c_str(), message.length(), 0);
+}
+
+/**
+ * sender function used to broadcast a message to all clients except the client who
+ * initiated the command
+*/
+void		server::sendToAll(int senderFd, string message) {
+	for (vector<user>::iterator it = users.begin(); it != users.end(); it++) {
+		if (it->getFd() != senderFd) {
+			send(it->getFd(), message.c_str(), message.length(), 0);
+		}
+	}
 }
