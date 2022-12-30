@@ -156,20 +156,23 @@ void			server::handleExistingConnection(int socketIndex){
 		std::cout << "e-------------------" << std::endl;
 		
 		int fd = clientSockets[socketIndex].fd;
-		commandParse	t;
+		commandParse	parser;
 
-		t.parse(buffer, getUser(fd));
+		parser.parse(buffer, getUser(fd));
 		users[socketIndex - 1].enterServer();
 
 		NICK nick;
 		nick.doNickCommand(users, fd, buffer);
 
 		redirectCommand	funnel;
-		string reply = funnel.redirect(t.getParsedCmd(), users, channels);
-		send(fd, reply.c_str(), reply.size(), 0);
-		cout << "******* sent reply start *******" << endl;
-		cout << reply << endl;
-		cout << "******* sent reply end *******" << endl;
+
+		for (size_t i = 0; i < parser.getCommandAmount(); i++){
+			string reply = funnel.redirect(parser.getParsedCmd(i), users, channels);
+			send(fd, reply.c_str(), reply.size(), 0);
+			cout << "******* sent reply start *******" << endl;
+			cout << reply << endl;
+			cout << "******* sent reply end *******" << endl;
+		}
 	}
 }
 

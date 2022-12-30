@@ -2,6 +2,7 @@
 # define COMMANDPARSE_HPP
 
 #include "command.hpp"
+#include <vector>
 
 /* ------------ Colors ------------ */
 #define BLACK	"\033[0;30m"
@@ -19,16 +20,18 @@ public:
 	typedef	command				value_type;
 
 private:
-	value_type	cmd;
+	vector<value_type>	cmd;
 
-	size_t		extractCmdType(const string &buff);
-	size_t		extractParameters(const string &buff, size_t start_i);
+	size_t		extractCmdType(const string &buff, size_t start, size_t i);
+	size_t		extractParameters(const string &buff, size_t start, size_t i);
+	void		saveNewCommand(const string &buff, size_t start, size_t i, user& u);
 
 public:
 	commandParse();
 
 	void		parse(const string &buff, user& u);
-	value_type	getParsedCmd() const;
+	value_type	getParsedCmd(size_t i) const;
+	size_t		getCommandAmount() const;
 
 	void		test() const; // will be removed in final cleaning 
 
