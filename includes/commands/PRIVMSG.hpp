@@ -21,20 +21,20 @@
 class PRIVMSG {
 
 private:
-	string    getNickname(string& buffer);
+	string    getRecipient(string& buffer);
 	string    getMessage(const string& buffer) const;
 
 	bool      isNicknameJustSpaces(const string& nickname) const;
 	bool      isUserInServer(const vector<user> &globalUserList, const string& nickname) const;
 	bool      isRecipientAChannel(const string& recipient) const;
-	bool      doesChannelExist(const vector<channel>& globalChannelList, string& nickname) const;
+	bool      doesChannelExist(const vector<channel>& globalChannelList, string& channel_name) const;
 
 	void      buildUserResponse(stringstream& response, const command &msg, const vector<user>& userList, 
 	                            string& nickname, string& message) const;
 	void      buildChannelResponse(stringstream& response, const command &msg, const vector<channel>& channelList, 
-	                               string& nickname, string& message) const;
+	                               string& channel_name, string& message) const;
 	string    buildResponse(const command &msg, const vector<user>& userList, const vector<channel>& channelList,
-	                        string& nickname, string& message) const;
+	                        string& recipient, string& message) const;
 
 public:
 	PRIVMSG();
