@@ -8,8 +8,8 @@ size_t	JOIN::getEnd(const string& s, size_t start = 0) {
 	if (end == (size_t)(-1) || ((s.find(' ', start) != (size_t)(-1)) && end > s.find(' ', start)))
 		end = s.find(' ', start);
 	
-	if (end == (size_t)(-1) || ((s.find("\r\n", start) != (size_t)(-1)) && end > s.find("\r\n", start)))
-		end = s.find("\r\n", start);
+	if (end == (size_t)(-1) || ((s.find_first_of("\r\n", start) != (size_t)(-1)) && end > s.find_first_of("\r\n", start)))
+		end = s.find_first_of("\r\n", start);
 	return (end);
 }
 
@@ -86,7 +86,6 @@ pair<size_t, string>	JOIN::goThroughErrors(user& client, size_t position, vector
 			if (this->isChannelLimitError(globalChannelList, i))
 				return (make_pair(i, ERR_CHANNELISFULL(client.getServername(), client.getNickname(), this->channel_names[position])));// ERR_CHANNELISFULL 471
 
-			// ?? channel mask ERR_BADCHANMASK 476 ??
 			// user limit ERR_TOOMANYCHANNELS 405
 
 			break ;
