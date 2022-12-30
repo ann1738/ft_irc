@@ -32,7 +32,7 @@ private:
 	vector<user> invitedUsers;   //empty if channel is not invite-only (+i)
 	vector<user> voicedUsers;    //empty if channel is not moderated (+m)
 
-	vector<user>::iterator	findUser(vector<user> &userList, user User);
+	vector<user>::const_iterator	findUser(vector<user> const &userList, user User) const;
 
 	/*** modes to debate: b (ban user mask), 
 	 *   modes that are currently confusing (because they are for users): v (voiced users), o (operators)
@@ -84,20 +84,20 @@ public:
 	void	setUserCountLimited(bool mode);
 
 	void	addUser(user const &User);
-	void	removeUser(user &User);
-	bool	isUser(user &User);
+	void	removeUser(user const &User);
+	bool	isUser(user const &User) const;
 
 	void	addOperator(user const &Op);
 	void	removeOperator(user const &Op);
-	bool	isOperator(user &Op);
+	bool	isOperator(user const &Op) const;
 	
 	void	addVoicedUser(user const &User);
 	void	removeVoicedUser(user const &User);
-	bool	isVoicedUser(user &User);
+	bool	isVoicedUser(user const &User) const;
 	
 	void	addInvitedUser(user const &User);
 	void	removeInvitedUser(user const &User);
-	bool	isInvitedUser(user &User);
+	bool	isInvitedUser(user const &User) const;
 };
 
 #endif 
