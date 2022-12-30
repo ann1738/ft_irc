@@ -12,19 +12,29 @@
 #define ERR_NOTEXTTOSEND(servername) \
 ("No text to send\n")
 
-// #define ERR_CANNOTSENDTOCHAN
+#define ERR_CANNOTSENDTOCHAN(servername, channel_name) \
+(":" + servername + " 404 * " + channel_name + " :Cannot send to channel\n")
+
 // #define ERR_NORECIPIENT
 // #define ERR_TOOMANYTARGETS
 
 class PRIVMSG {
 
 private:
-	void      extractNickname(vector<string>& nicknames, const string& buffer);
 	string    getNickname(string& buffer);
 	string    getMessage(const string& buffer) const;
+
 	bool      isNicknameJustSpaces(const string& nickname) const;
 	bool      isUserInServer(const vector<user> &globalUserList, const string& nickname) const;
-	string    buildResponse(const command &msg, const vector<user> &globalUserList, string& nickname, string& message) const;
+	bool      isRecipientAChannel(const string& recipient) const;
+	bool      doesChannelExist(const vector<channel>& globalChannelList, string& nickname) const;
+
+	void      buildUserResponse(stringstream& response, const command &msg, const vector<user>& userList, 
+	                            string& nickname, string& message) const;
+	void      buildChannelResponse(stringstream& response, const command &msg, const vector<channel>& channelList, 
+	                               string& nickname, string& message) const;
+	string    buildResponse(const command &msg, const vector<user>& userList, const vector<channel>& channelList,
+	                        string& nickname, string& message) const;
 
 public:
 	PRIVMSG();

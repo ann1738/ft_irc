@@ -214,7 +214,8 @@ user&		server::getUser(int fd){
 */
 bool		server::shouldNotBroadcast(const string& message) const {
 	return (message.find("No such nick/channel") != string::npos) ? true :
-	       (message.find("No text to send") != string::npos) ? true : false;
+	       (message.find("No text to send") != string::npos) ? true :
+	       (message.find("Cannot send to channel") != string::npos) ? true : false;
 }
 
 /**
