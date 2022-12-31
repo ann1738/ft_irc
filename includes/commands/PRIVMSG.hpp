@@ -6,6 +6,9 @@
 #include "command.hpp"
 #include <algorithm>
 
+#define RPL_PRIVMSG(sender, recipient, message) \
+(":" + sender + " PRIVMSG " + recipient + " " + message + "\n")
+
 #define ERR_NOSUCKNICK(servername, nickname) \
 (":" + servername + " 401 * " + nickname + " :No such nick/channel\n")
 
@@ -22,19 +25,17 @@ class PRIVMSG {
 
 private:
 	string    getRecipient(string& buffer);
-	string    getMessage(const string& buffer) const;
-
 	bool      isNicknameJustSpaces(const string& nickname) const;
-	bool      isUserInServer(const vector<user> &globalUserList, const string& nickname) const;
+	bool      isUserInServer(const vector<user> &userList, const string& nickname) const;
 	bool      isRecipientAChannel(const string& recipient) const;
-	bool      doesChannelExist(const vector<channel>& globalChannelList, string& channel_name) const;
+	bool      doesChannelExist(const vector<channel>& channelList, const string& channel_name) const;
 
-	void      buildUserResponse(stringstream& response, const command &msg, const vector<user>& userList, 
-	                            string& nickname, string& message) const;
-	void      buildChannelResponse(stringstream& response, const command &msg, const vector<channel>& channelList, 
-	                               string& channel_name, string& message) const;
+	void      buildUserResponse(stringstream& response, const command &msg, const vector<user>& userList,
+	                            const string& nickname, const string& message) const;
+	void      buildChannelResponse(stringstream& response, const command &msg, const vector<channel>& channelList,
+	                               const string& channel_name, const string& message) const;
 	string    buildResponse(const command &msg, const vector<user>& userList, const vector<channel>& channelList,
-	                        string& recipient, string& message) const;
+	                        const string& recipient, const string& message) const;
 
 public:
 	PRIVMSG();

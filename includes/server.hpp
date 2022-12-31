@@ -10,7 +10,6 @@
 #include <stdexcept>
 #include <iostream>
 
-
 #include "channel.hpp"
 #include "user.hpp"
 #include "NICK.hpp"
@@ -66,11 +65,20 @@ private:
 	std::vector<user>			users;
 	std::vector<channel>		channels;
 
-	void			addUser(int fd);
-	user&			getUser(int fd);
-	bool			shouldNotBroadcast(const string& message) const;
-	void			sendToSelf(int fd, string message);
-	void			sendToAll(int senderFd, string message);
+	void		addUser(int fd);
+	user&		getUser(int fd);
+
+	bool		shouldNotBroadcast(const string& message) const;
+	bool		shouldBeSentToChannel(const string& message) const;
+	bool		shouldBeSentToUser(const string& message) const;
+	vector<user>::const_iterator	findUser(const string& message);
+	vector<channel>::const_iterator	findChannel(const string& message);
+
+	void		sendToSelf(int fd, const string& message);
+	void		sendToChannel(int senderFd, const string& message);
+	void		sendToUser(const string& message);
+	void		sendToAll(int senderFd, const string& message);
+	void		sendToRecipient(int senderFd, const string& message);
 
 public:
 	server(int port);
