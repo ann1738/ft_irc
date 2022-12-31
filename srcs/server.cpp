@@ -206,33 +206,23 @@ user&		server::getUser(int fd){
 	return users[0];
 }
 
-/**
- * checks if the reply message contains any of the following strings to determine if the
- * reply will be sent to every other client in the server or only to the client who initiated
- * the command
-*/
-bool		server::shouldNotBroadcast(const string& message) const {
-	return (message.find("No such nick/channel") != string::npos) ? true :
-	       (message.find("No text to send") != string::npos) ? true :
-	       (message.find("Cannot send to channel") != string::npos) ? true : false;
-}
-
-bool		server::shouldBeSentToChannel(const string& message) const {
-	return message.find("PRIVMSG #") != string::npos;
-}
-
-bool		server::shouldBeSentToUser(const string& message) const {
+bool		server::isMessageForUser(const string& message) const {
 	return message.find("PRIVMSG ") != string::npos;
 }
 
-vector<channel>::const_iterator	server::findChannel(const string& message) {
-	if (!message.empty()) {
-		string channel_name = message.substr(0, message.find(' '));
+bool		server::isMessageForChannel(const string& message) const {
+	return message.find("PRIVMSG #") != string::npos;
+}
 
-		for (vector<channel>::iterator it = channels.begin(); it != channels.end(); it++) {
-			if (('#' + it->getName()) == channel_name) {
-				return it;
-			}
+vector<channel>::const_iterator	server::findChannel(const string& message) {
+	if (message.empty()) {
+		return channels.end();
+	}
+
+	string channel_name = message.substr(0, message.find(' '));
+	for (vector<channel>::iterator it = channels.begin(); it != channels.end(); it++) {
+		if (('#' + it->getName()) == channel_name) {
+			return it;
 		}
 	}
 	return channels.end();
@@ -253,13 +243,14 @@ void		server::sendToChannel(int senderFd, const string& message) {
 }
 
 vector<user>::const_iterator	server::findUser(const string& message) {
-	if (!message.empty()) {
-		string nickname = message.substr(message.find("PRIVMSG ") + 8, message.find(' ') - 1);
+	if (message.empty()) {
+		return users.end();
+	}
 
-		for (vector<user>::iterator it = users.begin(); it != users.end(); it++) {
-			if (it->getNickname() == nickname) {
-				return it;
-			}
+	string nickname = message.substr(message.find("PRIVMSG ") + 8, message.find(' ') - 1);
+	for (vector<user>::iterator it = users.begin(); it != users.end(); it++) {
+		if (it->getNickname() == nickname) {
+			return it;
 		}
 	}
 	return users.end();
@@ -267,11 +258,9 @@ vector<user>::const_iterator	server::findUser(const string& message) {
 
 void		server::sendToUser(const string& message) {
 	vector<user>::const_iterator destination = this->findUser(message);
-	if (destination == users.end()) {
-		return;
+	if (destination != users.end()) {
+		send(destination->getFd(), message.c_str(), message.length(), 0);
 	}
-
-	send(destination->getFd(), message.c_str(), message.length(), 0);
 }
 
 /**
@@ -282,23 +271,8 @@ void		server::sendToSelf(int fd, const string& message) {
 	send(fd, message.c_str(), message.length(), 0);
 }
 
-/**
- * sender function used to broadcast a message to all clients except the client who
- * initiated the command
- *
- * NOTE: currently not being used
-*/
-void		server::sendToAll(int senderFd, const string& message) {
-	for (vector<user>::iterator it = users.begin(); it != users.end(); it++) {
-		if (it->getFd() != senderFd) {
-			send(it->getFd(), message.c_str(), message.length(), 0);
-		}
-	}
-}
-
 void		server::sendToRecipient(int senderFd, const string& message) {
-	this->shouldNotBroadcast(message) ? this->sendToSelf(senderFd, message) :
-	this->shouldBeSentToChannel(message) ? this->sendToChannel(senderFd, message) :
-	this->shouldBeSentToUser(message) ? this->sendToUser(message) :
-	                                    this->sendToAll(senderFd, message);
+	this->isMessageForChannel(message) ? this->sendToChannel(senderFd, message) :
+	this->isMessageForUser(message) ? this->sendToUser(message) :
+	                                  this->sendToSelf(senderFd, message);
 }
