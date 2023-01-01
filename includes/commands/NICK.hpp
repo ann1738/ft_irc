@@ -2,28 +2,34 @@
 #define NICK_HPP
 
 #include "user.hpp"
-#include <cstring>
-#include <sys/types.h>
-#include <sys/socket.h>
+#include "channel.hpp"
+#include "command.hpp"
 
-using namespace std;
+#define ERR_NONICKNAMEGIVEN(servername, nickname) \
+(":" + servername + " 431 * " + nickname + " :No nickname given\n")
+
+#define ERR_ERRONEUSNICKNAME(servername, nickname) \
+(":" + servername + " 432 * " + nickname + " :Erroneus nickname\n")
+
+#define ERR_NICKNAMEINUSE(servername, nickname) \
+(":" + servername + " 433 * " + nickname + " :Nickname is already in use\n")
+
+#define RPL_NICK(old_nickname, new_nickname) \
+(":" + old_nickname + " NICK " + new_nickname + "\n")
+
 
 class NICK {
 
 private:
-	vector<string> parseMessage(char* buffer) const;
-	int getUserIndex(const vector<user>& users, int fd) const;
-	bool isNicknameValid(const string& nickname) const;
-	bool isNicknameTaken(const vector<user>& users, const string& nickname) const;
-	void sendNumericResponse(int fd, int error_type, vector<string>& nickname);
-	string buildResponse(const string& old_nickname, const string& new_nickname);
-	void changeNickname(user& user, const string& new_nickname);
+	bool      isNicknameValid(const string& nickname) const;
+	bool      isNicknameTaken(const vector<user>& users, const string& nickname) const;
+	string    buildResponse(const command &msg, const vector<user>& userList, const string& new_nickname);
 
 public:
 	NICK();
 	~NICK();
 
-	void doNickCommand(vector<user>& users, int fd, char* buffer);
+	string    execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList);
 
 };
 

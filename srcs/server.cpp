@@ -160,9 +160,7 @@ void			server::handleExistingConnection(int socketIndex){
 
 		parser.parse(buffer, getUser(fd));
 		users[socketIndex - 1].enterServer();
-
-		NICK nick;
-		nick.doNickCommand(users, fd, buffer);
+		users[socketIndex - 1].saveUserInfo(buffer);
 
 		redirectCommand	funnel;
 
