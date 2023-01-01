@@ -68,6 +68,7 @@ private:
 
 	void			addUser(int fd);
 	user&			getUser(int fd);
+	bool			isUserAuthenticated(const user& User);
 
 public:
 	server(int port);
