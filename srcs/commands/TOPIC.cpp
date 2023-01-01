@@ -32,8 +32,8 @@ void TOPIC::organizeInfo(command msg){
 	m_user = msg.getClient();
 	string	parameters = msg.getParameters();
 	
-	if (parameters[parameters.size() - 1] == '\n') parameters.pop_back();
-	if (parameters[parameters.size() - 1] == '\r') parameters.pop_back();
+	if (parameters[parameters.size() - 1] == '\n') parameters.erase(parameters.size() - 1);
+	if (parameters[parameters.size() - 1] == '\r') parameters.erase(parameters.size() - 1);
 
 	/* store the channel's name and topic */
 	size_t endIndex = parameters.find_first_of(' ');

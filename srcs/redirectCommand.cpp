@@ -19,6 +19,6 @@ string	redirectCommand::redirect(const command &message, vector<user> &globalUse
 	else if (cmd == "PART")
 		return part.execute(message, globalUserList, globalChannelList);
 	else
-		; //return ERR_UNKNOWNCOMMAND
+		{;} //return ERR_UNKNOWNCOMMAND
 	return "";
 }
