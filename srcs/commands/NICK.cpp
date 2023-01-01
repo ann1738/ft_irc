@@ -22,16 +22,17 @@ bool NICK::isNicknameValid(const string& nickname) const {
 }
 
 /**
- * checks every user's nickname in the server and returns true if the desired nickname is
- * already being used or false if the desired nickname is available for use
+ * checks every user's nickname in the server and returns true if the desired nickname is already
+ * being used or false if the desired nickname is available. Furthermore, it also returns a
+ * constant iterator to the user who owns the nickname
 */
-bool NICK::isNicknameTaken(const vector<user>& userList, const string& nickname) const {
-	for (vector<user>::const_iterator it = userList.begin(); it != userList.end(); it++) {
+pair<bool, NICK::const_iter> NICK::isNicknameTaken(const vector<user>& userList, const string& nickname) const {
+	for (NICK::const_iter it = userList.begin(); it != userList.end(); it++) {
 		if (!it->getNickname().compare(nickname)) {
-			return true;
+			return make_pair(true, it);
 		}
 	}
-	return false;
+	return make_pair(false, userList.end());
 }
 
 string NICK::buildResponse(const command &msg, const vector<user>& userList, const string& nickname) {
@@ -42,7 +43,7 @@ string NICK::buildResponse(const command &msg, const vector<user>& userList, con
 	 * example: /nick "   "
 	*/
 	if (nickname.find_first_not_of(' ') == string::npos) {
-		response << ERR_NONICKNAMEGIVEN(msg.getClient().getServername(), nickname);
+		response << ERR_NONICKNAMEGIVEN(msg.getClient().getServername());
 	}
 
 	/**
@@ -54,8 +55,17 @@ string NICK::buildResponse(const command &msg, const vector<user>& userList, con
 		response << ERR_ERRONEUSNICKNAME(msg.getClient().getServername(), nickname);
 	}
 
+	/**
+	 * if the owner of the nickname is requesting a change but gave the nickname it's
+	 * currently using, ignore the command
+	*/
+	else if (this->isNicknameTaken(userList, nickname).first &&
+	         this->isNicknameTaken(userList, nickname).second->getFd() == msg.getClient().getFd()) {
+		;
+	}
+
 	// ensures that every user connected to the server will have a unique nickname
-	else if (this->isNicknameTaken(userList, nickname)) {
+	else if (this->isNicknameTaken(userList, nickname).first) {
 		response << ERR_NICKNAMEINUSE(msg.getClient().getServername(), nickname);
 	}
 

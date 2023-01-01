@@ -13,7 +13,6 @@
 
 #include "channel.hpp"
 #include "user.hpp"
-#include "NICK.hpp"
 #include "commandParse.hpp"
 
 /* -------------- Macros --------------- */

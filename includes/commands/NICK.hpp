@@ -5,8 +5,8 @@
 #include "channel.hpp"
 #include "command.hpp"
 
-#define ERR_NONICKNAMEGIVEN(servername, nickname) \
-(":" + servername + " 431 * " + nickname + " :No nickname given\n")
+#define ERR_NONICKNAMEGIVEN(servername) \
+(":" + servername + " 431 * :No nickname given\n")
 
 #define ERR_ERRONEUSNICKNAME(servername, nickname) \
 (":" + servername + " 432 * " + nickname + " :Erroneus nickname\n")
@@ -21,9 +21,11 @@
 class NICK {
 
 private:
-	bool      isNicknameValid(const string& nickname) const;
-	bool      isNicknameTaken(const vector<user>& users, const string& nickname) const;
-	string    buildResponse(const command &msg, const vector<user>& userList, const string& new_nickname);
+	typedef typename vector<user>::const_iterator    const_iter;
+
+	bool                      isNicknameValid(const string& nickname) const;
+	pair<bool, const_iter>    isNicknameTaken(const vector<user>& users, const string& nickname) const;
+	string                    buildResponse(const command &msg, const vector<user>& userList, const string& new_nickname);
 
 public:
 	NICK();
