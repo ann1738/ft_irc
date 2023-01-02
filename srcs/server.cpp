@@ -211,7 +211,7 @@ bool		server::isMessageForUser(const string& message) const {
 }
 
 bool		server::isMessageForChannel(const string& message) const {
-	return message.find("PRIVMSG #") != string::npos;
+	return message.find("PRIVMSG #") != string::npos || message.find("JOIN") != string::npos;
 }
 
 vector<channel>::const_iterator	server::findChannel(const string& message) {
@@ -219,7 +219,11 @@ vector<channel>::const_iterator	server::findChannel(const string& message) {
 		return channels.end();
 	}
 
-	string channel_name = message.substr(0, message.find(' '));
+	string channel_name = message.substr(message.find('#'), message.find(' '));
+	if (channel_name.back() == '\n') {
+		channel_name.resize(channel_name.length() - 1);
+	}
+
 	for (vector<channel>::iterator it = channels.begin(); it != channels.end(); it++) {
 		if (('#' + it->getName()) == channel_name) {
 			return it;
