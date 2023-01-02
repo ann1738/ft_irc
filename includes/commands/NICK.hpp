@@ -21,11 +21,9 @@
 class NICK {
 
 private:
-	typedef typename vector<user>::const_iterator    const_iter;
-
-	bool                      isNicknameValid(const string& nickname) const;
-	pair<bool, const_iter>    isNicknameTaken(const vector<user>& users, const string& nickname) const;
-	string                    buildResponse(const command &msg, const vector<user>& userList, const string& new_nickname);
+	bool                                        isNicknameValid(const string& nickname) const;
+	pair<bool, vector<user>::const_iterator>    isNicknameTaken(const vector<user>& users, const string& nickname) const;
+	string                                      buildResponse(const command &msg, const vector<user>& userList, const string& new_nickname);
 
 public:
 	NICK();
