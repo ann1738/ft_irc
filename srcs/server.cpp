@@ -159,20 +159,19 @@ void			server::handleExistingConnection(int socketIndex){
 		commandParse	parser;
 
 		parser.parse(buffer, getUser(fd));
-		users[socketIndex - 1].enterServer();
-		users[socketIndex - 1].saveUserInfo(buffer);
 
-		NICK nick;
-		nick.doNickCommand(users, fd, buffer);
-
-		redirectCommand	funnel;
-
-		for (size_t i = 0; i < parser.getCommandAmount(); i++){
-			string reply = funnel.redirect(parser.getParsedCmd(i), users, channels);
-			this->sendToRecipient(fd, reply);
-			cout << "******* sent reply start *******" << endl;
-			cout << reply << endl;
-			cout << "******* sent reply end *******" << endl;
+		if (!this->isUserAuthenticated(users[socketIndex - 1])) {
+			users[socketIndex - 1].enterServer();
+			users[socketIndex - 1].saveUserInfo(buffer);
+		} else {
+			redirectCommand	funnel;
+			for (size_t i = 0; i < parser.getCommandAmount(); i++){
+				string reply = funnel.redirect(parser.getParsedCmd(i), users, channels);
+				this->sendToRecipient(fd, reply);
+				cout << "******* sent reply start *******" << endl;
+				cout << reply << endl;
+				cout << "******* sent reply end *******" << endl;
+			}
 		}
 	}
 }
@@ -186,8 +185,9 @@ void			server::loopAndHandleConnections(){
 				handleNewConnection();
 			else
 				handleExistingConnection(i);
-		}
+    }
 	}
+  
 }
 
 
@@ -279,4 +279,18 @@ void		server::sendToRecipient(int senderFd, const string& message) {
 	this->isMessageForChannel(message) ? this->sendToChannel(senderFd, message) :
 	this->isMessageForUser(message) ? this->sendToUser(message) :
 	                                  this->sendToSelf(senderFd, message);
+}
+
+/**
+ * checks if a user has been admitted to the server or not. This allows us to determine
+ * if they may proceed in using the commands or if they should conclude the capability
+ * negotiations first, followed by providing their information
+*/
+bool		server::isUserAuthenticated(const user& User) {
+	// I think we could check the password around here
+
+	return !User.getUsername().empty() &&
+	       !User.getHostname().empty() &&
+	       !User.getServername().empty() &&
+	       !User.getRealname().empty();
 }

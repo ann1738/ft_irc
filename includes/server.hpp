@@ -12,7 +12,6 @@
 
 #include "channel.hpp"
 #include "user.hpp"
-#include "NICK.hpp"
 #include "commandParse.hpp"
 
 /* -------------- Macros --------------- */
@@ -65,8 +64,9 @@ private:
 	std::vector<user>			users;
 	std::vector<channel>		channels;
 
-	void		addUser(int fd);
-	user&		getUser(int fd);
+	void			addUser(int fd);
+	user&			getUser(int fd);
+	bool			isUserAuthenticated(const user& User);
 
 	bool		isMessageForUser(const string& message) const;
 	bool		isMessageForChannel(const string& message) const;

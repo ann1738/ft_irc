@@ -9,34 +9,6 @@ NICK::~NICK()
 }
 
 /**
- * splits the buffer into individual strings, which will be stored in a vector
-*/
-vector<string> NICK::parseMessage(char* buffer) const {
-	stringstream temp(buffer);
-	vector<string> client_message;
-	string placeholder;
-
-	while (temp >> placeholder) {
-		client_message.push_back(placeholder);
-	}
-	return client_message;
-}
-
-/**
- * searches for a specific user by comparing its file descriptor with the
- * file descriptor provided by the server class
-*/
-int NICK::getUserIndex(const vector<user>& users, int fd) const {
-	int i = 0;
-	for (vector<user>::const_iterator iter = users.begin(); iter != users.end(); iter++, i++) {
-		if (iter->getFd() == fd) {
-			return i;
-		}
-	}
-	return 0;
-}
-
-/**
  * checks if the desired nickname only consists of valid characters and if its length
  * does not exceed 9 characters
 */
@@ -50,85 +22,28 @@ bool NICK::isNicknameValid(const string& nickname) const {
 }
 
 /**
- * checks every user's nickname in the server and returns true if the desired nickname is
- * already being used or false if the desired nickname is available for use
+ * checks every user's nickname in the server and returns true if the desired nickname is already
+ * being used or false if the desired nickname is available. Furthermore, it also returns a
+ * constant iterator to the user who owns the nickname
 */
-bool NICK::isNicknameTaken(const vector<user>& users, const string& nickname) const {
-	for (vector<user>::const_iterator iter = users.begin(); iter != users.end(); iter++) {
-		if (!iter->getNickname().compare(nickname)) {
-			return true;
+pair<bool, vector<user>::const_iterator> NICK::isNicknameTaken(const vector<user>& userList, const string& nickname) const {
+	for (vector<user>::const_iterator it = userList.begin(); it != userList.end(); it++) {
+		if (!it->getNickname().compare(nickname)) {
+			return make_pair(true, it);
 		}
 	}
-	return false;
+	return make_pair(false, userList.end());
 }
 
-/**
- * sends a response to the client in the following formats
- *
- * If the server does not receive the <nickname> parameter with the NICK command.
- * ERR_NONICKNAMEGIVEN (431)
- * " :No nickname given\r\n"
- *
- * If the server does not accept the new nickname supplied by the client as valid
- * (for instance, due to containing invalid characters).
- * ERR_ERRONEUSNICKNAME (432)
- * "<nick> :Erroneus nickname\r\n"
- *
- * If the server receives a NICK command from a client where the desired nickname
- * is already in use on the network.
- * ERR_NICKNAMEINUSE (433)
- * "<nick> :Nickname is already in use\r\n"
-*/
-void NICK::sendNumericResponse(int fd, int error_type, vector<string>& nickname) {
+string NICK::buildResponse(const command &msg, const vector<user>& userList, const string& nickname) {
 	stringstream response;
-
-	nickname.erase(nickname.begin());
-	while (!nickname.empty()) {
-		response << nickname.front() << " ";
-		nickname.erase(nickname.begin());
-	}
-
-	response << (error_type == 431 ? " :No nickname given" :
-	            error_type == 432 ? ":Erroneus nickname" : ":Nickname is already in use")
-	         << "\r\n";
-	send(fd, response.str().c_str(), strlen(response.str().c_str()), 0);
-}
-
-/**
- * builds a string in the following format
- * ":<old nickname> NICK <new nickname>\r\n"
-*/
-string NICK::buildResponse(const string& old_nickname, const string& new_nickname) {
-	stringstream response;
-	response << ":" << old_nickname << " NICK " << new_nickname << "\r\n";
-	return response.str();
-}
-
-/**
- * informs the client that it has been issued a new nickname
- * and then updates the user's nickname in the user class
-*/
-void NICK::changeNickname(user& user, const string& new_nickname) {
-	string response = this->buildResponse(user.getNickname(), new_nickname);
-	send(user.getFd(), response.c_str(), strlen(response.c_str()), 0);
-	user.setNickname(new_nickname);
-}
-
-void NICK::doNickCommand(vector<user>& users, int fd, char* buffer) {
-	vector<string> client_message = this->parseMessage(buffer);
-
-	// checks if the command received from the client is /nick
-	if (client_message[0].compare("NICK") ||
-	   (client_message.size() > 2 && !client_message[2].compare("USER"))) {    // temporary fix for mac issue
-		return;
-	}
 
 	/**
 	 * prevents a nickname that only contains spaces
 	 * example: /nick "   "
 	*/
-	else if (client_message.size() == 1) {
-		this->sendNumericResponse(fd, 431, client_message);
+	if (nickname.find_first_not_of(' ') == string::npos) {
+		response << ERR_NONICKNAMEGIVEN(msg.getClient().getServername());
 	}
 
 	/**
@@ -136,17 +51,35 @@ void NICK::doNickCommand(vector<user>& users, int fd, char* buffer) {
 	 * if the parameters received from the client is equal to two
 	 * example: /nick "hello world !"
 	*/
-	else if (!this->isNicknameValid(client_message[1]) || client_message.size() > 2) {
-		this->sendNumericResponse(fd, 432, client_message);
+	else if (!this->isNicknameValid(nickname)) {
+		response << ERR_ERRONEUSNICKNAME(msg.getClient().getServername(), nickname);
+	}
+
+	/**
+	 * if the owner of the nickname is requesting a change but gave the nickname it's
+	 * currently using, ignore the command
+	*/
+	else if (this->isNicknameTaken(userList, nickname).first &&
+	         this->isNicknameTaken(userList, nickname).second->getFd() == msg.getClient().getFd()) {
+		;
 	}
 
 	// ensures that every user connected to the server will have a unique nickname
-	else if (this->isNicknameTaken(users, client_message[1])) {
-		this->sendNumericResponse(fd, 433, client_message);
+	else if (this->isNicknameTaken(userList, nickname).first) {
+		response << ERR_NICKNAMEINUSE(msg.getClient().getServername(), nickname);
 	}
 
-	// change a user's nickname if no error(s) have been encountered
+	// change a user's nickname if no errors have been encountered
 	else {
-		this->changeNickname(users[this->getUserIndex(users, fd)], client_message[1]);
+		response << RPL_NICK(msg.getClient().getNickname(), nickname);
+		msg.getClient().setNickname(nickname);
 	}
+	return response.str();
+}
+
+string NICK::execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList) {
+	(void)globalChannelList;
+
+	string nickname = msg.getParameters().substr(0, msg.getParameters().find('\r'));
+	return this->buildResponse(msg, globalUserList, nickname);
 }
