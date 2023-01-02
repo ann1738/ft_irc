@@ -26,8 +26,8 @@ bool NICK::isNicknameValid(const string& nickname) const {
  * being used or false if the desired nickname is available. Furthermore, it also returns a
  * constant iterator to the user who owns the nickname
 */
-pair<bool, NICK::const_iter> NICK::isNicknameTaken(const vector<user>& userList, const string& nickname) const {
-	for (NICK::const_iter it = userList.begin(); it != userList.end(); it++) {
+pair<bool, vector<user>::const_iterator> NICK::isNicknameTaken(const vector<user>& userList, const string& nickname) const {
+	for (vector<user>::const_iterator it = userList.begin(); it != userList.end(); it++) {
 		if (!it->getNickname().compare(nickname)) {
 			return make_pair(true, it);
 		}
