@@ -15,6 +15,7 @@ private:
 	NICK nick;
 	JOIN join;
 	PART part;
+	PRIVMSG privmsg;
 
 public:
 	redirectCommand();

@@ -5,5 +5,6 @@
 #include "NICK.hpp"
 #include "JOIN.hpp"
 #include "PART.hpp"
+#include "PRIVMSG.hpp"
 
 #endif

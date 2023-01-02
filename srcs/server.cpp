@@ -160,6 +160,7 @@ void			server::handleExistingConnection(int socketIndex){
 
 		parser.parse(buffer, getUser(fd));
 		users[socketIndex - 1].enterServer();
+		users[socketIndex - 1].saveUserInfo(buffer);
 
 		NICK nick;
 		nick.doNickCommand(users, fd, buffer);
@@ -168,7 +169,7 @@ void			server::handleExistingConnection(int socketIndex){
 
 		for (size_t i = 0; i < parser.getCommandAmount(); i++){
 			string reply = funnel.redirect(parser.getParsedCmd(i), users, channels);
-			send(fd, reply.c_str(), reply.size(), 0);
+			this->sendToRecipient(fd, reply);
 			cout << "******* sent reply start *******" << endl;
 			cout << reply << endl;
 			cout << "******* sent reply end *******" << endl;
@@ -203,4 +204,79 @@ user&		server::getUser(int fd){
 		}
 	}
 	return users[0];
+}
+
+bool		server::isMessageForUser(const string& message) const {
+	return message.find("PRIVMSG ") != string::npos;
+}
+
+bool		server::isMessageForChannel(const string& message) const {
+	return message.find("PRIVMSG #") != string::npos || message.find("JOIN") != string::npos;
+}
+
+vector<channel>::const_iterator	server::findChannel(const string& message) {
+	if (message.empty()) {
+		return channels.end();
+	}
+
+	string channel_name = message.substr(message.find('#'), message.find(' '));
+	if (channel_name.back() == '\n') {
+		channel_name.resize(channel_name.length() - 1);
+	}
+
+	for (vector<channel>::iterator it = channels.begin(); it != channels.end(); it++) {
+		if (('#' + it->getName()) == channel_name) {
+			return it;
+		}
+	}
+	return channels.end();
+}
+
+void		server::sendToChannel(int senderFd, const string& message) {
+	vector<channel>::const_iterator destination = this->findChannel(message.substr(message.find('#'), message.length()));
+	if (destination == channels.end()) {
+		return;
+	}
+
+	vector<user> userList = destination->getUsers();
+	for (vector<user>::iterator it = userList.begin(); it != userList.end(); it++) {
+		if (it->getFd() != senderFd) {
+			send(it->getFd(), message.c_str(), message.length(), 0);
+		}
+	}
+}
+
+vector<user>::const_iterator	server::findUser(const string& message) {
+	if (message.empty()) {
+		return users.end();
+	}
+
+	string nickname = message.substr(message.find("PRIVMSG ") + 8, message.find(' ') - 1);
+	for (vector<user>::iterator it = users.begin(); it != users.end(); it++) {
+		if (it->getNickname() == nickname) {
+			return it;
+		}
+	}
+	return users.end();
+}
+
+void		server::sendToUser(const string& message) {
+	vector<user>::const_iterator destination = this->findUser(message);
+	if (destination != users.end()) {
+		send(destination->getFd(), message.c_str(), message.length(), 0);
+	}
+}
+
+/**
+ * sender function typically used to inform a client that the command they attempted to use
+ * encountered an error and thus will not be broadcasted to other clients in the server
+*/
+void		server::sendToSelf(int fd, const string& message) {
+	send(fd, message.c_str(), message.length(), 0);
+}
+
+void		server::sendToRecipient(int senderFd, const string& message) {
+	this->isMessageForChannel(message) ? this->sendToChannel(senderFd, message) :
+	this->isMessageForUser(message) ? this->sendToUser(message) :
+	                                  this->sendToSelf(senderFd, message);
 }

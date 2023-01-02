@@ -10,7 +10,6 @@
 #include <stdexcept>
 #include <iostream>
 
-
 #include "channel.hpp"
 #include "user.hpp"
 #include "NICK.hpp"
@@ -66,8 +65,18 @@ private:
 	std::vector<user>			users;
 	std::vector<channel>		channels;
 
-	void			addUser(int fd);
-	user&			getUser(int fd);
+	void		addUser(int fd);
+	user&		getUser(int fd);
+
+	bool		isMessageForUser(const string& message) const;
+	bool		isMessageForChannel(const string& message) const;
+	vector<user>::const_iterator	findUser(const string& message);
+	vector<channel>::const_iterator	findChannel(const string& message);
+
+	void		sendToSelf(int fd, const string& message);
+	void		sendToUser(const string& message);
+	void		sendToChannel(int senderFd, const string& message);
+	void		sendToRecipient(int senderFd, const string& message);
 
 public:
 	server(int port);
