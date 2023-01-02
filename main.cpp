@@ -7,5 +7,5 @@ int main(int argc, char **argv)
 	init.parse(argc, argv);
 
 	std::cout << "Parsing done" << std::endl;
-	server ircserv(init.getPort());
+	server ircserv(init.getPort(), init.getPassword());
 }

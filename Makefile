@@ -11,7 +11,7 @@ INCLUDES_DIR = includes
 INCLUDES_COMMAND_DIR = includes/commands
 
 CMD_SRCS = NICK.cpp TOPIC.cpp JOIN.cpp PART.cpp PRIVMSG.cpp
-SRCS =  main.cpp initialParse.cpp server.cpp user.cpp channel.cpp commandParse.cpp command.cpp redirectCommand.cpp ${CMD_SRCS}
+SRCS =  main.cpp initialParse.cpp server.cpp user.cpp channel.cpp commandParse.cpp command.cpp redirectCommand.cpp authenticate.cpp ${CMD_SRCS}
 
 OBJS = $(addprefix ${OBJS_DIR}/, $(SRCS:%.cpp=%.o))
 

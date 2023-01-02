@@ -13,6 +13,7 @@
 #include "channel.hpp"
 #include "user.hpp"
 #include "commandParse.hpp"
+#include "authenticate.hpp"
 
 /* -------------- Macros --------------- */
 #define TIMEOUT 100000
@@ -34,10 +35,12 @@ class server
 {
 private:
 	int 						listenPort;
-	int							listenerFd;
 
 	int							fdCount;
 	std::vector<struct pollfd>	clientSockets;
+
+	int							listenerFd;
+	string						serverPassword;
 
 	void			addSocket(int fd, short event);
 	void			removeSocket(int socketIndex);
@@ -66,7 +69,7 @@ private:
 
 	void			addUser(int fd);
 	user&			getUser(int fd);
-	bool			isUserAuthenticated(const user& User);
+	bool			receivedHandshake(const user& User);
 
 	bool		isMessageForUser(const string& message) const;
 	bool		isMessageForChannel(const string& message) const;
@@ -78,8 +81,10 @@ private:
 	void		sendToChannel(int senderFd, const string& message);
 	void		sendToRecipient(int senderFd, const string& message);
 
+	bool		isCapOrJOIN(const command& cmd) const;
+
 public:
-	server(int port);
+	server(int port, string password);
 	~server();
 };
 

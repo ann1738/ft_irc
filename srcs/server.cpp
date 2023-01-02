@@ -2,9 +2,10 @@
 #include "channel.hpp"
 #include "redirectCommand.hpp"
 
-server::server(int port)
+server::server(int port, string password)
 {
 	listenPort = port;
+	serverPassword = password;
 
 	createSocket();
 	changeSocketOpt();
@@ -160,7 +161,15 @@ void			server::handleExistingConnection(int socketIndex){
 
 		parser.parse(buffer, getUser(fd));
 
-		if (!this->isUserAuthenticated(users[socketIndex - 1])) {
+		if (!this->receivedHandshake(users[socketIndex - 1]) && this->isCapOrJOIN(parser.getParsedCmd(0)) == false) {
+			authenticate	auth(parser, this->serverPassword);
+
+			if (auth.isAuthenticated() == false) {
+				this->sendToSelf(fd, auth.getErrorMsg());
+				users.pop_back();
+				close (fd);
+				return ;
+			}
 			users[socketIndex - 1].enterServer();
 			users[socketIndex - 1].saveUserInfo(buffer);
 		} else {
@@ -189,7 +198,6 @@ void			server::loopAndHandleConnections(){
 	}
   
 }
-
 
 /*-----------------------------------------------------------------------*/
 
@@ -286,11 +294,15 @@ void		server::sendToRecipient(int senderFd, const string& message) {
  * if they may proceed in using the commands or if they should conclude the capability
  * negotiations first, followed by providing their information
 */
-bool		server::isUserAuthenticated(const user& User) {
-	// I think we could check the password around here
-
+bool		server::receivedHandshake(const user& User) {
 	return !User.getUsername().empty() &&
 	       !User.getHostname().empty() &&
 	       !User.getServername().empty() &&
 	       !User.getRealname().empty();
+}
+
+bool	server::isCapOrJOIN(const command& cmd) const {
+	if (cmd.getCmdType() == "JOIN" || cmd.getCmdType() == "CAP")
+		return (true);
+	return (false);
 }
