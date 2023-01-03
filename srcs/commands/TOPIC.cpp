@@ -70,27 +70,27 @@ string	TOPIC::execute(const command &message, vector<user> &globalUserList, vect
 
 	/*	 Not enough paramaters	*/
 	if (m_parsedChannelName.empty())
-		m_reply = ERR_NEEDMOREPARAMS(string(SERVERNAME), m_user.getNickname());
+		m_reply = ERR_NEEDMOREPARAMS(m_user.getServername(), m_user.getNickname(), message.getCmdType());
 	/*	 Channel does not exist	*/
 	else if (iter == globalChannelList.end())
-		m_reply = ERR_NOSUCHCHANNEL(string(SERVERNAME), m_user.getNickname(), m_parsedChannelName);
+		m_reply = ERR_NOSUCHCHANNEL(m_user.getServername(), m_parsedChannelName);
 	/*	 User is not on the channel	*/
 	else if (isUserOnChannel() == false)
-		m_reply = ERR_NOTONCHANNEL(string(SERVERNAME), m_user.getNickname(), m_channel->getName());
+		m_reply = ERR_NOTONCHANNEL(m_user.getServername(), m_user.getNickname(), m_channel->getName());
 	/*	Channel restricts changing the topic to operators and user is not an operator	*/
 	else if (isTopicChangeRequested() && isSafeTopicModeOn() && m_channel->isOperator(m_user) == false)
-		m_reply = ERR_CHANOPRIVSNEEDED(string(SERVERNAME), m_user.getNickname(), m_channel->getName());
+		m_reply = ERR_CHANOPRIVSNEEDED(m_user.getServername(), m_user.getNickname(), m_channel->getName());
 	/*	Uses requests a topic change */
 	else if (isTopicChangeRequested())
 	{
 		setTopic(m_parsedChannelTopic);
-		m_reply = RPL_TOPIC(string(SERVERNAME), m_user.getNickname(), m_channel->getName(), m_channel->getTopic());
+		m_reply = RPL_TOPIC(m_user.getServername(), m_user.getNickname(), m_channel->getName(), m_channel->getTopic());
 	}
 	/* Channel does not have a topic	*/
 	else if (m_channel->getTopic().empty())
-		m_reply = RPL_NOTOPIC(string(SERVERNAME), m_user.getNickname(), m_channel->getName());
+		m_reply = RPL_NOTOPIC(m_user.getServername(), m_user.getNickname(), m_channel->getName());
 	/*	User requests to read the channel topic	*/
 	else
-		m_reply = RPL_TOPIC(string(SERVERNAME), m_user.getNickname(), m_channel->getName(), m_channel->getTopic());
+		m_reply = RPL_TOPIC(m_user.getServername(), m_user.getNickname(), m_channel->getName(), m_channel->getTopic());
 	return m_reply;
 }

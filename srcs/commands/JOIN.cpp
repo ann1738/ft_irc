@@ -105,13 +105,12 @@ string	JOIN::doJoinAction(user& client, vector<channel> &globalChannelList){
 		if (!temp.second.size()) {
 			client.addChannel(this->channel_names[i]);
 			globalChannelList[temp.first].addUser(client);
-			temp.second = JOIN_CORRECT(client.getNickname(), this->channel_names[i]);
+			temp.second = RPL_JOIN(client.getNickname(), this->channel_names[i]);
 			/* --------- making the channel invite only to test error sending --------- */
 			// globalChannelList[temp.first].setInviteOnly(true);
 		}
 		
 		ret += temp.second;
-		ret.push_back('\n');
 	}
 	return (ret);
 }

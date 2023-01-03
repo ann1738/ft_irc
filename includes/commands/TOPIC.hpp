@@ -1,31 +1,8 @@
 #ifndef TOPIC_HPP
 #define TOPIC_HPP
 
-#include <string>
-#include "channel.hpp"
+#include "reply.hpp"
 #include "command.hpp"
-
-using namespace std;
-
-#define SERVERNAME "WeBareBears"
-
-#define ERR_NEEDMOREPARAMS(servername, nickname) \
-(":" + servername + " 461 " + nickname + " TOPIC :Not enough parameters\n")
-
-#define ERR_NOTONCHANNEL(servername, nickname, channel) \
-(":" + servername + " 442 " + nickname + " #" + channel + " :You're not on that channel\n")
-
-#define ERR_NOSUCHCHANNEL(servername, nickname, channel) \
-(servername + " 403 " + nickname + " #" + channel + " :No such channel\n")
-
-#define ERR_CHANOPRIVSNEEDED(servername, nickname, channel) \
-(servername + " 482 " + nickname + " #" + channel + " :You're not channel operator\n")
-
-#define RPL_TOPIC(servername, nickname, channel, topic) \
-(":" + servername + " 332 " + nickname + " #" + channel + " :" + topic + "\n")
-
-#define RPL_NOTOPIC(servername, nickname, channel) \
-(":" + servername + " 331 " + nickname  + " #" + channel + " :No topic is set" + "\n")
 
 /***
  * 

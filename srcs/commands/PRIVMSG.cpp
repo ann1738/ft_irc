@@ -54,7 +54,7 @@ void PRIVMSG::buildUserResponse(stringstream& response, const command &msg, cons
 void PRIVMSG::buildChannelResponse(stringstream& response, const command &msg, const vector<channel>& channelList, 
                                    const string& channel_name, const string& message) const {
 	if (!this->doesChannelExist(channelList, channel_name)) {
-		response << ERR_NOSUCHCHANNEL_(msg.getClient().getServername(), channel_name);
+		response << ERR_NOSUCHCHANNEL(msg.getClient().getServername(), channel_name);
 	} else {
 		response << RPL_PRIVMSG(msg.getClient().getNickname(), channel_name, message);
 	}

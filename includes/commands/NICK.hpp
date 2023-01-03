@@ -1,22 +1,8 @@
 #ifndef NICK_HPP
 #define NICK_HPP
 
-#include "user.hpp"
-#include "channel.hpp"
+#include "reply.hpp"
 #include "command.hpp"
-
-#define ERR_NONICKNAMEGIVEN(servername) \
-(":" + servername + " 431 * :No nickname given\n")
-
-#define ERR_ERRONEUSNICKNAME(servername, nickname) \
-(":" + servername + " 432 * " + nickname + " :Erroneus nickname\n")
-
-#define ERR_NICKNAMEINUSE(servername, nickname) \
-(":" + servername + " 433 * " + nickname + " :Nickname is already in use\n")
-
-#define RPL_NICK(old_nickname, new_nickname) \
-(":" + old_nickname + " NICK " + new_nickname + "\n")
-
 
 class NICK {
 

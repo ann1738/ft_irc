@@ -6,7 +6,7 @@
 
 // ----- commands replies 
 #define RPL_JOIN(nickname, channel_name) \
-(":" + nickname + " JOIN #" + channel_name)
+(":" + nickname + " JOIN #" + channel_name + "\n")
 
 #define RPL_PART(client_nickname, channel_name) \
 (":" + client_nickname + " PART #" + channel_name)
@@ -28,14 +28,14 @@
 #define ERR_NOSUCKNICK(servername, nickname) \
 (":" + servername + " 401 * " + nickname + " :No such nick/channel\n")
 
-#define ERR_NOSUCHCHANNEL(servername, channel_name) \
-(":" + servername + " 403 * " + channel_name + " :No such channel\n")
+#define ERR_NOSUCHCHANNEL(servername, channel) \
+(":" + servername + " 403 * #" + channel + " :No such channel\n")
 
 #define ERR_CANNOTSENDTOCHAN(servername, channel_name) \
-(":" + servername + " 404 * " + channel_name + " :Cannot send to channel\n")
+(":" + servername + " 404 * #" + channel_name + " :Cannot send to channel\n")
 
 #define ERR_TOOMANYCHANNELS(server_name, client_name, channel_name) \
-(":" + server_name + " 405 " + client_name + " #" + channel_name + " :You have joined too many channels")
+(":" + server_name + " 405 " + client_name + " #" + channel_name + " :You have joined too many channels\n")
 
 #define ERR_NOTEXTTOSEND(servername) \
 (":" + servername + " 412 * :No text to send\n")
@@ -56,16 +56,16 @@
 (":" + servername + " 461 * " + nickname + " " + cmd + " :Not enough parameters\n")
 
 #define ERR_CHANNELISFULL(server_name, nickname, channel_name) \
-(":" + server_name + " 471 * " + nickname + " #" + channel_name + " :Cannot join channel (+l)")
+(":" + server_name + " 471 * " + nickname + " #" + channel_name + " :Cannot join channel (+l)\n")
 
 #define ERR_INVITEONLYCHAN(server_name, nickname, channel_name) \
-(":" + server_name + " 473 * " + nickname + " #" + channel_name + " :Cannot join channel (+i)")
+(":" + server_name + " 473 * " + nickname + " #" + channel_name + " :Cannot join channel (+i)\n")
 
 #define ERR_BADCHANNELKEY(server_name, nickname, channel_name) \
-(":" + server_name + " 475 * " + nickname + " #" + channel_name + " :Cannot join channel (+k)")
+(":" + server_name + " 475 * " + nickname + " #" + channel_name + " :Cannot join channel (+k)\n")
 
 #define ERR_CHANOPRIVSNEEDED(servername, nickname, channel) \
-(servername + " 482 * " + nickname + " #" + channel + " :You're not channel operator\n")
+(":" + servername + " 482 * " + nickname + " #" + channel + " :You're not channel operator\n")
 // -----
 
 class reply {

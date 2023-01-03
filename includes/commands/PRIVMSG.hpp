@@ -1,26 +1,8 @@
 #ifndef PRIVMSG_HPP
 #define PRIVMSG_HPP
 
-#include "user.hpp"
-#include "channel.hpp"
+#include "reply.hpp"
 #include "command.hpp"
-#include <algorithm>
-
-#define RPL_PRIVMSG(sender, recipient, message) \
-(":" + sender + " PRIVMSG " + recipient + " " + message + "\n")
-
-#define ERR_NOSUCKNICK(servername, nickname) \
-(":" + servername + " 401 * " + nickname + " :No such nick/channel\n")
-
-#define ERR_NOTEXTTOSEND(servername) \
-("No text to send\n")
-
-// NOTE added a '_' due to redefinition from TOPIC.hpp
-#define ERR_NOSUCHCHANNEL_(servername, channel_name) \
-(":" + servername + " 403 * " + channel_name + " :No such channel\n")
-
-#define ERR_CANNOTSENDTOCHAN(servername, channel_name) \
-(":" + servername + " 404 * " + channel_name + " :Cannot send to channel\n")
 
 // #define ERR_NORECIPIENT
 // #define ERR_TOOMANYTARGETS
