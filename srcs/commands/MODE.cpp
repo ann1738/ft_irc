@@ -9,12 +9,15 @@ MODE::~MODE()
 }
 
 
-void	MODE::parseChannelName(){
-
+void	MODE::parseChannelName(string &parameters){
+	parsedChannelName = parameters.substr(0, parameters.find(' '));
+	//erase the channel name
+	parameters.erase(0, parameters.find(' ') + 1);
 }
 
-void	MODE::parseModes(){
-
+void	MODE::parseModes(string &parameters){
+	parsedModes = parameters.substr(0, parameters.find(' '));
+	
 }
 
 bool	MODE::isChannel(const string& channelName){
@@ -34,8 +37,9 @@ void	MODE::constructReply(){
 }
 
 string	MODE::execute(const command &message, vector<user> &globalUserList, vector<channel> &globalChannelList){
-	parseChannelName();
-	parseModes();
+	string parameters = message.getParameters();
+	parseChannelName(parameters);
+	parseModes(parameters);
 
 	if (isChannel(parsedChannelName) == false)
 		;	// m_reply = 

@@ -25,12 +25,14 @@ class MODE
 private:
 	string		parsedChannelName;
 	string		parsedModes;
+	string		plusModes;
+	string		minusModes;
 
 	channel*	m_channel;
 	string		m_reply;
 
-	void	parseChannelName();
-	void	parseModes();
+	void	parseChannelName(string &parameters);
+	void	parseModes(string &parameters);
 
 	bool	isChannel(const string& channelName);
 	string	isMode(const string& modes);
