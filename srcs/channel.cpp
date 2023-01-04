@@ -150,6 +150,8 @@ void	channel::setUserCountLimited(bool mode){
 /* vectors */
 void	channel::addUser(user const &User){
 	users.push_back(User);
+	if (users.size() == 1)    //make the first the channel user an operator 
+		addOperator(User);
 }
 
 void	channel::removeUser(user const &User){
