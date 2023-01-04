@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <iostream>
 
+#include "reply.hpp"
 #include "channel.hpp"
 #include "user.hpp"
 #include "commandParse.hpp"
@@ -73,10 +74,11 @@ private:
 	vector<user>::const_iterator	findUser(const string& message);
 	vector<channel>::const_iterator	findChannel(const string& message);
 
-	void		sendToSelf(int fd, const string& message);
-	void		sendToUser(const string& message);
-	void		sendToChannel(int senderFd, const string& message);
-	void		sendToRecipient(int senderFd, const string& message);
+	// void		sendToSelf(int fd, const string& message);
+	// void		sendToUser(const string& message);
+	// void		sendToChannel(int senderFd, const string& message);
+	// void		sendToRecipient(int senderFd, const string& message);
+	void		sendReplies(vector<reply> r);
 
 public:
 	server(int port);

@@ -25,14 +25,14 @@ private:
 	bool	isChannelLimitError(vector<channel> &globalChannelList, size_t i) const;
 	// bool	userLimitError();
 	pair<size_t, string>	goThroughErrors(user& client, size_t position, vector<channel> &globalChannelList);
-	string					doJoinAction(user& client, vector<channel> &globalChannelList);
+	vector<reply>			doJoinAction(user& client, vector<channel> &globalChannelList);
 	/* ------------------------------------------------- */
 
 public:
 
 	JOIN();
 
-	string	execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList);
+	vector<reply>	execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList);
 
 	~JOIN();
 

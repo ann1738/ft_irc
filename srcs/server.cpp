@@ -159,6 +159,7 @@ void			server::handleExistingConnection(int socketIndex){
 		commandParse	parser;
 
 		parser.parse(buffer, getUser(fd));
+		parser.test();
 
 		if (!this->isUserAuthenticated(users[socketIndex - 1])) {
 			users[socketIndex - 1].enterServer();
@@ -166,11 +167,8 @@ void			server::handleExistingConnection(int socketIndex){
 		} else {
 			redirectCommand	funnel;
 			for (size_t i = 0; i < parser.getCommandAmount(); i++){
-				string reply = funnel.redirect(parser.getParsedCmd(i), users, channels);
-				this->sendToRecipient(fd, reply);
-				cout << "******* sent reply start *******" << endl;
-				cout << reply << endl;
-				cout << "******* sent reply end *******" << endl;
+				vector<reply> replies = funnel.redirect(parser.getParsedCmd(i), users, channels);
+				this->sendReplies(replies);
 			}
 		}
 	}
@@ -232,19 +230,19 @@ vector<channel>::const_iterator	server::findChannel(const string& message) {
 	return channels.end();
 }
 
-void		server::sendToChannel(int senderFd, const string& message) {
-	vector<channel>::const_iterator destination = this->findChannel(message.substr(message.find('#'), message.length()));
-	if (destination == channels.end()) {
-		return;
-	}
+// void		server::sendToChannel(int senderFd, const string& message) {
+// 	vector<channel>::const_iterator destination = this->findChannel(message.substr(message.find('#'), message.length()));
+// 	if (destination == channels.end()) {
+// 		return;
+// 	}
 
-	vector<user> userList = destination->getUsers();
-	for (vector<user>::iterator it = userList.begin(); it != userList.end(); it++) {
-		if (it->getFd() != senderFd) {
-			send(it->getFd(), message.c_str(), message.length(), 0);
-		}
-	}
-}
+// 	vector<user> userList = destination->getUsers();
+// 	for (vector<user>::iterator it = userList.begin(); it != userList.end(); it++) {
+// 		if (it->getFd() != senderFd) {
+// 			send(it->getFd(), message.c_str(), message.length(), 0);
+// 		}
+// 	}
+// }
 
 vector<user>::const_iterator	server::findUser(const string& message) {
 	if (message.empty()) {
@@ -260,26 +258,26 @@ vector<user>::const_iterator	server::findUser(const string& message) {
 	return users.end();
 }
 
-void		server::sendToUser(const string& message) {
-	vector<user>::const_iterator destination = this->findUser(message);
-	if (destination != users.end()) {
-		send(destination->getFd(), message.c_str(), message.length(), 0);
-	}
-}
+// void		server::sendToUser(const string& message) {
+// 	vector<user>::const_iterator destination = this->findUser(message);
+// 	if (destination != users.end()) {
+// 		send(destination->getFd(), message.c_str(), message.length(), 0);
+// 	}
+// }
 
 /**
  * sender function typically used to inform a client that the command they attempted to use
  * encountered an error and thus will not be broadcasted to other clients in the server
 */
-void		server::sendToSelf(int fd, const string& message) {
-	send(fd, message.c_str(), message.length(), 0);
-}
+// void		server::sendToSelf(int fd, const string& message) {
+// 	send(fd, message.c_str(), message.length(), 0);
+// }
 
-void		server::sendToRecipient(int senderFd, const string& message) {
-	this->isMessageForChannel(message) ? this->sendToChannel(senderFd, message) :
-	this->isMessageForUser(message) ? this->sendToUser(message) :
-	                                  this->sendToSelf(senderFd, message);
-}
+// void		server::sendToRecipient(int senderFd, const string& message) {
+// 	this->isMessageForChannel(message) ? this->sendToChannel(senderFd, message) :
+// 	this->isMessageForUser(message) ? this->sendToUser(message) :
+// 	                                  this->sendToSelf(senderFd, message);
+// }
 
 /**
  * checks if a user has been admitted to the server or not. This allows us to determine
@@ -293,4 +291,14 @@ bool		server::isUserAuthenticated(const user& User) {
 	       !User.getHostname().empty() &&
 	       !User.getServername().empty() &&
 	       !User.getRealname().empty();
+}
+
+void	server::sendReplies(vector<reply> r){
+	for (size_t reply_count = 0; reply_count < r.size(); reply_count++) {
+		for (size_t user_count = 0; user_count < r[reply_count].getUserFds().size(); user_count++)
+			send(r[reply_count].getUserFds()[user_count], r[reply_count].getMsg().c_str(), r[reply_count].getMsg().length(), 0);
+		cout << "******* sent reply start *******" << endl;
+		cout << r[reply_count].getMsg() << endl;
+		cout << "******* sent reply end *******" << endl;
+	}
 }

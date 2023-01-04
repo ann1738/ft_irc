@@ -1,6 +1,8 @@
 #ifndef REPLY_HPP
 # define REPLY_HPP
 
+#include <iostream>
+
 #include "channel.hpp"
 #include "user.hpp"
 
