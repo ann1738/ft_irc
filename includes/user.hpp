@@ -50,6 +50,7 @@ public:
 	string getNickname() const;
 
 	void addChannel(string channel_name);
+	void removeChannel(string channel_name);
 	void enterServer();
 };
 

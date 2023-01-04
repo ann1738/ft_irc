@@ -108,6 +108,15 @@ void user::addChannel(string channel_name) {
 	this->m_channels.push_back(channel_name);
 }
 
+void user::removeChannel(string channel_name) {
+	for (vector<string>::const_iterator it = m_channels.begin(); it != m_channels.end(); it++) {
+		if (*it == channel_name) {
+			m_channels.erase(it);
+			break ;
+		}
+	}
+}
+
 void user::enterServer() {
 	if (!m_entered_server) {
 		string message = this->createWelcomeMessage();

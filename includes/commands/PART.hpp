@@ -17,14 +17,14 @@ private:
 
 	/* ------------------- executing ------------------- */
 	pair<size_t, string>	goThroughErrors(user& client, size_t position, vector<channel> &globalChannelList);
-	string					doPartAction(user& client, vector<channel> &globalChannelList);
+	vector<reply>			doPartAction(user& client, vector<channel> &globalChannelList);
 	/* ------------------------------------------------- */
 
 public:
 
 	PART();
 	
-	string	execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList);
+	vector<reply>	execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList);
 	
 	~PART();
 

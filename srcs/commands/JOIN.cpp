@@ -101,21 +101,20 @@ vector<reply>	JOIN::doJoinAction(user& client, vector<channel> &globalChannelLis
 	vector<reply> ret;
 	for(size_t i = 0; i < this->channel_names.size(); i++){
 		pair<size_t, string> temp  = this->goThroughErrors(client, i, globalChannelList);
+		ret.push_back(reply());
 		
 		if (!temp.second.size()) {
 			client.addChannel(this->channel_names[i]);
 			globalChannelList[temp.first].addUser(client);
 			temp.second = RPL_JOIN(client.getNickname(), this->channel_names[i]);
+			ret[i].setUserFds(globalChannelList[temp.first]);
 			/* --------- making the channel invite only to test error sending --------- */
 			// globalChannelList[temp.first].setInviteOnly(true);
 		}
-
-		ret.push_back(reply());
-		ret[i].setMsg(temp.second);
-		if (temp.second == RPL_JOIN(client.getNickname(), this->channel_names[i]))
-			ret[i].setUserFds(globalChannelList[temp.first]);
 		else
 			ret[i].setUserFds(client);
+
+		ret[i].setMsg(temp.second);
 	}
 	return (ret);
 }
