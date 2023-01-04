@@ -16,7 +16,6 @@ private:
 
 	string	m_key;               //empty if channel is not key protected (+k)
 	int		m_userCountLimit;    //0 if channel doesn't limit number of users (+l)
-	int		m_userCount;         //counts the number of users
 
 	bool	isInviteOnly;        //i
 	bool	isModerated;         //m

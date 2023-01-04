@@ -1,7 +1,7 @@
 #include "channel.hpp"
 
 channel::channel(): 
-m_name(""), m_topic(""), m_key(""), m_userCountLimit(0), m_userCount(0), isInviteOnly(false), 
+m_name(""), m_topic(""), m_key(""), m_userCountLimit(0), isInviteOnly(false), 
 isModerated(false), isNoExternalMsg(false), isPrivate(false), isSecret(false), isTopicSafe(false), 
 isKeyEnabled(false), isUserCountLimited(false)
 {
@@ -11,7 +11,7 @@ channel::~channel()
 {
 }
 
-channel::channel(string name, string topic): m_name(name), m_topic(topic), m_key(""), m_userCountLimit(0), m_userCount(0), isInviteOnly(false), 
+channel::channel(string name, string topic): m_name(name), m_topic(topic), m_key(""), m_userCountLimit(0), isInviteOnly(false), 
 isModerated(false), isNoExternalMsg(false), isPrivate(false), isSecret(false), isTopicSafe(false), 
 isKeyEnabled(false), isUserCountLimited(false)
 {
@@ -44,7 +44,7 @@ int		channel::getUserCountLimit() const{
 }
 
 int		channel::getUserCount() const{
-	return m_userCount;
+	return users.size();
 }
 
 /* modes */
@@ -112,10 +112,6 @@ void	channel::setKey(string Key){
 
 void	channel::setUserCountLimit(int limit){
 	m_userCountLimit = limit;
-}
-
-void	channel::setUserCount(int count){
-	m_userCount = count;
 }
 
 /* modes */
