@@ -18,8 +18,8 @@ using namespace std;
 #define ERR_NEEDMOREPARAMS_MODE(servername, mode) \
 (":" + servername + " 461 " + "MODE +" + mode + " Not enough parameters\n")
 
-#define RPL_CHANNELMODEIS(servername, nickname, channel, mode, modeParams) \
-(":" +  servername + " 324 " + nickname + " " + channel + " " + mode + " " + modeParams + "\n")
+#define RPL_CHANNELMODEIS(nickname, channel, mode, modeParams) \
+("324 " + nickname + " #" + channel + " " + mode + " " + modeParams + "\n")
 
 #define ERR_CHANOPRIVSNEEDED_MODE(servername, nickname, channel) \
 (":" + servername + " 482 " + nickname + " " + channel + " :You're not channel operator\n")
@@ -67,8 +67,17 @@ private:
 	bool	isUserOperator(const user& User);
 	
 	void	dealWithAppropriateMode();
-	string	handleModeL(bool isPlus);
 
+	string	handleModeL(bool isPlus);
+	string	handleModeS(bool isPlus);
+	string	handleModeP(bool isPlus);
+	string	handleModeI(bool isPlus);
+	string	handleModeM(bool isPlus);
+	string	handleModeN(bool isPlus);
+	string	handleModeT(bool isPlus);
+	string	handleModeO(bool isPlus);
+	// string	handleModeV(bool isPlus);
+	// string	handleModeK(bool isPlus);
 public:
 	MODE();
 	~MODE();

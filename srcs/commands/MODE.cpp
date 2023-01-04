@@ -85,31 +85,31 @@ void	MODE::dealWithAppropriateMode(){
 		switch (mode)
 		{
 			case 's':
-				m_channel->setSecret(isPlus);
+				m_reply += handleModeS(isPlus);
 				break ;
 			case 'p':
-				m_channel->setPrivate(isPlus);
+				m_reply += handleModeP(isPlus);
 				break ;
 			case 'i':
-				m_channel->setInviteOnly(isPlus);
+				m_reply += handleModeI(isPlus);
 				break ;
 			case 'n':
-				m_channel->setNoExternalMsg(isPlus);
+				m_reply += handleModeN(isPlus);
 				break ;
 			case 't':
-				m_channel->setTopicSafe(isPlus);
+				m_reply += handleModeT(isPlus);
 				break ;
 			case 'm':
-				m_channel->setModerated(isPlus);
+				m_reply += handleModeM(isPlus);
 				break ;
-			// case 'o':
-			// 	handleModeO();
-			// 	break ;
+			case 'o':
+				m_reply += handleModeO(isPlus);
+				break ;
 			// case 'v':
-			// 	handleModeV();
+			// 	m_reply += handleModeV(isPlus);
 			// 	break ;
 			// case 'k':
-			// 	handleModeK();
+			// 	m_reply += handleModeK(isPlus);
 			// 	break ;
 			case 'l':
 				m_reply += handleModeL(isPlus);
@@ -120,14 +120,78 @@ void	MODE::dealWithAppropriateMode(){
 }
 //each mode may generate a reply
 
+string	MODE::handleModeS(bool isPlus){
+	if (isPlus == m_channel->getSecret())
+		return "";
 
-//atoi bec 22f would be taken as 22x
+	m_channel->setSecret(isPlus);
+
+	string mode = isPlus ? "+" : "-";
+	mode += "s";
+	return RPL_CHANNELMODEIS(m_user.getNickname(), m_channel->getName(), mode, string());
+}
+
+string	MODE::handleModeP(bool isPlus){
+	if (isPlus == m_channel->getPrivate())
+		return "";
+
+	m_channel->setPrivate(isPlus);
+
+	string mode = isPlus ? "+" : "-";
+	mode += "p";
+	return RPL_CHANNELMODEIS( m_user.getNickname(), m_channel->getName(), mode, string());
+}
+
+string	MODE::handleModeI(bool isPlus){
+	if (isPlus == m_channel->getInviteOnly())
+		return "";
+
+	m_channel->setInviteOnly(isPlus);
+
+	string mode = isPlus ? "+" : "-";
+	mode += "i";
+	return RPL_CHANNELMODEIS(m_user.getNickname(), m_channel->getName(), mode, string());
+}
+
+string	MODE::handleModeM(bool isPlus){
+	if (isPlus == m_channel->getModerated())
+		return "";
+
+	m_channel->setModerated(isPlus);
+
+	string mode = isPlus ? "+" : "-";
+	mode += "m";
+	return RPL_CHANNELMODEIS(m_user.getNickname(), m_channel->getName(), mode, string());
+}
+
+string	MODE::handleModeN(bool isPlus){
+	if (isPlus == m_channel->getNoExternalMsg())
+		return "";
+
+	m_channel->setNoExternalMsg(isPlus);
+
+	string mode = isPlus ? "+" : "-";
+	mode += "n";
+	return RPL_CHANNELMODEIS(m_user.getNickname(), m_channel->getName(), mode, string());
+}
+
+string	MODE::handleModeT(bool isPlus){
+	if (isPlus == m_channel->getTopicSafe())
+		return "";
+
+	m_channel->setTopicSafe(isPlus);
+
+	string mode = isPlus ? "+" : "-";
+	mode += "t";
+	return RPL_CHANNELMODEIS(m_user.getNickname(), m_channel->getName(), mode, string());
+}
+
 string	MODE::handleModeL(bool isPlus){
 	if (isPlus == false)
 	{
 		m_channel->setUserCountLimit(0);
 		m_channel->setUserCountLimited(false);
-		return RPL_CHANNELMODEIS(m_user.getServername(), m_user.getNickname(), m_channel->getName(), string("-l"), string());
+		return RPL_CHANNELMODEIS( m_user.getNickname(), m_channel->getName(), string("-l"), string());
 	}
 
 	if (modeArgs.empty())
@@ -152,7 +216,16 @@ string	MODE::handleModeL(bool isPlus){
 	m_channel->setUserCountLimited(true);
 	m_channel->setUserCountLimit(limit);
 
-	return RPL_CHANNELMODEIS(m_user.getServername(), m_user.getNickname(), m_channel->getName(), string("+l"), oss.str());
+	return RPL_CHANNELMODEIS( m_user.getNickname(), m_channel->getName(), string("+l"), oss.str());
+}
+
+string	MODE::handleModeO(bool isPlus){
+	if (isPlus == false)
+	{
+		m_channel->setUserCountLimit(0);
+		m_channel->setUserCountLimited(false);
+		return RPL_CHANNELMODEIS( m_user.getNickname(), m_channel->getName(), string("-l"), string());
+	}
 }
 
 string	MODE::execute(const command &message, vector<user> &globalUserList, vector<channel> &globalChannelList){
