@@ -20,7 +20,7 @@ isKeyEnabled(false), isUserCountLimited(false)
 vector<user>::const_iterator	channel::findUser(vector<user> const &userList, user User) const{
 	for (vector<user>::const_iterator it = userList.begin(); it != userList.end(); it++)
 	{
-		if (it->getNickname() == User.getNickname())
+		if (it->getFd() == User.getFd())
 			return it;
 	}
 	return userList.end();

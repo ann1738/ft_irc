@@ -11,7 +11,7 @@
 (":" + nickname + " JOIN #" + channel_name + "\n")
 
 #define RPL_PART(nickname, channel_name) \
-(":" + nickname + " PART #" + channel_name)
+(":" + nickname + " PART #" + channel_name + "\n")
 
 #define RPL_NICK(old_nickname, new_nickname) \
 (":" + old_nickname + " NICK " + new_nickname + "\n")
