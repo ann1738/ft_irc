@@ -60,15 +60,7 @@ vector<channel>::iterator	TOPIC::findChannel(const string &channelName, vector<c
 	return globalChannelList.end();
 }
 
-string	TOPIC::execute(const command &message, vector<user> &globalUserList, vector<channel> &globalChannelList){
-	(void)globalUserList;
-	organizeInfo(message);
-
-	vector<channel>::iterator iter = findChannel(m_parsedChannelName, globalChannelList);
-	if (iter != globalChannelList.end())
-		m_channel = &*iter; //am I copying a new channel or a reference 
-
-	/*	 Not enough paramaters	*/
+void	TOPIC::constructReplyMsg(const command &message, vector<channel> &globalChannelList, vector<channel>::iterator iter){
 	if (m_parsedChannelName.empty())
 		m_reply = ERR_NEEDMOREPARAMS(m_user.getServername(), m_user.getNickname(), message.getCmdType());
 	/*	 Channel does not exist	*/
@@ -92,5 +84,28 @@ string	TOPIC::execute(const command &message, vector<user> &globalUserList, vect
 	/*	User requests to read the channel topic	*/
 	else
 		m_reply = RPL_TOPIC(m_user.getServername(), m_user.getNickname(), m_channel->getName(), m_channel->getTopic());
-	return m_reply;
+}
+
+bool	TOPIC::isReplyForChannel(){
+	return ((m_reply == RPL_TOPIC(m_user.getServername(), m_user.getNickname(), m_channel->getName(), m_channel->getTopic()) \
+	&& isTopicChangeRequested()));
+}
+
+vector<reply>	TOPIC::execute(const command &message, vector<user> &globalUserList, vector<channel> &globalChannelList){
+	(void)globalUserList;
+	organizeInfo(message);
+
+	vector<reply>	r;
+	r.push_back(reply());
+
+	vector<channel>::iterator iter = findChannel(m_parsedChannelName, globalChannelList);
+	if (iter != globalChannelList.end())
+		m_channel = &*iter; //am I copying a new channel or a reference 
+
+	constructReplyMsg(message, globalChannelList, iter);
+	
+	r[0].setMsg(m_reply);
+	(isReplyForChannel())? r[0].setUserFds(*iter): r[0].setUserFds(m_user);
+
+	return r;
 }

@@ -32,13 +32,16 @@ private:
 	bool	isTopicChangeRequested();
 	void	organizeInfo(command msg);
 
+	void	constructReplyMsg(const command &message, vector<channel> &globalChannelList, vector<channel>::iterator iter);
+	bool	isReplyForChannel();
+
 	vector<channel>::iterator	findChannel(const string &channelName, vector<channel> &globalChannelList);
 
 public:
 	TOPIC();
 	~TOPIC();
 
-	string	execute(const command &message, vector<user> &globalUserList, vector<channel> &globalChannelList);
+	vector<reply>	execute(const command &message, vector<user> &globalUserList, vector<channel> &globalChannelList);
 };
 
 
