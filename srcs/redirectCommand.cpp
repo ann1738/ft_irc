@@ -22,6 +22,8 @@ string	redirectCommand::redirect(const command &message, vector<user> &globalUse
 		return part.execute(message, globalUserList, globalChannelList);
 	else if (cmd == "PRIVMSG")
 		return privmsg.execute(message, globalUserList, globalChannelList);
+	else if (cmd == "MODE")
+		return mode.execute(message, globalUserList, globalChannelList);
 	else
 		; //return ERR_UNKNOWNCOMMAND
 	return "";
