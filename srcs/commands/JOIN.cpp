@@ -117,8 +117,9 @@ string JOIN::getNames(channel& channel) {
 }
 
 /**
- * @REMINDER: - only works for the first channel created
- *            - nicknames in channel class are not being updated
+ * @ISSUES: - nicknames in channel class are not being updated. Clients who join after a nick
+ *            has been changed will not receive the "<old nick> is now known as <new nick>"
+ *          - nick message is being sent multiple times if the client joined multiple channels
 */
 void JOIN::sendNames(const user& client, channel& channel) {
 	string names;
@@ -140,7 +141,7 @@ vector<reply>	JOIN::doJoinAction(user& client, vector<channel> &globalChannelLis
 			temp.second = RPL_JOIN(client.getNickname(), this->channel_names[i]);
 			ret[i].setUserFds(globalChannelList[temp.first]);
 
-			this->sendNames(client, globalChannelList[i]);
+			this->sendNames(client, globalChannelList[temp.first]);
 			/* --------- making the channel invite only to test error sending --------- */
 			// globalChannelList[temp.first].setInviteOnly(true);
 		}
