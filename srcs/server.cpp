@@ -220,7 +220,7 @@ vector<channel>::const_iterator	server::findChannel(const string& message) {
 	}
 
 	string channel_name = message.substr(message.find('#'), message.find(' '));
-	if (channel_name.back() == '\n') {
+	if (channel_name[channel_name.size() - 1] == '\n') {
 		channel_name.resize(channel_name.length() - 1);
 	}
 

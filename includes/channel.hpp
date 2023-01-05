@@ -8,6 +8,8 @@
 
 using namespace std;
 
+#define MAX_SIZE_T static_cast<size_t>(-1)
+
 class channel
 {
 private:
@@ -31,7 +33,7 @@ private:
 	vector<user> invitedUsers;   //empty if channel is not invite-only (+i)
 	vector<user> voicedUsers;    //empty if channel is not moderated (+m)
 
-	vector<user>::const_iterator	findUser(vector<user> const &userList, user User) const;
+	size_t	findUser(const vector<user> &userList, const user &User) const;
 
 	/*** modes to debate: b (ban user mask), 
 	 *   modes that are currently confusing (because they are for users): v (voiced users), o (operators)
