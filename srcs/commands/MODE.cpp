@@ -73,7 +73,7 @@ bool	MODE::isUserOperator(const user& User){
 	return m_channel->isOperator(User);
 }
 
-void	MODE::dealWithAppropriateMode(){
+void	MODE::dealWithAppropriateMode(vector<user> &globalUserList){
 	char 				mode;
 	bool				isPlus;
 	string::size_type	pos = 0;
@@ -103,7 +103,7 @@ void	MODE::dealWithAppropriateMode(){
 				m_reply += handleModeM(isPlus);
 				break ;
 			case 'o':
-				m_reply += handleModeO(isPlus);
+				m_reply += handleModeO(isPlus, globalUserList);
 				break ;
 			// case 'v':
 			// 	m_reply += handleModeV(isPlus);
@@ -117,6 +117,8 @@ void	MODE::dealWithAppropriateMode(){
 		} 
 		pos++;
 	}
+	modeArgsIndex = 0;
+	std::cout << "\e[31mMODE::m_reply = " << m_reply << "\e[0m" << std::endl;
 }
 //each mode may generate a reply
 
@@ -128,7 +130,7 @@ string	MODE::handleModeS(bool isPlus){
 
 	string mode = isPlus ? "+" : "-";
 	mode += "s";
-	return RPL_CHANNELMODEIS(m_user.getNickname(), m_channel->getName(), mode, string());
+	return RPL_CHANNELMODEIS(m_user->getNickname(), m_channel->getName(), mode, string());
 }
 
 string	MODE::handleModeP(bool isPlus){
@@ -139,7 +141,7 @@ string	MODE::handleModeP(bool isPlus){
 
 	string mode = isPlus ? "+" : "-";
 	mode += "p";
-	return RPL_CHANNELMODEIS( m_user.getNickname(), m_channel->getName(), mode, string());
+	return RPL_CHANNELMODEIS( m_user->getNickname(), m_channel->getName(), mode, string());
 }
 
 string	MODE::handleModeI(bool isPlus){
@@ -150,7 +152,7 @@ string	MODE::handleModeI(bool isPlus){
 
 	string mode = isPlus ? "+" : "-";
 	mode += "i";
-	return RPL_CHANNELMODEIS(m_user.getNickname(), m_channel->getName(), mode, string());
+	return RPL_CHANNELMODEIS(m_user->getNickname(), m_channel->getName(), mode, string());
 }
 
 string	MODE::handleModeM(bool isPlus){
@@ -161,7 +163,7 @@ string	MODE::handleModeM(bool isPlus){
 
 	string mode = isPlus ? "+" : "-";
 	mode += "m";
-	return RPL_CHANNELMODEIS(m_user.getNickname(), m_channel->getName(), mode, string());
+	return RPL_CHANNELMODEIS(m_user->getNickname(), m_channel->getName(), mode, string());
 }
 
 string	MODE::handleModeN(bool isPlus){
@@ -172,7 +174,7 @@ string	MODE::handleModeN(bool isPlus){
 
 	string mode = isPlus ? "+" : "-";
 	mode += "n";
-	return RPL_CHANNELMODEIS(m_user.getNickname(), m_channel->getName(), mode, string());
+	return RPL_CHANNELMODEIS(m_user->getNickname(), m_channel->getName(), mode, string());
 }
 
 string	MODE::handleModeT(bool isPlus){
@@ -183,7 +185,7 @@ string	MODE::handleModeT(bool isPlus){
 
 	string mode = isPlus ? "+" : "-";
 	mode += "t";
-	return RPL_CHANNELMODEIS(m_user.getNickname(), m_channel->getName(), mode, string());
+	return RPL_CHANNELMODEIS(m_user->getNickname(), m_channel->getName(), mode, string());
 }
 
 string	MODE::handleModeL(bool isPlus){
@@ -191,18 +193,17 @@ string	MODE::handleModeL(bool isPlus){
 	{
 		m_channel->setUserCountLimit(0);
 		m_channel->setUserCountLimited(false);
-		return RPL_CHANNELMODEIS( m_user.getNickname(), m_channel->getName(), string("-l"), string());
+		return RPL_CHANNELMODEIS( m_user->getNickname(), m_channel->getName(), string("-l"), string());
 	}
 
-	if (modeArgs.empty())
-		return ERR_NEEDMOREPARAMS_MODE(m_user.getServername(), string("l"));
-	cout << "after need more paramaters error" << endl;
+	if (modeArgs.size() <= modeArgsIndex) //check condition again
+		return ERR_NEEDMOREPARAMS_MODE(m_user->getServername(), string("l"));
 
 	int limit;
 	stringstream ss;
 	ostringstream oss;
 
-	ss << modeArgs[0];
+	ss << modeArgs[modeArgsIndex++];
 	ss >> limit;
 	
 	if (limit <= 0)
@@ -216,17 +217,94 @@ string	MODE::handleModeL(bool isPlus){
 	m_channel->setUserCountLimited(true);
 	m_channel->setUserCountLimit(limit);
 
-	return RPL_CHANNELMODEIS( m_user.getNickname(), m_channel->getName(), string("+l"), oss.str());
+	return RPL_CHANNELMODEIS( m_user->getNickname(), m_channel->getName(), string("+l"), oss.str());
 }
 
-string	MODE::handleModeO(bool isPlus){
-	if (isPlus == false)
+/*So I am going to make my own system for the channel mode arguments where the parameters positions is dependent on the order of the mode presented*/
+
+/* helper function */
+
+vector<user>::iterator	MODE::findUser(vector<user> &userList, const string &nickname) {
+	size_t	index = 0;
+	for (vector<user>::iterator it = userList.begin(); it != userList.end(); it++, index++)
 	{
-		m_channel->setUserCountLimit(0);
-		m_channel->setUserCountLimited(false);
-		return RPL_CHANNELMODEIS( m_user.getNickname(), m_channel->getName(), string("-l"), string());
+		if (it->getNickname() == nickname)
+			return it;
+	}
+	return userList.end();
+}
+
+
+string	MODE::handleModeO(bool isPlus, vector<user> &globalUserList){
+	if (modeArgs.size() <= modeArgsIndex) //check condition again
+		return ERR_NEEDMOREPARAMS_MODE(m_user->getServername(), string("o"));
+
+	string nickname = modeArgs[modeArgsIndex++];
+
+	vector<user>::iterator userIter = findUser(globalUserList, nickname);
+	if (userIter == globalUserList.end())
+		return ERR_NOSUCHNICK(m_user->getServername(), m_user->getNickname(), nickname);
+
+	for (vector<user>::const_iterator it = m_channel->getUsers().begin(); it != m_channel->getUsers().end(); it++)
+		cout << it->getNickname() << endl;
+	if (m_channel->isUser(*userIter) == false)
+		return "";
+	
+	if (m_user->getNickname() == userIter->getNickname()) //in case operator is trying to change the mode on herself
+		return "";	
+
+	if (isPlus == true && m_channel->isOperator(*userIter) == true)
+		return "";
+
+	if (isPlus == false && m_channel->isOperator(*userIter) == false)
+		return "";
+
+	/*give/take privilege*/		
+	if (isPlus == true)
+		m_channel->addOperator(*userIter);
+	else
+		m_channel->removeOperator(*userIter);
+
+	/*construct reply*/		
+	string mode = isPlus ? "+" : "-";
+	mode += "o";
+	return RPL_CHANNELMODEIS(m_user->getNickname(), m_channel->getName(), mode, modeArgs[modeArgsIndex - 1]);
+}
+
+void	MODE::storeUser(const string& nickname, vector<user> &globalUserList){
+	for (vector<user>::iterator it = globalUserList.begin(); it != globalUserList.end(); ++it)
+	{
+		cout << "storeUser()" << endl;
+		if (it->getNickname() == nickname)
+		{
+			m_user = &*it;
+			break ;
+		}
 	}
 }
+
+
+void	MODE::logModes(){
+	string	modes;
+	if (m_channel->getInviteOnly())
+		modes += "i";
+	if (m_channel->getTopicSafe())
+		modes += "t";
+	if (m_channel->getModerated())
+		modes += "m"; 
+	if (m_channel->getPrivate())
+		modes += "p"; 
+	if (m_channel->getSecret())
+		modes += "s"; 
+	if (m_channel->getKeyEnabled())
+		modes += "k"; 
+	if (m_channel->getUserCountLimited())
+		modes += "l"; 
+	if (m_channel->getNoExternalMsg())
+		modes += "n";
+	cout << endl << "\e[33mCurrent modes for #" << m_channel->getName() << " " << modes << "\e[0m" << endl;
+}
+
 
 string	MODE::execute(const command &message, vector<user> &globalUserList, vector<channel> &globalChannelList){
 	(void)globalUserList;
@@ -238,18 +316,20 @@ string	MODE::execute(const command &message, vector<user> &globalUserList, vecto
 	parseModes(parameters);
 	storeModeArguments(parameters);
 
+
 	/*	check that the channel exists	*/
 	if (isChannel(parsedChannelName, globalChannelList) == false)
 		return ERR_NOSUCHCHANNEL_MODE(message.getClient().getServername(), message.getClient().getNickname(), parsedChannelName);
 	storeChannel(parsedChannelName, globalChannelList);
 
-	/*	check that the user has privelage	*/
+	/*	check that the user has privilege	*/
 	if (isUserOperator(message.getClient()) == false)
 		return ERR_CHANOPRIVSNEEDED_MODE(message.getClient().getServername(), message.getClient().getNickname(), parsedChannelName);
-	/*Copy of user*/
-	m_user = message.getClient();
+	storeUser(message.getClient().getNickname(), globalUserList);
 
-	dealWithAppropriateMode();
+	dealWithAppropriateMode(globalUserList);
+
+	logModes();
 
 	std::cout << endl << "\e[32m" << "END OF MODE::execute()" << "\e[0m" << endl; 
 	return m_reply;

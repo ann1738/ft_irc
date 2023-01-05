@@ -27,6 +27,10 @@ using namespace std;
 #define ERR_NOSUCHCHANNEL_MODE(servername, nickname, channel) \
 (servername + " 403 " + nickname + " " + channel + " :No such channel\n")
 
+#define ERR_NOSUCHNICK(servername, sender, recipient) \
+(":" + servername + " 401 " + sender + " " + recipient + " :No such nick/channel\n")
+
+
 /* ***	Supported Modes	*** */
 // o - give/take channel operator privileges;
 // p - private channel flag;
@@ -48,7 +52,7 @@ private:
 	string		parsedChannelName;
 	string		parsedModes;
 
-	user		m_user;
+	user*		m_user;
 	channel*	m_channel;
 	string		m_reply;
 
@@ -63,10 +67,13 @@ private:
 	void	storeChannel(const string& channelName, vector<channel> &globalChannelList);
 
 	void	changeModes();
+	vector<user>::iterator	findUser(vector<user> &userList, const string &nickname);
 
 	bool	isUserOperator(const user& User);
-	
-	void	dealWithAppropriateMode();
+	void	storeUser(const string& channelName, vector<user> &globalUserList);
+
+
+	void	dealWithAppropriateMode(vector<user> &globalUserList);
 
 	string	handleModeL(bool isPlus);
 	string	handleModeS(bool isPlus);
@@ -75,9 +82,13 @@ private:
 	string	handleModeM(bool isPlus);
 	string	handleModeN(bool isPlus);
 	string	handleModeT(bool isPlus);
-	string	handleModeO(bool isPlus);
-	// string	handleModeV(bool isPlus);
+	string	handleModeO(bool isPlus, vector<user> &globalUserList);
+	// string	handleModeV(bool isPlus, vector<user> &globalUserList);
 	// string	handleModeK(bool isPlus);
+
+	void	logModes();
+
+	void	clear();
 public:
 	MODE();
 	~MODE();
