@@ -81,6 +81,27 @@ bool	channel::getUserCountLimited() const{
 	return isUserCountLimited;
 }
 
+string	channel::getChannelModes() const{
+	string	modes;
+	if (this->getPrivate())
+		modes += "p"; 
+	if (this->getSecret())
+		modes += "s"; 
+	if (this->getInviteOnly())
+		modes += "i";
+	if (this->getTopicSafe())
+		modes += "t";
+	if (this->getNoExternalMsg())
+		modes += "n";
+	if (this->getModerated())
+		modes += "m"; 
+	if (this->getUserCountLimited())
+		modes += "l"; 
+	if (this->getKeyEnabled())
+		modes += "k"; 
+	return modes;
+}
+
 /* vectors */
 const vector<user>	channel::getUsers() const{
 	return users;

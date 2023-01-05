@@ -62,6 +62,8 @@ public:
 	bool	getKeyEnabled() const;
 	bool	getUserCountLimited() const;
 
+	string	getChannelModes() const;
+
 	const vector<user>	getUsers() const;
 	const vector<user>	getOperators() const;
 	const vector<user>	getInvitedUsers() const;
