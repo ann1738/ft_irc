@@ -83,7 +83,7 @@ private:
 	string	handleModeN(bool isPlus);
 	string	handleModeT(bool isPlus);
 	string	handleModeO(bool isPlus, vector<user> &globalUserList);
-	// string	handleModeV(bool isPlus, vector<user> &globalUserList);
+	string	handleModeV(bool isPlus, vector<user> &globalUserList);
 	// string	handleModeK(bool isPlus);
 
 	void	logModes();

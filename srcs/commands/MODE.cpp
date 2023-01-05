@@ -14,6 +14,7 @@ void	MODE::parseChannelName(string &parameters){
 	parameters.erase(0, parameters.find(' ') + 1);                        //erase the channel name
 }
 
+// take care of duplicate modes like ++iiii
 void	MODE::parseModes(string &parameters){
 	string	modesParam = parameters.substr(0, parameters.find(' '));           //extract the mode specification
 	
@@ -105,9 +106,9 @@ void	MODE::dealWithAppropriateMode(vector<user> &globalUserList){
 			case 'o':
 				m_reply += handleModeO(isPlus, globalUserList);
 				break ;
-			// case 'v':
-			// 	m_reply += handleModeV(isPlus);
-			// 	break ;
+			case 'v':
+				m_reply += handleModeV(isPlus, globalUserList);
+				break ;
 			// case 'k':
 			// 	m_reply += handleModeK(isPlus);
 			// 	break ;
@@ -270,6 +271,43 @@ string	MODE::handleModeO(bool isPlus, vector<user> &globalUserList){
 	mode += "o";
 	return RPL_CHANNELMODEIS(m_user->getNickname(), m_channel->getName(), mode, modeArgs[modeArgsIndex - 1]);
 }
+
+
+string	MODE::handleModeV(bool isPlus, vector<user> &globalUserList){
+	if (modeArgs.size() <= modeArgsIndex) //check condition again
+		return ERR_NEEDMOREPARAMS_MODE(m_user->getServername(), string("v"));
+
+	string nickname = modeArgs[modeArgsIndex++];
+
+	vector<user>::iterator userIter = findUser(globalUserList, nickname);
+	if (userIter == globalUserList.end())
+		return ERR_NOSUCHNICK(m_user->getServername(), m_user->getNickname(), nickname);
+
+	if (m_channel->isUser(*userIter) == false)
+		return "";
+	
+	if (m_user->getNickname() == userIter->getNickname()) //in case operator is trying to change the mode on herself
+		return "";	
+
+	if (isPlus == true && m_channel->isVoicedUser(*userIter) == true)
+		return "";
+
+	if (isPlus == false && m_channel->isVoicedUser(*userIter) == false)
+		return "";
+
+	/*give/take privilege*/		
+	if (isPlus == true)
+		m_channel->addVoicedUser(*userIter);
+	else
+		m_channel->removeVoicedUser(*userIter);
+
+	/*construct reply*/		
+	string mode = isPlus ? "+" : "-";
+	mode += "v";
+	return RPL_CHANNELMODEIS(m_user->getNickname(), m_channel->getName(), mode, modeArgs[modeArgsIndex - 1]);
+}
+
+
 
 void	MODE::storeUser(const string& nickname, vector<user> &globalUserList){
 	for (vector<user>::iterator it = globalUserList.begin(); it != globalUserList.end(); ++it)
