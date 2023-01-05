@@ -109,9 +109,9 @@ void	MODE::dealWithAppropriateMode(vector<user> &globalUserList){
 			case 'v':
 				m_reply += handleModeV(isPlus, globalUserList);
 				break ;
-			// case 'k':
-			// 	m_reply += handleModeK(isPlus);
-			// 	break ;
+			case 'k':
+				m_reply += handleModeK(isPlus);
+				break ;
 			case 'l':
 				m_reply += handleModeL(isPlus);
 				break ;
@@ -190,6 +190,8 @@ string	MODE::handleModeT(bool isPlus){
 }
 
 string	MODE::handleModeL(bool isPlus){
+	if (isPlus == false && m_channel->getUserCountLimited() == false) return "";
+	if (isPlus == true && m_channel->getUserCountLimited() == true) return "";
 	if (isPlus == false)
 	{
 		m_channel->setUserCountLimit(0);
@@ -307,6 +309,31 @@ string	MODE::handleModeV(bool isPlus, vector<user> &globalUserList){
 	return RPL_CHANNELMODEIS(m_user->getNickname(), m_channel->getName(), mode, modeArgs[modeArgsIndex - 1]);
 }
 
+string	MODE::handleModeK(bool isPlus){
+	if (isPlus == false && m_channel->getKeyEnabled() == false) return "";
+	if (isPlus == true && m_channel->getKeyEnabled() == true) return "";
+	if (isPlus == false)
+	{
+		m_channel->setKeyEnabled(false);
+		m_channel->setKey("");
+		return RPL_CHANNELMODEIS( m_user->getNickname(), m_channel->getName(), string("-k"), string());
+	}
+
+	cout << "before checking if parameters exist" << endl;
+	if (modeArgs.size() <= modeArgsIndex) //check condition again
+		return ERR_NEEDMOREPARAMS_MODE(m_user->getServername(), string("k"));
+
+	string key = modeArgs[modeArgsIndex++];
+
+	cout << "key: " << key << endl;
+	if (key.size() < 3)
+		return ERR_PASSTOOSMALL(m_user->getServername(), m_user->getNickname());
+	
+	
+	m_channel->setKeyEnabled(true);
+	m_channel->setKey(key);
+	return RPL_CHANNELMODEIS( m_user->getNickname(), m_channel->getName(), string("+k"), key);
+}
 
 
 void	MODE::storeUser(const string& nickname, vector<user> &globalUserList){

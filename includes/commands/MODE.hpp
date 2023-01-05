@@ -30,6 +30,9 @@ using namespace std;
 #define ERR_NOSUCHNICK(servername, sender, recipient) \
 (":" + servername + " 401 " + sender + " " + recipient + " :No such nick/channel\n")
 
+#define ERR_PASSTOOSMALL(servername, nickname) \
+(":" + servername + " " + nickname + " :Channel key must be at least 3 characters\n")
+
 
 /* ***	Supported Modes	*** */
 // o - give/take channel operator privileges;
@@ -84,7 +87,7 @@ private:
 	string	handleModeT(bool isPlus);
 	string	handleModeO(bool isPlus, vector<user> &globalUserList);
 	string	handleModeV(bool isPlus, vector<user> &globalUserList);
-	// string	handleModeK(bool isPlus);
+	string	handleModeK(bool isPlus);
 
 	void	logModes();
 
