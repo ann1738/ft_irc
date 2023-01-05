@@ -80,6 +80,7 @@ public:
 	reply();
 	
 	void	setUserFds(channel& c);
+	void	setUserFds(channel& c, int fd);
 	void	setUserFds(user& u);
 	void	setMsg(string m);
 

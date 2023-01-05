@@ -4,9 +4,15 @@ reply::reply(): userFds(), msg("") {}
 	
 void	reply::setUserFds(channel& c){
 	for (size_t i = 0; i < c.getUsers().size(); i++) {
+		this->userFds.push_back(c.getUsers()[i].getFd());
+	}
+}
 
-		this->userFds.push_back(c.getUsers().at(i).getFd());
-		cout << "fd => " << c.getUsers().at(i).getFd() << "is added to reply class" << endl;
+void	reply::setUserFds(channel& c, int fd){
+	for (size_t i = 0; i < c.getUsers().size(); i++) {
+
+		if (c.getUsers()[i].getFd() != fd)
+			this->userFds.push_back(c.getUsers()[i].getFd());
 	}
 }
 
