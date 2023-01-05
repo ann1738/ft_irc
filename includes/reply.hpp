@@ -13,14 +13,21 @@
 #define RPL_PART(nickname, channel_name) \
 (":" + nickname + " PART #" + channel_name + "\n")
 
-#define RPL_NICK(old_nickname, new_nickname) \
-(":" + old_nickname + " NICK " + new_nickname + "\n")
+#define RPL_NICK(old_nickname, username, hostname, new_nickname) \
+(":" + old_nickname + "!" + username + "@" + hostname + " NICK :" + new_nickname + "\n")
 
 #define RPL_PRIVMSG(sender, recipient, message) \
 (":" + sender + " PRIVMSG " + recipient + " " + message + "\n")
 
 #define RPL_TOPIC(servername, nickname, channel, topic) \
 (":" + servername + " 332 " + nickname + " #" + channel + " :" + topic + "\n")
+
+// REMINDER: the '@' is hardcoded
+#define RPL_NAMREPLY(servername, nickname, prefix, channel, names) \
+(":" + servername + " 353 " + nickname + " " + prefix + " #" + channel + " :@" + names + "\n")
+
+#define RPL_ENDOFNAMES(servername, nickname, channel) \
+(":" + servername + " 366 " + nickname + " #" + channel + " :End of /NAMES list\n")
 // -----
 
 // ----- error replies

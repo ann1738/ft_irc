@@ -97,17 +97,50 @@ pair<size_t, string>	JOIN::goThroughErrors(user& client, size_t position, vector
 	return (make_pair(i, ""));
 }
 
+/**
+ * I didn't include the const keyword since I ran into some compilation errors and since the
+ * channel class will be updated soon, I thought it would be better to wait than to make changes 
+*/
+string JOIN::getNames(channel& channel) {
+	stringstream all_users;
+
+	vector<user> users = channel.getUsers();
+	for (vector<user>::iterator it = users.begin(); it != users.end(); it++) {
+		// if (channel.isOperator(*it)) {
+		// 	all_users << "@";
+		// } else if (channel.isVoicedUser(*it)) {
+		// 	all_users << "+";
+		// }
+		all_users << it->getNickname() << " ";
+	}
+	return all_users.str();
+}
+
+/**
+ * @REMINDER: - only works for the first channel created
+ *            - nicknames in channel class are not being updated
+*/
+void JOIN::sendNames(const user& client, channel& channel) {
+	string names;
+
+	names.append(RPL_NAMREPLY(client.getServername(), client.getNickname(), "=", channel.getName(), this->getNames(channel)));
+	names.append(RPL_ENDOFNAMES(client.getServername(), client.getNickname(), channel.getName()));
+	send(client.getFd(), names.c_str(), names.length(), 0);
+}
+
 vector<reply>	JOIN::doJoinAction(user& client, vector<channel> &globalChannelList){
 	vector<reply> ret;
 	for(size_t i = 0; i < this->channel_names.size(); i++){
 		pair<size_t, string> temp  = this->goThroughErrors(client, i, globalChannelList);
 		ret.push_back(reply());
-		
+
 		if (!temp.second.size()) {
 			client.addChannel(this->channel_names[i]);
 			globalChannelList[temp.first].addUser(client);
 			temp.second = RPL_JOIN(client.getNickname(), this->channel_names[i]);
 			ret[i].setUserFds(globalChannelList[temp.first]);
+
+			this->sendNames(client, globalChannelList[i]);
 			/* --------- making the channel invite only to test error sending --------- */
 			// globalChannelList[temp.first].setInviteOnly(true);
 		}

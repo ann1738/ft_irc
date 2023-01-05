@@ -71,7 +71,7 @@ string NICK::buildResponse(const command &msg, const vector<user>& userList, con
 
 	// change a user's nickname if no errors have been encountered
 	else {
-		response << RPL_NICK(msg.getClient().getNickname(), nickname);
+		response << RPL_NICK(msg.getClient().getNickname(), msg.getClient().getUsername(), msg.getClient().getHostname(), nickname);
 		msg.getClient().setNickname(nickname);
 	}
 	return response.str();
