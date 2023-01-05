@@ -109,7 +109,7 @@ void user::addChannel(string channel_name) {
 }
 
 void user::removeChannel(string channel_name) {
-	for (vector<string>::const_iterator it = m_channels.begin(); it != m_channels.end(); it++) {
+	for (vector<string>::iterator it = m_channels.begin(); it != m_channels.end(); it++) {
 		if (*it == channel_name) {
 			m_channels.erase(it);
 			break ;
