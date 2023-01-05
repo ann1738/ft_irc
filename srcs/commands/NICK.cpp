@@ -90,7 +90,7 @@ vector<reply>    NICK::buildReplies(const command &msg, vector<channel> &globalC
 			}
 		}
 	}
-	else if (!i_ret) {
+	if (!i_ret) {
 		ret.push_back(reply());
 		ret[0].setMsg(response);
 		ret[0].setUserFds(msg.getClient());
