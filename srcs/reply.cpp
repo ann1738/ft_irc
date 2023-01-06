@@ -2,13 +2,13 @@
 
 reply::reply(): userFds(), msg("") {}
 	
-void	reply::setUserFds(channel& c){
+void	reply::setUserFds(const channel& c){
 	for (size_t i = 0; i < c.getUsers().size(); i++) {
 		this->userFds.push_back(c.getUsers()[i].getFd());
 	}
 }
 
-void	reply::setUserFds(channel& c, int fd){
+void	reply::setUserFds(const channel& c, int fd){
 	for (size_t i = 0; i < c.getUsers().size(); i++) {
 
 		if (c.getUsers()[i].getFd() != fd)
@@ -16,11 +16,11 @@ void	reply::setUserFds(channel& c, int fd){
 	}
 }
 
-void	reply::setUserFds(user& u){
+void	reply::setUserFds(const user& u){
 	this->userFds.push_back(u.getFd());
 }
 
-void	reply::setMsg(string m){
+void	reply::setMsg(const string& m){
 	this->msg = m;
 }
 

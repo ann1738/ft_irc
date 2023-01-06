@@ -250,12 +250,12 @@ bool		server::isUserAuthenticated(const user& User) {
 	       !User.getRealname().empty();
 }
 
-void	server::sendReplies(vector<reply> r){
-	for (size_t reply_count = 0; reply_count < r.size(); reply_count++) {
-		for (size_t user_count = 0; user_count < r[reply_count].getUserFds().size(); user_count++)
-			send(r[reply_count].getUserFds()[user_count], r[reply_count].getMsg().c_str(), r[reply_count].getMsg().length(), 0);
+void	server::sendReplies(const vector<reply>& replies){
+	for (size_t reply_count = 0; reply_count < replies.size(); reply_count++) {
+		for (size_t user_count = 0; user_count < replies[reply_count].getUserFds().size(); user_count++)
+			send(replies[reply_count].getUserFds()[user_count], replies[reply_count].getMsg().c_str(), replies[reply_count].getMsg().length(), 0);
 		cout << "******* sent reply start *******" << endl;
-		cout << r[reply_count].getMsg() << endl;
+		cout << replies[reply_count].getMsg() << endl;
 		cout << "******* sent reply end *******" << endl;
 	}
 }

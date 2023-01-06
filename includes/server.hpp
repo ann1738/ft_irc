@@ -72,7 +72,7 @@ private:
 	// vector<user>::const_iterator	findUser(const string& message);
 	// vector<channel>::const_iterator	findChannel(const string& message);
 
-	void		sendReplies(vector<reply> r);
+	void		sendReplies(const vector<reply>& replies);
 
 public:
 	server(int port);

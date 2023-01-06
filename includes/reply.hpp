@@ -79,10 +79,10 @@ private:
 public:
 	reply();
 	
-	void	setUserFds(channel& c);
-	void	setUserFds(channel& c, int fd);
-	void	setUserFds(user& u);
-	void	setMsg(string m);
+	void	setUserFds(const channel& c);
+	void	setUserFds(const channel& c, int fd);
+	void	setUserFds(const user& u);
+	void	setMsg(const string& m);
 
 	vector<int>	getUserFds() const;
 	string		getMsg() const;
