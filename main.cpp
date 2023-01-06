@@ -20,6 +20,7 @@ int main(int argc, char **argv)
 		cout << "Parsing done" << endl;
 	} catch (std::exception &e) {
 		cout << e.what() << endl;
+		return 1;
 	}
 
 	signal(SIGINT, signalHandler);
