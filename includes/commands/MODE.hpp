@@ -6,6 +6,7 @@
 #include <sstream>
 #include "channel.hpp"
 #include "command.hpp"
+// #include "reply.hpp"
 
 using namespace std;
 
@@ -14,11 +15,11 @@ using namespace std;
 #define MODES_WITHOUT_ARGS "isptnm"
 #define MAX_USER_COUNT_LIMIT 1000000
 
-#define ERR_NEEDMOREPARAMS_MODE(servername, mode) \
-(":" + servername + " 461 " + "MODE +" + mode + " Not enough parameters\n")
-
 #define RPL_CHANNELMODEIS(nickname, channel, mode, modeParams) \
 ("324 " + nickname + " #" + channel + " " + mode + " " + modeParams + "\n")
+
+#define ERR_NEEDMOREPARAMS_MODE(servername, mode) \
+(":" + servername + " 461 " + "MODE +" + mode + " Not enough parameters\n")
 
 #define ERR_CHANOPRIVSNEEDED_MODE(servername, nickname, channel) \
 (":" + servername + " 482 " + nickname + " " + channel + " :You're not channel operator\n")
@@ -53,16 +54,17 @@ private:
 	string		parsedChannelName;
 	string		parsedModes;
 
-	user*		m_user;
-	channel*	m_channel;
-	string		m_reply;
+	user*			m_user;
+	channel*		m_channel;
+	string			m_reply;
+	// vector<string>	m_reply_msg;
 
 	size_t				modeArgsIndex;
 	vector<string>		modeArgs;
 
 	void	parseChannelName(string &parameters);
 	void	parseModes(string &parameters);
-	void	storeModeArguments(string &parameters);
+	void	parseModeArguments(string &parameters);
 	void	storeChannel(const string& channelName, vector<channel> &globalChannelList);
 	void	storeUser(const string& channelName, vector<user> &globalUserList);
 
@@ -84,6 +86,9 @@ private:
 	string	handleModeV(bool isPlus, vector<user> &globalUserList);
 
 	void	clear();
+
+	// vector<reply>	MODE::constructReply();
+
 public:
 	MODE();
 	~MODE();

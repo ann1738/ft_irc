@@ -1,6 +1,6 @@
 #include "MODE.hpp"
 
-MODE::MODE(): parsedChannelName(""), parsedModes(""), m_reply(""), modeArgsIndex(0)
+MODE::MODE(): parsedChannelName(""), parsedModes(""), m_reply(), modeArgsIndex(0)
 {
 }
 
@@ -8,13 +8,13 @@ MODE::~MODE()
 {
 }
 
-//make sure that the channel starts with #
+/*	parsing	*/
 void	MODE::parseChannelName(string &parameters){
 	parsedChannelName = parameters.substr(0, parameters.find(' '));
 	parameters.erase(0, parameters.find(' ') + 1);                        //erase the channel name
 }
 
-// take care of duplicate modes like ++iiii
+
 void	MODE::parseModes(string &parameters){
 	string	modesParam = parameters.substr(0, parameters.find(' '));           //extract the mode specification
 	
@@ -33,17 +33,13 @@ void	MODE::parseModes(string &parameters){
 	
 }
 
-void	MODE::storeModeArguments(string &parameters){
+void	MODE::parseModeArguments(string &parameters){
 	stringstream	ss;
 	string 			temp;
 	ss << parameters;
 
-
 	while (ss >> temp)
 		modeArgs.push_back(temp);
-	for (vector<string>::iterator it = modeArgs.begin(); it != modeArgs.end(); it++)
-		std::cout << *it << std::endl;
-
 }
 
 void	MODE::storeChannel(const string& channelName, vector<channel> &globalChannelList){
@@ -83,8 +79,7 @@ bool	MODE::isUserOperator(const user& User){
 }
 
 vector<user>::iterator	MODE::findUser(vector<user> &userList, const string &nickname) {
-	size_t	index = 0;
-	for (vector<user>::iterator it = userList.begin(); it != userList.end(); it++, index++)
+	for (vector<user>::iterator it = userList.begin(); it != userList.end(); it++)
 	{
 		if (it->getNickname() == nickname)
 			return it;
@@ -98,7 +93,6 @@ vector<user>::iterator	MODE::findUser(vector<user> &userList, const string &nick
  * based on their position relative to other similar modes in the
  * input message 
  **/
-#include <map>
 void	MODE::redirectMode(vector<user> &globalUserList){
 	char 				mode;
 	bool				isPlus;
@@ -113,41 +107,50 @@ void	MODE::redirectMode(vector<user> &globalUserList){
 		{
 			case 's':
 				m_reply += handleModeS(isPlus);
+				// m_reply_msg.push_back(handleModeS(isPlus));
 				break ;
 			case 'p':
 				m_reply += handleModeP(isPlus);
+				// m_reply_msg.push_back(handleModeP(isPlus));
 				break ;
 			case 'i':
 				m_reply += handleModeI(isPlus);
+				// m_reply_msg.push_back(handleModeI(isPlus));
 				break ;
 			case 'n':
 				m_reply += handleModeN(isPlus);
+				// m_reply_msg.push_back(handleModeN(isPlus));
 				break ;
 			case 't':
 				m_reply += handleModeT(isPlus);
+				// m_reply_msg.push_back(handleModeT(isPlus));
 				break ;
 			case 'm':
 				m_reply += handleModeM(isPlus);
+				// m_reply_msg.push_back(handleModeM(isPlus));
 				break ;
 			case 'o':
 				m_reply += handleModeO(isPlus, globalUserList);
+				// m_reply_msg.push_back(handleModeO(isPlus, globalUserList));
 				break ;
 			case 'v':
 				m_reply += handleModeV(isPlus, globalUserList);
+				// m_reply_msg.push_back(handleModeV(isPlus, globalUserList));
 				break ;
 			case 'k':
 				m_reply += handleModeK(isPlus);
+				// m_reply_msg.push_back(handleModeK(isPlus));
 				break ;
 			case 'l':
 				m_reply += handleModeL(isPlus);
+				// m_reply_msg.push_back(handleModeL(isPlus));
 				break ;
-		} 
+		}
 		pos++;
 	}
 	modeArgsIndex = 0;
 	std::cout << "\e[31mMODE::m_reply = " << m_reply << "\e[0m" << std::endl;
 }
-//each mode may generate a reply
 
 string	MODE::handleModeS(bool isPlus){
 	if (isPlus == m_channel->getSecret())
@@ -259,8 +262,6 @@ string	MODE::handleModeO(bool isPlus, vector<user> &globalUserList){
 	if (userIter == globalUserList.end())
 		return ERR_NOSUCHNICK(m_user->getServername(), m_user->getNickname(), nickname);
 
-	for (vector<user>::const_iterator it = m_channel->getUsers().begin(); it != m_channel->getUsers().end(); it++)
-		cout << it->getNickname() << endl;
 	if (m_channel->isUser(*userIter) == false)
 		return "";
 	
@@ -346,7 +347,6 @@ string	MODE::handleModeK(bool isPlus){
 	return RPL_CHANNELMODEIS( m_user->getNickname(), m_channel->getName(), string("+k"), key);
 }
 
-
 void	MODE::clear(){
 	parsedChannelName.clear();
 	parsedModes.clear();
@@ -359,13 +359,30 @@ void	MODE::clear(){
 	modeArgs.clear();
 }
 
+// vector<reply>	MODE::constructReply(){
+// 	vector<reply>	replies;
+	
+// 	for (size_t i = 0; i < m_reply.size(); i++)
+// 	{
+// 		replies.push_back(reply());
+// 		replies[i].setMsg(m_reply[i]);
+// 		if (m_reply[i].find("324") == string::npos)
+// 			replies[i].setUserFds(this->m_user);
+// 		else
+// 			replies[i].setUserFds(this->m_channel);
+// 	}
+// 	return replies;
+// }
+
 string	MODE::execute(const command &message, vector<user> &globalUserList, vector<channel> &globalChannelList){
 	clear();
 	
 	string parameters = message.getParameters();
+
+	/*	parse	*/
 	parseChannelName(parameters);
 	parseModes(parameters);
-	storeModeArguments(parameters);
+	parseModeArguments(parameters);
 
 	/*	check that the channel exists	*/
 	if (isChannel(parsedChannelName, globalChannelList) == false)
@@ -380,6 +397,6 @@ string	MODE::execute(const command &message, vector<user> &globalUserList, vecto
 	redirectMode(globalUserList);
 
 	cout << m_channel->getChannelModes() << endl;
-
 	return m_reply;
+	// return constructReply();
 }
