@@ -13,6 +13,7 @@ private:
 	PART part;
 	PRIVMSG privmsg;
 	MODE mode;
+	PING ping;
 
 public:
 	redirectCommand();
