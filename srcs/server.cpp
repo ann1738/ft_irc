@@ -175,7 +175,7 @@ void			server::handleExistingConnection(int socketIndex){
 }
 
 void			server::loopAndHandleConnections(){
-	for(int i = 0; i <= fdCount; i++)
+	for(int i = 0; i < fdCount; i++)
 	{
 		if (clientSockets[i].revents & POLLIN)
 		{
