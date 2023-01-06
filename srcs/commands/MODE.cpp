@@ -384,6 +384,10 @@ string	MODE::execute(const command &message, vector<user> &globalUserList, vecto
 	parseModes(parameters);
 	parseModeArguments(parameters);
 
+	/*	check if mode of a user is trying to be modified	*/
+	if (findUser(globalUserList, parsedChannelName) != globalUserList.end())
+		return "";
+
 	/*	check that the channel exists	*/
 	if (isChannel(parsedChannelName, globalChannelList) == false)
 		return ERR_NOSUCHCHANNEL_MODE(message.getClient().getServername(), message.getClient().getNickname(), parsedChannelName);

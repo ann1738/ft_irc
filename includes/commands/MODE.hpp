@@ -51,16 +51,16 @@ using namespace std;
 class MODE
 {
 private:
-	string		parsedChannelName;
-	string		parsedModes;
+	string			parsedChannelName;
+	string			parsedModes;
 
 	user*			m_user;
 	channel*		m_channel;
 	string			m_reply;
 	// vector<string>	m_reply_msg;
 
-	size_t				modeArgsIndex;
-	vector<string>		modeArgs;
+	size_t			modeArgsIndex;
+	vector<string>	modeArgs;
 
 	void	parseChannelName(string &parameters);
 	void	parseModes(string &parameters);
