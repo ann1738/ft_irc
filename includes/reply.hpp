@@ -19,15 +19,18 @@
 #define RPL_PRIVMSG(sender, recipient, message) \
 (":" + sender + " PRIVMSG " + recipient + " " + message + "\n")
 
-#define RPL_TOPIC(servername, nickname, channel, topic) \
-(":" + servername + " 332 " + nickname + " #" + channel + " :" + topic + "\n")
-// -----
-
-// ----- error replies
 #define RPL_NOTOPIC(servername, nickname, channel) \
 (":" + servername + " 331 * " + nickname  + " #" + channel + " :No topic is set" + "\n")
 
-#define ERR_NOSUCKNICK(servername, nickname) \
+#define RPL_TOPIC(servername, nickname, channel, topic) \
+(":" + servername + " 332 " + nickname + " #" + channel + " :" + topic + "\n")
+
+#define RPL_CHANNELMODEIS(nickname, channel, mode, modeParams) \
+("324 " + nickname + " #" + channel + " " + mode + " " + modeParams + "\n")
+// -----
+
+// ----- error replies
+#define ERR_NOSUCHNICK(servername, nickname) \
 (":" + servername + " 401 * " + nickname + " :No such nick/channel\n")
 
 #define ERR_NOSUCHCHANNEL(servername, channel) \
@@ -68,6 +71,10 @@
 
 #define ERR_CHANOPRIVSNEEDED(servername, nickname, channel) \
 (":" + servername + " 482 * " + nickname + " #" + channel + " :You're not channel operator\n")
+
+#define ERR_PASSTOOSMALL(servername, nickname) \
+(":" + servername + " " + nickname + " :Channel key must be at least 3 characters\n")
+
 // -----
 
 class reply {

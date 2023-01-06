@@ -12,6 +12,7 @@ private:
 	JOIN join;
 	PART part;
 	PRIVMSG privmsg;
+	MODE mode;
 
 public:
 	redirectCommand();

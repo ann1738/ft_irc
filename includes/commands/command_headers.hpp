@@ -6,5 +6,6 @@
 #include "JOIN.hpp"
 #include "PART.hpp"
 #include "PRIVMSG.hpp"
+#include "MODE.hpp"
 
 #endif

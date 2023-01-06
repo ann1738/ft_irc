@@ -24,6 +24,8 @@ vector<reply>	redirectCommand::redirect(const command &message, vector<user> &gl
 		return part.execute(message, globalUserList, globalChannelList);
 	else if (cmd == "PRIVMSG")
 		return privmsg.execute(message, globalUserList, globalChannelList);
+	else if (cmd == "MODE")
+		return mode.execute(message, globalUserList, globalChannelList);
 	else
 		ret[0].setMsg(""); // ret[0].setMsg(ERR_UNKNOWNCOMMAND);
 	ret[0].setUserFds(message.getClient());

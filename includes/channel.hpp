@@ -8,15 +8,16 @@
 
 using namespace std;
 
+#define MAX_SIZE_T static_cast<size_t>(-1)
+
 class channel
 {
 private:
 	string	m_name;
 	string	m_topic;
 
-	string	m_key;               //empty if channel is not key protected (+k)
-	int		m_userCountLimit;    //0 if channel doesn't limit number of users (+l)
-	int		m_userCount;         //counts the number of users
+	string	m_key;
+	int		m_userCountLimit;
 
 	bool	isInviteOnly;        //i
 	bool	isModerated;         //m
@@ -29,15 +30,10 @@ private:
 
 	vector<user> users;
 	vector<user> operators;
-	vector<user> invitedUsers;   //empty if channel is not invite-only (+i)
-	vector<user> voicedUsers;    //empty if channel is not moderated (+m)
+	vector<user> invitedUsers;
+	vector<user> voicedUsers;
 
-	vector<user>::const_iterator	findUser(vector<user> const &userList, user User) const;
-
-	/*** modes to debate: b (ban user mask), 
-	 *   modes that are currently confusing (because they are for users): v (voiced users), o (operators)
-	 * */
-
+	size_t	findUser(const vector<user> &userList, const user &User) const;
 
 public:
 	channel();
@@ -60,6 +56,8 @@ public:
 	bool	getTopicSafe() const;
 	bool	getKeyEnabled() const;
 	bool	getUserCountLimited() const;
+
+	string	getChannelModes() const;
 
 	const vector<user>	getUsers() const;
 	const vector<user>	getOperators() const;

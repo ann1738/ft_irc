@@ -1,7 +1,7 @@
 #include "channel.hpp"
 
 channel::channel(): 
-m_name(""), m_topic(""), m_key(""), m_userCountLimit(0), m_userCount(0), isInviteOnly(false), 
+m_name(""), m_topic(""), m_key(""), m_userCountLimit(0), isInviteOnly(false), 
 isModerated(false), isNoExternalMsg(false), isPrivate(false), isSecret(false), isTopicSafe(false), 
 isKeyEnabled(false), isUserCountLimited(false)
 {
@@ -11,19 +11,20 @@ channel::~channel()
 {
 }
 
-channel::channel(string name, string topic): m_name(name), m_topic(topic), m_key(""), m_userCountLimit(0), m_userCount(0), isInviteOnly(false), 
+channel::channel(string name, string topic): m_name(name), m_topic(topic), m_key(""), m_userCountLimit(0), isInviteOnly(false), 
 isModerated(false), isNoExternalMsg(false), isPrivate(false), isSecret(false), isTopicSafe(false), 
 isKeyEnabled(false), isUserCountLimited(false)
 {
 }
 /* helper function */
-vector<user>::const_iterator	channel::findUser(vector<user> const &userList, user User) const{
-	for (vector<user>::const_iterator it = userList.begin(); it != userList.end(); it++)
+size_t	channel::findUser(const vector<user> &userList, const user &User) const{
+	size_t	index = 0;
+	for (vector<user>::const_iterator it = userList.begin(); it != userList.end(); it++, index++)
 	{
 		if (it->getNickname() == User.getNickname())
-			return it;
+			return index;
 	}
-	return userList.end();
+	return -1;
 }
 
 /* getters */
@@ -44,7 +45,7 @@ int		channel::getUserCountLimit() const{
 }
 
 int		channel::getUserCount() const{
-	return m_userCount;
+	return users.size();
 }
 
 /* modes */
@@ -80,6 +81,27 @@ bool	channel::getUserCountLimited() const{
 	return isUserCountLimited;
 }
 
+string	channel::getChannelModes() const{
+	string	modes;
+	if (this->getPrivate())
+		modes += "p"; 
+	if (this->getSecret())
+		modes += "s"; 
+	if (this->getInviteOnly())
+		modes += "i";
+	if (this->getTopicSafe())
+		modes += "t";
+	if (this->getNoExternalMsg())
+		modes += "n";
+	if (this->getModerated())
+		modes += "m"; 
+	if (this->getUserCountLimited())
+		modes += "l"; 
+	if (this->getKeyEnabled())
+		modes += "k"; 
+	return modes;
+}
+
 /* vectors */
 const vector<user>	channel::getUsers() const{
 	return users;
@@ -112,10 +134,6 @@ void	channel::setKey(string Key){
 
 void	channel::setUserCountLimit(int limit){
 	m_userCountLimit = limit;
-}
-
-void	channel::setUserCount(int count){
-	m_userCount = count;
 }
 
 /* modes */
@@ -154,10 +172,12 @@ void	channel::setUserCountLimited(bool mode){
 /* vectors */
 void	channel::addUser(user const &User){
 	users.push_back(User);
+	if (users.size() == 1)    //make the first the channel user an operator 
+		addOperator(User);
 }
 
 void	channel::removeUser(user const &User){
-	users.erase(findUser(users, User));
+	users.erase(users.begin() + findUser(users, User));
 	if (isOperator(User))
 		removeOperator(User);
 	if (isInvitedUser(User))
@@ -167,7 +187,7 @@ void	channel::removeUser(user const &User){
 }
 
 bool	channel::isUser(user const &User) const{
-	if (users.empty() || findUser(users, User) == users.end())
+	if (users.empty() || findUser(users, User) == MAX_SIZE_T)
 		return false;
 	return true;
 }
@@ -178,11 +198,11 @@ void	channel::addOperator(user const &Op){
 }
 
 void	channel::removeOperator(user const &Op){
-	operators.erase(findUser(operators, Op));
+	operators.erase(operators.begin() + findUser(operators, Op));
 }
 
 bool	channel::isOperator(user const &Op) const{
-	if (operators.empty() || findUser(operators, Op) == operators.end())
+	if (operators.empty() || findUser(operators, Op) == MAX_SIZE_T)
 		return false;
 	return true;
 }
@@ -192,11 +212,11 @@ void	channel::addVoicedUser(user const &User){
 }
 
 void	channel::removeVoicedUser(user const &User){
-	voicedUsers.erase(findUser(voicedUsers, User));
+	voicedUsers.erase(voicedUsers.begin() + findUser(voicedUsers, User));
 }
 
 bool	channel::isVoicedUser(user const &User) const{
-	if (voicedUsers.empty() || findUser(voicedUsers, User) == voicedUsers.end())
+	if (voicedUsers.empty() || findUser(voicedUsers, User) == MAX_SIZE_T)
 		return false;
 	return true;
 
@@ -207,11 +227,11 @@ void	channel::addInvitedUser(user const &User){
 }
 
 void	channel::removeInvitedUser(user const &User){
-	invitedUsers.erase(findUser(invitedUsers, User));
+	invitedUsers.erase(invitedUsers.begin() + findUser(invitedUsers, User));
 }
 
 bool	channel::isInvitedUser(user const &User) const{
-	if (invitedUsers.empty() || findUser(invitedUsers, User) == invitedUsers.end())
+	if (invitedUsers.empty() || findUser(invitedUsers, User) == MAX_SIZE_T)
 		return false;
 	return true;
 }

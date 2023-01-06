@@ -45,7 +45,7 @@ void PRIVMSG::buildUserResponse(stringstream& response, const command &msg, cons
 	if (this->isNicknameJustSpaces(nickname)) {
 		response << ERR_NOTEXTTOSEND(msg.getClient().getServername());
 	} else if (!this->isUserInServer(userList, nickname)) {
-		response << ERR_NOSUCKNICK(msg.getClient().getServername(), nickname);
+		response << ERR_NOSUCHNICK(msg.getClient().getServername(), nickname);
 	} else {
 		response << RPL_PRIVMSG(msg.getClient().getNickname(), nickname, message);
 	}
