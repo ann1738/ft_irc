@@ -46,15 +46,6 @@ void	MODE::storeModeArguments(string &parameters){
 
 }
 
-bool	MODE::isChannel(const string& channelName, vector<channel> &globalChannelList){
-	for (vector<channel>::iterator it = globalChannelList.begin(); it != globalChannelList.end(); ++it)
-	{
-		if ("#" + it->getName() == channelName)
-			return true;
-	}
-	return false;
-}
-
 void	MODE::storeChannel(const string& channelName, vector<channel> &globalChannelList){
 	for (vector<channel>::iterator it = globalChannelList.begin(); it != globalChannelList.end(); ++it)
 	{
@@ -66,18 +57,53 @@ void	MODE::storeChannel(const string& channelName, vector<channel> &globalChanne
 	}
 }
 
-void	MODE::changeModes(){
+void	MODE::storeUser(const string& nickname, vector<user> &globalUserList){
+	for (vector<user>::iterator it = globalUserList.begin(); it != globalUserList.end(); ++it)
+	{
+		cout << "storeUser()" << endl;
+		if (it->getNickname() == nickname)
+		{
+			m_user = &*it;
+			break ;
+		}
+	}
+}
 
+bool	MODE::isChannel(const string& channelName, vector<channel> &globalChannelList){
+	for (vector<channel>::iterator it = globalChannelList.begin(); it != globalChannelList.end(); ++it)
+	{
+		if ("#" + it->getName() == channelName)
+			return true;
+	}
+	return false;
 }
 
 bool	MODE::isUserOperator(const user& User){
 	return m_channel->isOperator(User);
 }
 
-void	MODE::dealWithAppropriateMode(vector<user> &globalUserList){
+vector<user>::iterator	MODE::findUser(vector<user> &userList, const string &nickname) {
+	size_t	index = 0;
+	for (vector<user>::iterator it = userList.begin(); it != userList.end(); it++, index++)
+	{
+		if (it->getNickname() == nickname)
+			return it;
+	}
+	return userList.end();
+}
+
+/**
+ * Since I allow setting multiple modes at a time, channel modes
+ * that require parameters (k,l,v,o) will look for their arguments 
+ * based on their position relative to other similar modes in the
+ * input message 
+ **/
+#include <map>
+void	MODE::redirectMode(vector<user> &globalUserList){
 	char 				mode;
 	bool				isPlus;
 	string::size_type	pos = 0;
+
 	while ((pos = parsedModes.find_first_of("+-", pos)) != string::npos)
 	{
 		isPlus = (parsedModes[pos] == '+') ? true : false;
@@ -223,21 +249,6 @@ string	MODE::handleModeL(bool isPlus){
 	return RPL_CHANNELMODEIS( m_user->getNickname(), m_channel->getName(), string("+l"), oss.str());
 }
 
-/*So I am going to make my own system for the channel mode arguments where the parameters positions is dependent on the order of the mode presented*/
-
-/* helper function */
-
-vector<user>::iterator	MODE::findUser(vector<user> &userList, const string &nickname) {
-	size_t	index = 0;
-	for (vector<user>::iterator it = userList.begin(); it != userList.end(); it++, index++)
-	{
-		if (it->getNickname() == nickname)
-			return it;
-	}
-	return userList.end();
-}
-
-
 string	MODE::handleModeO(bool isPlus, vector<user> &globalUserList){
 	if (modeArgs.size() <= modeArgsIndex) //check condition again
 		return ERR_NEEDMOREPARAMS_MODE(m_user->getServername(), string("o"));
@@ -336,51 +347,25 @@ string	MODE::handleModeK(bool isPlus){
 }
 
 
-void	MODE::storeUser(const string& nickname, vector<user> &globalUserList){
-	for (vector<user>::iterator it = globalUserList.begin(); it != globalUserList.end(); ++it)
-	{
-		cout << "storeUser()" << endl;
-		if (it->getNickname() == nickname)
-		{
-			m_user = &*it;
-			break ;
-		}
-	}
+void	MODE::clear(){
+	parsedChannelName.clear();
+	parsedModes.clear();
+
+	m_user = NULL;
+	m_channel = NULL;
+	m_reply.clear();
+
+	modeArgsIndex = 0;
+	modeArgs.clear();
 }
-
-
-void	MODE::logModes(){
-	string	modes;
-	if (m_channel->getInviteOnly())
-		modes += "i";
-	if (m_channel->getTopicSafe())
-		modes += "t";
-	if (m_channel->getModerated())
-		modes += "m"; 
-	if (m_channel->getPrivate())
-		modes += "p"; 
-	if (m_channel->getSecret())
-		modes += "s"; 
-	if (m_channel->getKeyEnabled())
-		modes += "k"; 
-	if (m_channel->getUserCountLimited())
-		modes += "l"; 
-	if (m_channel->getNoExternalMsg())
-		modes += "n";
-	cout << endl << "\e[33mCurrent modes for #" << m_channel->getName() << " " << modes << "\e[0m" << endl;
-}
-
 
 string	MODE::execute(const command &message, vector<user> &globalUserList, vector<channel> &globalChannelList){
-	(void)globalUserList;
-	(void)m_user;
-	(void)modeArgsIndex;
-	std::cout << "\e[32m" << "START OF MODE::execute()" << "\e[0m" << endl << endl; 
+	clear();
+	
 	string parameters = message.getParameters();
 	parseChannelName(parameters);
 	parseModes(parameters);
 	storeModeArguments(parameters);
-
 
 	/*	check that the channel exists	*/
 	if (isChannel(parsedChannelName, globalChannelList) == false)
@@ -392,12 +377,9 @@ string	MODE::execute(const command &message, vector<user> &globalUserList, vecto
 		return ERR_CHANOPRIVSNEEDED_MODE(message.getClient().getServername(), message.getClient().getNickname(), parsedChannelName);
 	storeUser(message.getClient().getNickname(), globalUserList);
 
-	dealWithAppropriateMode(globalUserList);
+	redirectMode(globalUserList);
 
-	logModes();
+	cout << m_channel->getChannelModes() << endl;
 
-	std::cout << endl << "\e[32m" << "END OF MODE::execute()" << "\e[0m" << endl; 
 	return m_reply;
-	
-	// changeModes();
 }

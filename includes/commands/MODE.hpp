@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <sstream>
-// #define <cstdlib>
 #include "channel.hpp"
 #include "command.hpp"
 
@@ -25,14 +24,13 @@ using namespace std;
 (":" + servername + " 482 " + nickname + " " + channel + " :You're not channel operator\n")
 
 #define ERR_NOSUCHCHANNEL_MODE(servername, nickname, channel) \
-(servername + " 403 " + nickname + " " + channel + " :No such channel\n")
+(":" + servername + " 403 " + nickname + " " + channel + " :No such channel\n")
 
 #define ERR_NOSUCHNICK(servername, sender, recipient) \
 (":" + servername + " 401 " + sender + " " + recipient + " :No such nick/channel\n")
 
 #define ERR_PASSTOOSMALL(servername, nickname) \
 (":" + servername + " " + nickname + " :Channel key must be at least 3 characters\n")
-
 
 /* ***	Supported Modes	*** */
 // o - give/take channel operator privileges;
@@ -65,31 +63,25 @@ private:
 	void	parseChannelName(string &parameters);
 	void	parseModes(string &parameters);
 	void	storeModeArguments(string &parameters);
-
-	bool	isChannel(const string& channelName, vector<channel> &globalChannelList);
 	void	storeChannel(const string& channelName, vector<channel> &globalChannelList);
-
-	void	changeModes();
-	vector<user>::iterator	findUser(vector<user> &userList, const string &nickname);
-
-	bool	isUserOperator(const user& User);
 	void	storeUser(const string& channelName, vector<user> &globalUserList);
 
+	bool					isChannel(const string& channelName, vector<channel> &globalChannelList);
+	bool					isUserOperator(const user& User);
+	vector<user>::iterator	findUser(vector<user> &userList, const string &nickname);
 
-	void	dealWithAppropriateMode(vector<user> &globalUserList);
+	void	redirectMode(vector<user> &globalUserList);
 
-	string	handleModeL(bool isPlus);
 	string	handleModeS(bool isPlus);
 	string	handleModeP(bool isPlus);
 	string	handleModeI(bool isPlus);
 	string	handleModeM(bool isPlus);
 	string	handleModeN(bool isPlus);
 	string	handleModeT(bool isPlus);
+	string	handleModeL(bool isPlus);
+	string	handleModeK(bool isPlus);
 	string	handleModeO(bool isPlus, vector<user> &globalUserList);
 	string	handleModeV(bool isPlus, vector<user> &globalUserList);
-	string	handleModeK(bool isPlus);
-
-	void	logModes();
 
 	void	clear();
 public:
