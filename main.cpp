@@ -2,22 +2,34 @@
 #include "server.hpp"
 #include <signal.h>
 
-void signalHandler(int sig) {
+static server *getServerPtr(server *saveMe) {
+	static server *savedPtr;
+	return saveMe ? (savedPtr = saveMe) : savedPtr;
+}
+
+static void signalHandler(int sig) {
 	(void)sig;
-	throw std::runtime_error("\nWeBareBears IRC Server has been terminated.");
+	getServerPtr(NULL)->terminateServer();
 }
 
 int main(int argc, char **argv)
 {
 	initialParse init;
-	init.parse(argc, argv);
+	try {
+		init.parse(argc, argv);
+		cout << "Parsing done" << endl;
+	} catch (std::exception &e) {
+		cout << e.what() << endl;
+	}
 
-	std::cout << "Parsing done" << std::endl;
 	signal(SIGINT, signalHandler);
 	signal(SIGQUIT, signalHandler);
 	try {
 		server ircserv(init.getPort());
+		getServerPtr(&ircserv);
+		ircserv.run();
 	} catch (std::exception &e) {
 		cout << e.what() << endl;
 	}
+	return 0;
 }

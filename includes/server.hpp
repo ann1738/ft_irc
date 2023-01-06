@@ -36,6 +36,7 @@ class server
 private:
 	int 						listenPort;
 	int							listenerFd;
+	bool						stopServer;
 
 	int							fdCount;
 	std::vector<struct pollfd>	clientSockets;
@@ -77,6 +78,9 @@ private:
 public:
 	server(int port);
 	~server();
+
+	void			terminateServer();
+	void			run();
 };
 
 
