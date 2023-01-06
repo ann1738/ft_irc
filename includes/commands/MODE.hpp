@@ -18,8 +18,8 @@ using namespace std;
 #define RPL_CHANNELMODEIS(nickname, channel, mode, modeParams) \
 ("324 " + nickname + " #" + channel + " " + mode + " " + modeParams + "\n")
 
-#define ERR_NEEDMOREPARAMS_MODE(servername, mode) \
-(":" + servername + " 461 " + "MODE +" + mode + " Not enough parameters\n")
+#define ERR_NEEDMOREPARAMS_MODE(servername, mode, cmd) \
+(":" + servername + " 461 " + cmd + mode + " Not enough parameters\n")
 
 #define ERR_CHANOPRIVSNEEDED_MODE(servername, nickname, channel) \
 (":" + servername + " 482 " + nickname + " " + channel + " :You're not channel operator\n")
@@ -27,8 +27,8 @@ using namespace std;
 #define ERR_NOSUCHCHANNEL_MODE(servername, nickname, channel) \
 (":" + servername + " 403 " + nickname + " " + channel + " :No such channel\n")
 
-#define ERR_NOSUCHNICK(servername, sender, recipient) \
-(":" + servername + " 401 " + sender + " " + recipient + " :No such nick/channel\n")
+#define ERR_NOSUCHNICK(servername, recipient) \
+(":" + servername + " 401 " + recipient + " :No such nick/channel\n")
 
 #define ERR_PASSTOOSMALL(servername, nickname) \
 (":" + servername + " " + nickname + " :Channel key must be at least 3 characters\n")
@@ -68,7 +68,7 @@ private:
 	void	storeChannel(const string& channelName, vector<channel> &globalChannelList);
 	void	storeUser(const string& channelName, vector<user> &globalUserList);
 
-	bool					isChannel(const string& channelName, vector<channel> &globalChannelList);
+	bool					isChannel(const string& channelName, const vector<channel> &globalChannelList);
 	bool					isUserOperator(const user& User);
 	vector<user>::iterator	findUser(vector<user> &userList, const string &nickname);
 

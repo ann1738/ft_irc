@@ -14,7 +14,6 @@ void	MODE::parseChannelName(string &parameters){
 	parameters.erase(0, parameters.find(' ') + 1);                        //erase the channel name
 }
 
-
 void	MODE::parseModes(string &parameters){
 	string	modesParam = parameters.substr(0, parameters.find(' '));           //extract the mode specification
 	
@@ -30,7 +29,6 @@ void	MODE::parseModes(string &parameters){
 		pos++;
 	}
 	parameters.erase(0, parameters.find(' '));                        //erase the mode
-	
 }
 
 void	MODE::parseModeArguments(string &parameters){
@@ -56,7 +54,6 @@ void	MODE::storeChannel(const string& channelName, vector<channel> &globalChanne
 void	MODE::storeUser(const string& nickname, vector<user> &globalUserList){
 	for (vector<user>::iterator it = globalUserList.begin(); it != globalUserList.end(); ++it)
 	{
-		cout << "storeUser()" << endl;
 		if (it->getNickname() == nickname)
 		{
 			m_user = &*it;
@@ -65,8 +62,8 @@ void	MODE::storeUser(const string& nickname, vector<user> &globalUserList){
 	}
 }
 
-bool	MODE::isChannel(const string& channelName, vector<channel> &globalChannelList){
-	for (vector<channel>::iterator it = globalChannelList.begin(); it != globalChannelList.end(); ++it)
+bool	MODE::isChannel(const string& channelName, const vector<channel> &globalChannelList){
+	for (vector<channel>::const_iterator it = globalChannelList.begin(); it != globalChannelList.end(); ++it)
 	{
 		if ("#" + it->getName() == channelName)
 			return true;
@@ -100,7 +97,7 @@ void	MODE::redirectMode(vector<user> &globalUserList){
 
 	while ((pos = parsedModes.find_first_of("+-", pos)) != string::npos)
 	{
-		isPlus = (parsedModes[pos] == '+') ? true : false;
+		isPlus = (parsedModes[pos] == '+');
 		mode = parsedModes[pos + 1];
 
 		switch (mode)
@@ -149,7 +146,6 @@ void	MODE::redirectMode(vector<user> &globalUserList){
 		pos++;
 	}
 	modeArgsIndex = 0;
-	std::cout << "\e[31mMODE::m_reply = " << m_reply << "\e[0m" << std::endl;
 }
 
 string	MODE::handleModeS(bool isPlus){
@@ -229,7 +225,7 @@ string	MODE::handleModeL(bool isPlus){
 	}
 
 	if (modeArgs.size() <= modeArgsIndex) //check condition again
-		return ERR_NEEDMOREPARAMS_MODE(m_user->getServername(), string("l"));
+		return ERR_NEEDMOREPARAMS_MODE(m_user->getServername(), string("l"), string("MODE +"));
 
 	int limit;
 	stringstream ss;
@@ -254,13 +250,13 @@ string	MODE::handleModeL(bool isPlus){
 
 string	MODE::handleModeO(bool isPlus, vector<user> &globalUserList){
 	if (modeArgs.size() <= modeArgsIndex) //check condition again
-		return ERR_NEEDMOREPARAMS_MODE(m_user->getServername(), string("o"));
+		return ERR_NEEDMOREPARAMS_MODE(m_user->getServername(), string("o"), string("MODE +"));
 
 	string nickname = modeArgs[modeArgsIndex++];
 
 	vector<user>::iterator userIter = findUser(globalUserList, nickname);
 	if (userIter == globalUserList.end())
-		return ERR_NOSUCHNICK(m_user->getServername(), m_user->getNickname(), nickname);
+		return ERR_NOSUCHNICK(m_user->getServername(), nickname);
 
 	if (m_channel->isUser(*userIter) == false)
 		return "";
@@ -275,10 +271,7 @@ string	MODE::handleModeO(bool isPlus, vector<user> &globalUserList){
 		return "";
 
 	/*give/take privilege*/		
-	if (isPlus == true)
-		m_channel->addOperator(*userIter);
-	else
-		m_channel->removeOperator(*userIter);
+	(isPlus == true) ? m_channel->addOperator(*userIter) : m_channel->removeOperator(*userIter);
 
 	/*construct reply*/		
 	string mode = isPlus ? "+" : "-";
@@ -289,13 +282,13 @@ string	MODE::handleModeO(bool isPlus, vector<user> &globalUserList){
 
 string	MODE::handleModeV(bool isPlus, vector<user> &globalUserList){
 	if (modeArgs.size() <= modeArgsIndex) //check condition again
-		return ERR_NEEDMOREPARAMS_MODE(m_user->getServername(), string("v"));
+		return ERR_NEEDMOREPARAMS_MODE(m_user->getServername(), string("v"), string("MODE +"));
 
 	string nickname = modeArgs[modeArgsIndex++];
 
 	vector<user>::iterator userIter = findUser(globalUserList, nickname);
 	if (userIter == globalUserList.end())
-		return ERR_NOSUCHNICK(m_user->getServername(), m_user->getNickname(), nickname);
+		return ERR_NOSUCHNICK(m_user->getServername(), nickname);
 
 	if (m_channel->isUser(*userIter) == false)
 		return "";
@@ -310,10 +303,7 @@ string	MODE::handleModeV(bool isPlus, vector<user> &globalUserList){
 		return "";
 
 	/*give/take privilege*/		
-	if (isPlus == true)
-		m_channel->addVoicedUser(*userIter);
-	else
-		m_channel->removeVoicedUser(*userIter);
+	(isPlus == true) ? m_channel->addVoicedUser(*userIter) : m_channel->removeVoicedUser(*userIter);
 
 	/*construct reply*/		
 	string mode = isPlus ? "+" : "-";
@@ -333,7 +323,7 @@ string	MODE::handleModeK(bool isPlus){
 
 	cout << "before checking if parameters exist" << endl;
 	if (modeArgs.size() <= modeArgsIndex) //check condition again
-		return ERR_NEEDMOREPARAMS_MODE(m_user->getServername(), string("k"));
+		return ERR_NEEDMOREPARAMS_MODE(m_user->getServername(), string("k"), string("MODE +"));
 
 	string key = modeArgs[modeArgsIndex++];
 
@@ -400,7 +390,6 @@ string	MODE::execute(const command &message, vector<user> &globalUserList, vecto
 
 	redirectMode(globalUserList);
 
-	cout << m_channel->getChannelModes() << endl;
 	return m_reply;
 	// return constructReply();
 }

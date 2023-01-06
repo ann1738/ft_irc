@@ -16,8 +16,8 @@ private:
 	string	m_name;
 	string	m_topic;
 
-	string	m_key;               //empty if channel is not key protected (+k)
-	int		m_userCountLimit;    //0 if channel doesn't limit number of users (+l)
+	string	m_key;
+	int		m_userCountLimit;
 
 	bool	isInviteOnly;        //i
 	bool	isModerated;         //m
@@ -30,15 +30,10 @@ private:
 
 	vector<user> users;
 	vector<user> operators;
-	vector<user> invitedUsers;   //empty if channel is not invite-only (+i)
-	vector<user> voicedUsers;    //empty if channel is not moderated (+m)
+	vector<user> invitedUsers;
+	vector<user> voicedUsers;
 
 	size_t	findUser(const vector<user> &userList, const user &User) const;
-
-	/*** modes to debate: b (ban user mask), 
-	 *   modes that are currently confusing (because they are for users): v (voiced users), o (operators)
-	 * */
-
 
 public:
 	channel();
