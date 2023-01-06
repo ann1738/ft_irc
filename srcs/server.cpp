@@ -159,6 +159,7 @@ void			server::handleExistingConnection(int socketIndex){
 		commandParse	parser;
 
 		parser.parse(buffer, getUser(fd));
+		parser.test();
 
 		if (!this->isUserAuthenticated(users[socketIndex - 1])) {
 			users[socketIndex - 1].enterServer();
@@ -166,11 +167,8 @@ void			server::handleExistingConnection(int socketIndex){
 		} else {
 			redirectCommand	funnel;
 			for (size_t i = 0; i < parser.getCommandAmount(); i++){
-				string reply = funnel.redirect(parser.getParsedCmd(i), users, channels);
-				this->sendToRecipient(fd, reply);
-				cout << "******* sent reply start *******" << endl;
-				cout << reply << endl;
-				cout << "******* sent reply end *******" << endl;
+				vector<reply> replies = funnel.redirect(parser.getParsedCmd(i), users, channels);
+				this->sendReplies(replies);
 			}
 		}
 	}
@@ -206,80 +204,37 @@ user&		server::getUser(int fd){
 	return users[0];
 }
 
-bool		server::isMessageForUser(const string& message) const {
-	return message.find("PRIVMSG ") != string::npos;
-}
+// vector<channel>::const_iterator	server::findChannel(const string& message) {
+// 	if (message.empty()) {
+// 		return channels.end();
+// 	}
 
-bool		server::isMessageForChannel(const string& message) const {
-	return message.find("PRIVMSG #") != string::npos || message.find("JOIN") != string::npos;
-}
+// 	string channel_name = message.substr(message.find('#'), message.find(' '));
+// 	if (channel_name.back() == '\n') {
+// 		channel_name.resize(channel_name.length() - 1);
+// 	}
 
-vector<channel>::const_iterator	server::findChannel(const string& message) {
-	if (message.empty()) {
-		return channels.end();
-	}
+// 	for (vector<channel>::iterator it = channels.begin(); it != channels.end(); it++) {
+// 		if (('#' + it->getName()) == channel_name) {
+// 			return it;
+// 		}
+// 	}
+// 	return channels.end();
+// }
 
-	string channel_name = message.substr(message.find('#'), message.find(' '));
-	if (channel_name.back() == '\n') {
-		channel_name.resize(channel_name.length() - 1);
-	}
+// vector<user>::const_iterator	server::findUser(const string& message) {
+// 	if (message.empty()) {
+// 		return users.end();
+// 	}
 
-	for (vector<channel>::iterator it = channels.begin(); it != channels.end(); it++) {
-		if (('#' + it->getName()) == channel_name) {
-			return it;
-		}
-	}
-	return channels.end();
-}
-
-void		server::sendToChannel(int senderFd, const string& message) {
-	vector<channel>::const_iterator destination = this->findChannel(message.substr(message.find('#'), message.length()));
-	if (destination == channels.end()) {
-		return;
-	}
-
-	vector<user> userList = destination->getUsers();
-	for (vector<user>::iterator it = userList.begin(); it != userList.end(); it++) {
-		if (it->getFd() != senderFd) {
-			send(it->getFd(), message.c_str(), message.length(), 0);
-		}
-	}
-}
-
-vector<user>::const_iterator	server::findUser(const string& message) {
-	if (message.empty()) {
-		return users.end();
-	}
-
-	string nickname = message.substr(message.find("PRIVMSG ") + 8, message.find(' ') - 1);
-	for (vector<user>::iterator it = users.begin(); it != users.end(); it++) {
-		if (it->getNickname() == nickname) {
-			return it;
-		}
-	}
-	return users.end();
-}
-
-void		server::sendToUser(const string& message) {
-	vector<user>::const_iterator destination = this->findUser(message);
-	if (destination != users.end()) {
-		send(destination->getFd(), message.c_str(), message.length(), 0);
-	}
-}
-
-/**
- * sender function typically used to inform a client that the command they attempted to use
- * encountered an error and thus will not be broadcasted to other clients in the server
-*/
-void		server::sendToSelf(int fd, const string& message) {
-	send(fd, message.c_str(), message.length(), 0);
-}
-
-void		server::sendToRecipient(int senderFd, const string& message) {
-	this->isMessageForChannel(message) ? this->sendToChannel(senderFd, message) :
-	this->isMessageForUser(message) ? this->sendToUser(message) :
-	                                  this->sendToSelf(senderFd, message);
-}
+// 	string nickname = message.substr(message.find("PRIVMSG ") + 8, message.find(' ') - 1);
+// 	for (vector<user>::iterator it = users.begin(); it != users.end(); it++) {
+// 		if (it->getNickname() == nickname) {
+// 			return it;
+// 		}
+// 	}
+// 	return users.end();
+// }
 
 /**
  * checks if a user has been admitted to the server or not. This allows us to determine
@@ -293,4 +248,14 @@ bool		server::isUserAuthenticated(const user& User) {
 	       !User.getHostname().empty() &&
 	       !User.getServername().empty() &&
 	       !User.getRealname().empty();
+}
+
+void	server::sendReplies(const vector<reply>& replies){
+	for (size_t reply_count = 0; reply_count < replies.size(); reply_count++) {
+		for (size_t user_count = 0; user_count < replies[reply_count].getUserFds().size(); user_count++)
+			send(replies[reply_count].getUserFds()[user_count], replies[reply_count].getMsg().c_str(), replies[reply_count].getMsg().length(), 0);
+		cout << "******* sent reply start *******" << endl;
+		cout << replies[reply_count].getMsg() << endl;
+		cout << "******* sent reply end *******" << endl;
+	}
 }

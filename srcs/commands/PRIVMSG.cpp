@@ -54,7 +54,7 @@ void PRIVMSG::buildUserResponse(stringstream& response, const command &msg, cons
 void PRIVMSG::buildChannelResponse(stringstream& response, const command &msg, const vector<channel>& channelList, 
                                    const string& channel_name, const string& message) const {
 	if (!this->doesChannelExist(channelList, channel_name)) {
-		response << ERR_NOSUCHCHANNEL_(msg.getClient().getServername(), channel_name);
+		response << ERR_NOSUCHCHANNEL(msg.getClient().getServername(), channel_name);
 	} else {
 		response << RPL_PRIVMSG(msg.getClient().getNickname(), channel_name, message);
 	}
@@ -63,7 +63,7 @@ void PRIVMSG::buildChannelResponse(stringstream& response, const command &msg, c
 	// response << ERR_CANNOTSENDTOCHAN(msg.getClient().getServername(), channel_name);
 }
 
-string PRIVMSG::buildResponse(const command &msg, const vector<user>& userList, const vector<channel>& channelList,
+string PRIVMSG::buildResponseMsg(const command &msg, const vector<user>& userList, const vector<channel>& channelList,
                               const string& recipient, const string& message) const {
 	stringstream response;
 	this->isRecipientAChannel(recipient) ? this->buildChannelResponse(response, msg, channelList, recipient, message) :
@@ -71,10 +71,40 @@ string PRIVMSG::buildResponse(const command &msg, const vector<user>& userList, 
 	return response.str();
 }
 
-string PRIVMSG::execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList) {
+size_t  PRIVMSG::getChannelIndex(const vector<channel>& channelList, string channel_name) {
+	size_t i = 0;
+	for (; i < channelList.size(); i++) {
+		if (channelList[i].getName() == channel_name)
+			break ;
+	}
+	return (i);
+}
+
+size_t  PRIVMSG::getUserIndex(const vector<user>& userList, string nickname) {
+	size_t i = 0;
+	for (; i < userList.size(); i++) {
+		if (userList[i].getNickname() == nickname)
+			break ;
+	}
+	return (i);
+}
+
+
+vector<reply> PRIVMSG::execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList) {
+	vector<reply> r;
+	r.push_back(reply());
+	
 	string buffer = msg.getParameters(),
 	       recipient = this->getRecipient(buffer),
 	       message = buffer;
 
-	return this->buildResponse(msg, globalUserList, globalChannelList, recipient, message);
+	r[0].setMsg(this->buildResponseMsg(msg, globalUserList, globalChannelList, recipient, message));
+	if (r[0].getMsg().find("PRIVMSG") == string::npos)
+		r[0].setUserFds(msg.getClient());
+	else if (this->isRecipientAChannel(recipient))
+		r[0].setUserFds(globalChannelList[getChannelIndex(globalChannelList, &recipient[1])], msg.getClient().getFd());
+	else
+		r[0].setUserFds(globalUserList[getUserIndex(globalUserList, recipient)]);
+	
+	return r;
 }

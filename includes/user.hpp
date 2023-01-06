@@ -49,7 +49,8 @@ public:
 	string getRealname() const;
 	string getNickname() const;
 
-	void addChannel(string channel_name);
+	void addChannel(const string& channel_name);
+	void removeChannel(const string& channel_name);
 	void enterServer();
 };
 

@@ -77,9 +77,29 @@ string NICK::buildResponse(const command &msg, const vector<user>& userList, con
 	return response.str();
 }
 
-string NICK::execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList) {
-	(void)globalChannelList;
+vector<reply>    NICK::buildReplies(const command &msg, vector<channel> &globalChannelList, string response){
+	vector<reply>	ret;
+	size_t			i_ret = 0;
 
+	if (response.find("NICK") != string::npos) {
+		for (size_t i = 0; i < globalChannelList.size(); i++){
+			if (globalChannelList[i].isUser(msg.getClient())) {
+				ret.push_back(reply());
+				ret[i_ret].setMsg(response);
+				ret[i_ret++].setUserFds(globalChannelList[i]);
+			}
+		}
+	}
+	if (!i_ret) {
+		ret.push_back(reply());
+		ret[0].setMsg(response);
+		ret[0].setUserFds(msg.getClient());
+	}
+	return (ret);
+}
+
+vector<reply> NICK::execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList) {
 	string nickname = msg.getParameters().substr(0, msg.getParameters().find('\r'));
-	return this->buildResponse(msg, globalUserList, nickname);
+
+	return (buildReplies(msg, globalChannelList, this->buildResponse(msg, globalUserList, nickname)));
 }

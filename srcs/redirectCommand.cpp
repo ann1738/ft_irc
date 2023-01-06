@@ -8,8 +8,10 @@ redirectCommand::~redirectCommand()
 {
 }
 
-string	redirectCommand::redirect(const command &message, vector<user> &globalUserList, vector<channel> &globalChannelList){
+vector<reply>	redirectCommand::redirect(const command &message, vector<user> &globalUserList, vector<channel> &globalChannelList){
 	string cmd = message.getCmdType();
+	vector<reply> ret;
+	ret.push_back(reply());
 
 	/* ******    ADD IF CONDITION FOR YOUR COMMAND AND RETURN <YOUR_COMMAND>::execute() METHOD    ****** */
 	if (cmd == "TOPIC")
@@ -23,6 +25,7 @@ string	redirectCommand::redirect(const command &message, vector<user> &globalUse
 	else if (cmd == "PRIVMSG")
 		return privmsg.execute(message, globalUserList, globalChannelList);
 	else
-		; //return ERR_UNKNOWNCOMMAND
-	return "";
+		ret[0].setMsg(""); // ret[0].setMsg(ERR_UNKNOWNCOMMAND);
+	ret[0].setUserFds(message.getClient());
+	return ret;
 }

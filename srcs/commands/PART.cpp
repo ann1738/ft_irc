@@ -29,35 +29,39 @@ pair<size_t, string>	PART::goThroughErrors(user& client, size_t position, vector
 		if (globalChannelList[i].getName() == this->channel_names[position]) {
 			chan_not_found = false;
 			if (!globalChannelList[i].isUser(client))
-				return (make_pair(i, P_ERR_NOTONCHANNEL(client.getServername(), client.getNickname(), this->channel_names[position])));
+				return (make_pair(i, ERR_NOTONCHANNEL(client.getServername(), client.getNickname(), this->channel_names[position])));
 			break ;
 		}
 	}
 	if (chan_not_found)
-		return (make_pair(i, P_ERR_NOSUCHCHANNEL(client.getServername(), client.getNickname(), this->channel_names[position])));
+		return (make_pair(i, ERR_NOSUCHCHANNEL(client.getServername(), this->channel_names[position])));
 
 	return (make_pair(i, ""));
 }
 
-string	PART::doPartAction(user& client, vector<channel> &globalChannelList){
-	string ret;
+vector<reply>	PART::doPartAction(user& client, vector<channel> &globalChannelList){
+	vector<reply> ret;
 
 	for(size_t i = 0; i < this->channel_names.size(); i++){
 		pair<size_t, string> temp  = this->goThroughErrors(client, i, globalChannelList);
+		ret.push_back(reply());
 
 		if (!temp.second.size()) {
-			// client.removeChannel(this->channel_names[i]);
+			client.removeChannel(this->channel_names[i]);
 			globalChannelList[temp.first].removeUser(client);
-			temp.second = PART_CORRECT(client.getNickname(), this->channel_names[i]);
+			temp.second = RPL_PART(client.getNickname(), this->channel_names[i]);
+			ret[i].setUserFds(globalChannelList[temp.first]);
 		}
+		else
+			ret[i].setUserFds(client);
+		
+		ret[i].setMsg(temp.second);
 
-		ret += temp.second;
-		ret.push_back('\n');
 	}
 	return (ret);
 }
 
-string	PART::execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList){
+vector<reply>	PART::execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList){
 	(void)globalUserList;
 	
 	this->parseCmdParameters(msg.getParameters());
