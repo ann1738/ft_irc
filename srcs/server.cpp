@@ -27,7 +27,6 @@ server::~server() {
 	for (vector<struct pollfd>::iterator it = clientSockets.begin(); it != clientSockets.end(); it++) {
 		close(it->fd);
 	}
-	close(listenerFd);
 	cout << "\nWeBareBears IRC Server has been terminated." << endl;
 }
 

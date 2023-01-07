@@ -14,6 +14,9 @@ static void signalHandler(int sig) {
 
 int main(int argc, char **argv)
 {
+	signal(SIGINT, signalHandler);
+	signal(SIGQUIT, signalHandler);
+
 	initialParse init;
 	try {
 		init.parse(argc, argv);
@@ -23,8 +26,6 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	signal(SIGINT, signalHandler);
-	signal(SIGQUIT, signalHandler);
 	try {
 		server ircserv(init.getPort());
 		getServerPtr(&ircserv);
