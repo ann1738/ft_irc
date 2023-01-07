@@ -8,8 +8,11 @@ class LIST {
 
 private:
 	string           userCountToString(vector<channel>::const_iterator& channel);
-	void             getSelectedChannels(const command& msg, const vector<channel>& channelList, stringstream& response);
-	void             getAllChannels(const command& msg, const vector<channel>& channelList, stringstream& response);
+	vector<string>   parseChannelNames(string& message);
+	bool             doesChannelExist(const vector<string>& channels, const string& channel_name);
+
+	void             addToResponse(const command &msg, vector<channel>::const_iterator it, stringstream& response);
+	void             addChannelsToList(const command& msg, const vector<channel>& channelList, stringstream& response);
 	string           getList(const command& msg, const vector<channel>& channelList);
 	vector<reply>    buildResponse(const command& msg, const vector<channel> &channelList);
 

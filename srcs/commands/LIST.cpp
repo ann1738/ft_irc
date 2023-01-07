@@ -15,23 +15,51 @@ string LIST::userCountToString(vector<channel>::const_iterator& channel) {
 	return user_count.str();
 }
 
-void LIST::getSelectedChannels(const command& msg, const vector<channel>& channelList, stringstream& response) {
-	string message = msg.getParameters().substr(0, msg.getParameters().length() - 1);
-	string channel_name = message.substr(0, message.find(' '));
+vector<string> LIST::parseChannelNames(string& message) {
+	vector<string> channels;
 
-	for (vector<channel>::const_iterator it = channelList.begin(); it != channelList.end(); it++) {
-		if (!('#' + it->getName()).compare(channel_name)) {
-			response << RPL_LIST(msg.getClient().getServername(), msg.getClient().getNickname(), it->getName(),
-			                     this->userCountToString(it), it->getChannelModes(), it->getTopic());
-			break;
-		}
+	string::size_type start = 0, end = message.find(',');
+	while (end != string::npos) {
+		channels.push_back(message.substr(start, end - start));
+		start = end + 1;
+		end = message.find(',', start);
 	}
+
+	string channel_name = message.substr(start, end);
+	if (!channel_name.empty()) {
+		channels.push_back(channel_name);
+	}
+	return channels;
 }
 
-void LIST::getAllChannels(const command& msg, const vector<channel>& channelList, stringstream& response) {
+bool LIST::doesChannelExist(const vector<string>& channels, const string& channel_name) {
+	for (vector<string>::const_iterator it = channels.begin(); it != channels.end(); it++) {
+		if (!channel_name.compare(*it)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void LIST::addToResponse(const command &msg, vector<channel>::const_iterator it, stringstream& response) {
+	response << RPL_LIST(msg.getClient().getServername(), msg.getClient().getNickname(), it->getName(),
+	                     this->userCountToString(it), it->getChannelModes(), it->getTopic());
+}
+
+void LIST::addChannelsToList(const command& msg, const vector<channel>& channelList, stringstream& response) {
+	string message = msg.getParameters().substr(0, msg.getParameters().length() - 1);
+	vector<string> channels = this->parseChannelNames(message);
+
 	for (vector<channel>::const_iterator it = channelList.begin(); it != channelList.end(); it++) {
-		response << RPL_LIST(msg.getClient().getServername(), msg.getClient().getNickname(), it->getName(),
-		                     this->userCountToString(it), it->getChannelModes(), it->getTopic());
+		// if no parameters have been provided, print all the channels
+		if (message.empty()) {
+			this->addToResponse(msg, it, response);
+		}
+
+		// if specific channels have been provided, check if they exist and then print their information
+		else if (!message.empty() && this->doesChannelExist(channels, '#' + it->getName())) {
+			this->addToResponse(msg, it, response);
+		}
 	}
 }
 
@@ -39,8 +67,7 @@ string LIST::getList(const command& msg, const vector<channel>& channelList) {
 	stringstream response;
 
 	response << RPL_LISTSTART(msg.getClient().getServername(), msg.getClient().getNickname());
-	*msg.getParameters().begin() == '\r' ? this->getAllChannels(msg, channelList, response) :
-	                                       this->getSelectedChannels(msg, channelList, response);
+	this->addChannelsToList(msg, channelList, response);
 	response << RPL_LISTEND(msg.getClient().getServername(), msg.getClient().getNickname());
 	return response.str();
 }
@@ -56,6 +83,5 @@ vector<reply> LIST::buildResponse(const command& msg, const vector<channel>& cha
 
 vector<reply> LIST::execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList) {
 	(void)globalUserList;
-
 	return this->buildResponse(msg, globalChannelList);
 }
