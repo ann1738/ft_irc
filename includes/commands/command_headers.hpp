@@ -8,5 +8,6 @@
 #include "PRIVMSG.hpp"
 #include "MODE.hpp"
 #include "PING.hpp"
+#include "LIST.hpp"
 
 #endif
