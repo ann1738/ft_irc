@@ -7,7 +7,10 @@
 class LIST {
 
 private:
-	string           getChannelList(const command& msg, const vector<channel>& channelList);
+	string           userCountToString(vector<channel>::const_iterator& channel);
+	void             getSelectedChannels(const command& msg, const vector<channel>& channelList, stringstream& response);
+	void             getAllChannels(const command& msg, const vector<channel>& channelList, stringstream& response);
+	string           getList(const command& msg, const vector<channel>& channelList);
 	vector<reply>    buildResponse(const command& msg, const vector<channel> &channelList);
 
 public:
