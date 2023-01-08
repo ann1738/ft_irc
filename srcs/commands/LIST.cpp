@@ -50,6 +50,10 @@ bool LIST::clientIsInsideChannel(const user& client, const vector<user>& userLis
 	return false;
 }
 
+string LIST::addMode(vector<channel>::const_iterator it) {
+	return it->getChannelModes().empty() ? "" : ("+" + it->getChannelModes());
+}
+
 string LIST::addTopic(vector<channel>::const_iterator it) {
 	return it->getPrivate() ? "" : it->getTopic();
 }
@@ -59,7 +63,7 @@ void LIST::addToResponse(const command& msg, vector<channel>::const_iterator it,
 		return;
 	}
 	response << RPL_LIST(msg.getClient().getServername(), msg.getClient().getNickname(), it->getName(),
-		                 this->userCountToString(it), it->getChannelModes(), this->addTopic(it));
+		                 this->userCountToString(it), this->addMode(it), this->addTopic(it));
 }
 
 void LIST::addChannelsToList(const command& msg, const vector<channel>& channelList, stringstream& response) {

@@ -13,6 +13,7 @@ private:
 	bool             doesChannelExist(const vector<string>& channels, const string& channel_name);
 	bool             clientIsInsideChannel(const user& client, const vector<user>& userList);
 
+	string           addMode(vector<channel>::const_iterator it);
 	string           addTopic(vector<channel>::const_iterator it);
 	void             addToResponse(const command &msg, vector<channel>::const_iterator it, stringstream& response);
 	void             addChannelsToList(const command& msg, const vector<channel>& channelList, stringstream& response);
