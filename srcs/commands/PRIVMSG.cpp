@@ -87,39 +87,40 @@ string PRIVMSG::buildResponse(const command& msg, const vector<user>& users, con
 	return response.str();
 }
 
-size_t  PRIVMSG::getChannelIndex(const vector<channel>& channelList, string channel_name) {
+size_t  PRIVMSG::getChannelIndex(const vector<channel>& channels, string channel_name) {
 	size_t i = 0;
-	for (; i < channelList.size(); i++) {
-		if (channelList[i].getName() == channel_name)
+	for (; i < channels.size(); i++) {
+		if (channels[i].getName() == channel_name)
 			break ;
 	}
 	return (i);
 }
 
-size_t  PRIVMSG::getUserIndex(const vector<user>& userList, string nickname) {
+size_t  PRIVMSG::getUserIndex(const vector<user>& users, string nickname) {
 	size_t i = 0;
-	for (; i < userList.size(); i++) {
-		if (userList[i].getNickname() == nickname)
+	for (; i < users.size(); i++) {
+		if (users[i].getNickname() == nickname)
 			break ;
 	}
 	return (i);
+}
+
+void PRIVMSG::setDestination(const user& client, const vector<user>& users, const vector<channel>& channels,
+                             vector<reply>& ret, const string& recipient) {
+	ret[0].getMsg().find("PRIVMSG") == string::npos ? ret[0].setUserFds(client) :
+	this->isRecipientAChannel(recipient) ? ret[0].setUserFds(channels[this->getChannelIndex(channels, &recipient[1])], client.getFd()) :
+	                                       ret[0].setUserFds(users[this->getUserIndex(users, recipient)]);
 }
 
 vector<reply> PRIVMSG::execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList) {
-	vector<reply> r;
-	r.push_back(reply());
+	vector<reply> ret;
+	ret.push_back(reply());
 	
 	string buffer = msg.getParameters(),
 	       recipient = this->getRecipient(buffer),
 	       message = buffer;
 
-	r[0].setMsg(this->buildResponse(msg, globalUserList, globalChannelList, recipient, message));
-	if (r[0].getMsg().find("PRIVMSG") == string::npos)
-		r[0].setUserFds(msg.getClient());
-	else if (this->isRecipientAChannel(recipient))
-		r[0].setUserFds(globalChannelList[getChannelIndex(globalChannelList, &recipient[1])], msg.getClient().getFd());
-	else
-		r[0].setUserFds(globalUserList[getUserIndex(globalUserList, recipient)]);
-	
-	return r;
+	ret[0].setMsg(this->buildResponse(msg, globalUserList, globalChannelList, recipient, message));
+	this->setDestination(msg.getClient(), globalUserList, globalChannelList, ret, recipient);
+	return ret;
 }
