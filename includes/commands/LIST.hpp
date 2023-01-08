@@ -9,8 +9,11 @@ class LIST {
 private:
 	string           userCountToString(vector<channel>::const_iterator& channel);
 	vector<string>   parseChannelNames(string& message);
-	bool             doesChannelExist(const vector<string>& channels, const string& channel_name);
 
+	bool             doesChannelExist(const vector<string>& channels, const string& channel_name);
+	bool             clientIsInsideChannel(const user& client, const vector<user>& userList);
+
+	string           addTopic(vector<channel>::const_iterator it);
 	void             addToResponse(const command &msg, vector<channel>::const_iterator it, stringstream& response);
 	void             addChannelsToList(const command& msg, const vector<channel>& channelList, stringstream& response);
 	string           getList(const command& msg, const vector<channel>& channelList);

@@ -41,9 +41,25 @@ bool LIST::doesChannelExist(const vector<string>& channels, const string& channe
 	return false;
 }
 
-void LIST::addToResponse(const command &msg, vector<channel>::const_iterator it, stringstream& response) {
+bool LIST::clientIsInsideChannel(const user& client, const vector<user>& userList) {
+	for (vector<user>::const_iterator it = userList.begin(); it != userList.end(); it++) {
+		if (client.getFd() == it->getFd()) {
+			return true;
+		}
+	}
+	return false;
+}
+
+string LIST::addTopic(vector<channel>::const_iterator it) {
+	return it->getPrivate() ? "" : it->getTopic();
+}
+
+void LIST::addToResponse(const command& msg, vector<channel>::const_iterator it, stringstream& response) {
+	if (it->getSecret() && !this->clientIsInsideChannel(msg.getClient(), it->getUsers())) {
+		return;
+	}
 	response << RPL_LIST(msg.getClient().getServername(), msg.getClient().getNickname(), it->getName(),
-	                     this->userCountToString(it), it->getChannelModes(), it->getTopic());
+		                 this->userCountToString(it), it->getChannelModes(), this->addTopic(it));
 }
 
 void LIST::addChannelsToList(const command& msg, const vector<channel>& channelList, stringstream& response) {
