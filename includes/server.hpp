@@ -49,7 +49,7 @@ private:
 	void			makeFdNonBlock(int fd) throw(std::runtime_error);
 	void			setupPoll();
 	void			handleNewConnection();
-	void			handleExistingConnection(int socketIndex);
+	void			handleExistingConnection(int clientFd);
 	int				acceptClient(int clientFd);
 	void			handshakeNewConnection(int clientFd) throw(std::runtime_error);
 
@@ -60,7 +60,6 @@ private:
 	void			pollClients() throw(std::runtime_error);
 	void			loopAndHandleConnections();
 
-
 	/*-----------------------------------------------------------------------*/
 
 	std::vector<user>			users;
@@ -70,10 +69,7 @@ private:
 	user&			getUser(int fd);
 	bool			isUserAuthenticated(const user& User);
 
-	// vector<user>::const_iterator	findUser(const string& message);
-	// vector<channel>::const_iterator	findChannel(const string& message);
-
-	void		sendReplies(const vector<reply>& replies);
+	void			sendReplies(const vector<reply>& replies);
 
 public:
 	server(int port);
