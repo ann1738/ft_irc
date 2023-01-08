@@ -60,31 +60,30 @@ bool PRIVMSG::canClientMessageChannel(const user& client, const channel& Channel
 	return true;
 }
 
-void PRIVMSG::buildUserResponse(stringstream& response, const command& msg, const vector<user>& users,
+void PRIVMSG::buildUserResponse(stringstream& response, const user& client, const vector<user>& users,
                                 const string& nickname, const string& message) {
-	response << (this->isNicknameJustSpaces(nickname) ? ERR_NOTEXTTOSEND(msg.getClient().getServername()) :
-	            !this->isNicknameInList(users, nickname) ? ERR_NOSUCHNICK(msg.getClient().getServername(), nickname) :
-	                                                       RPL_PRIVMSG(msg.getClient().getNickname(), nickname, message));
+	response << (this->isNicknameJustSpaces(nickname) ? ERR_NOTEXTTOSEND(client.getServername()) :
+	            !this->isNicknameInList(users, nickname) ? ERR_NOSUCHNICK(client.getServername(), nickname) :
+	                                                       RPL_PRIVMSG(client.getNickname(), nickname, message));
 }
 
-void PRIVMSG::buildChannelResponse(stringstream& response, const command& msg, const vector<channel>& channels,
+void PRIVMSG::buildChannelResponse(stringstream& response, const user& client, const vector<channel>& channels,
                                    const string& channel_name, const string& message) {
 	pair<bool, const vector<channel>::const_iterator> channel_info = this->findChannel(channels, &channel_name.at(1));
 
 	if (!channel_info.first) {
-		response << ERR_NOSUCHCHANNEL(msg.getClient().getServername(), channel_name);
+		response << ERR_NOSUCHCHANNEL(client.getServername(), channel_name);
 		return;
 	}
-	response << (this->canClientMessageChannel(msg.getClient(), *channel_info.second) ? 
-	            RPL_PRIVMSG(msg.getClient().getNickname(), channel_name, message) :
-	            ERR_CANNOTSENDTOCHAN(msg.getClient().getServername(), channel_name));
+	response << (this->canClientMessageChannel(client, *channel_info.second) ? RPL_PRIVMSG(client.getNickname(), channel_name, message) :
+	                                                                           ERR_CANNOTSENDTOCHAN(client.getServername(), channel_name));
 }
 
 string PRIVMSG::buildResponse(const command& msg, const vector<user>& users, const vector<channel>& channels,
                               const string& recipient, const string& message) {
 	stringstream response;
-	this->isRecipientAChannel(recipient) ? this->buildChannelResponse(response, msg, channels, recipient, message) :
-	                                       this->buildUserResponse(response, msg, users, recipient, message);
+	this->isRecipientAChannel(recipient) ? this->buildChannelResponse(response, msg.getClient(), channels, recipient, message) :
+	                                       this->buildUserResponse(response, msg.getClient(), users, recipient, message);
 	return response.str();
 }
 

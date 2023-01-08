@@ -15,9 +15,9 @@ private:
 	pair<bool, const vector<channel>::const_iterator>    findChannel(const vector<channel>& channels, const string& channel_name);
 	bool       canClientMessageChannel(const user& client, const channel& channel);
 
-	void       buildUserResponse(stringstream& response, const command& msg, const vector<user>& users,
+	void       buildUserResponse(stringstream& response, const user& client, const vector<user>& users,
 	                             const string& nickname, const string& message);
-	void       buildChannelResponse(stringstream& response, const command& msg, const vector<channel>& channels,
+	void       buildChannelResponse(stringstream& response, const user& client, const vector<channel>& channels,
 	                                const string& channel_name, const string& message);
 	string     buildResponse(const command& msg, const vector<user>& users, const vector<channel>& channels,
 	                         const string& recipient, const string& message);
