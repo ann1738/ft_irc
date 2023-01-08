@@ -1,6 +1,5 @@
 #include "../includes/server.hpp"
 #include "channel.hpp"
-#include "redirectCommand.hpp"
 
 server::server(int port) : listenPort(port),
                            stopServer(false) {
@@ -161,10 +160,9 @@ void			server::handleExistingConnection(int clientFd){
 		std::cout << "s-------------------" << std::endl;
 		std::cout << buffer << std::endl;
 		std::cout << "e-------------------" << std::endl;
-		
-		int fd = clientSockets[socketIndex].fd;
+	
 		commandParse	parser;
-
+	
 		parser.parse(buffer, getUser(clientFd));
 		parser.test();
 
@@ -224,7 +222,7 @@ bool		server::isUserAuthenticated(const user& User) {
 	       !User.getRealname().empty();
 }
 
-		commandParse	parser;& replies){
+void	server::sendReplies(const vector<reply>& replies){
 	for (size_t reply_count = 0; reply_count < replies.size(); reply_count++) {
 		for (size_t user_count = 0; user_count < replies[reply_count].getUserFds().size(); user_count++)
 			send(replies[reply_count].getUserFds()[user_count], replies[reply_count].getMsg().c_str(), replies[reply_count].getMsg().length(), 0);

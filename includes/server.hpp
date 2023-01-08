@@ -14,6 +14,7 @@
 #include "channel.hpp"
 #include "user.hpp"
 #include "commandParse.hpp"
+#include "redirectCommand.hpp"
 
 /* -------------- Macros --------------- */
 #define TIMEOUT 100000
