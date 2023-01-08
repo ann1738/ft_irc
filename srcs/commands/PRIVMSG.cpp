@@ -53,22 +53,11 @@ bool PRIVMSG::isRecipientAChannel(const string& recipient) {
 	return !recipient.empty() && *recipient.begin() == '#';
 }
 
-void PRIVMSG::buildUserResponse(stringstream& response, const command &msg, const vector<user>& users,
+void PRIVMSG::buildUserResponse(stringstream& response, const command& msg, const vector<user>& users,
                                 const string& nickname, const string& message) {
-	// 
-	if (this->isNicknameJustSpaces(nickname)) {
-		response << ERR_NOTEXTTOSEND(msg.getClient().getServername());
-	}
-	
-	// ensures that the recepient of the message has joined the server
-	else if (!this->isNicknameInList(users, nickname)) {
-		response << ERR_NOSUCHNICK(msg.getClient().getServername(), nickname);
-	}
-	
-	// send a message to a specific user if no errors have been encountered
-	else {
-		response << RPL_PRIVMSG(msg.getClient().getNickname(), nickname, message);
-	}
+	response << (this->isNicknameJustSpaces(nickname) ? ERR_NOTEXTTOSEND(msg.getClient().getServername()) :
+	            !this->isNicknameInList(users, nickname) ? ERR_NOSUCHNICK(msg.getClient().getServername(), nickname) :
+	                                                       RPL_PRIVMSG(msg.getClient().getNickname(), nickname, message));
 }
 
 bool PRIVMSG::canClientMessageChannel(const user& client, const channel& Channel) {
@@ -86,7 +75,7 @@ bool PRIVMSG::canClientMessageChannel(const user& client, const channel& Channel
 	return true;
 }
 
-void PRIVMSG::buildChannelResponse(stringstream& response, const command &msg, const vector<channel>& channels,
+void PRIVMSG::buildChannelResponse(stringstream& response, const command& msg, const vector<channel>& channels,
                                    const string& channel_name, const string& message) {
 	if (!this->doesChannelExist(channels, &channel_name.at(1))) {
 		response << ERR_NOSUCHCHANNEL(msg.getClient().getServername(), channel_name);
