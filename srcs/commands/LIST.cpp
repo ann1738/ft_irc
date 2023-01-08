@@ -15,6 +15,7 @@ string LIST::userCountToString(vector<channel>::const_iterator& channel) {
 	return user_count.str();
 }
 
+// splits the channel names based on ',' (if there are any), and then save them inside a vector
 vector<string> LIST::parseChannelNames(string& message) {
 	vector<string> channels;
 
@@ -41,7 +42,7 @@ bool LIST::doesChannelExist(const vector<string>& channels, const string& channe
 	return false;
 }
 
-bool LIST::clientIsInsideChannel(const user& client, const vector<user>& userList) {
+bool LIST::isClientInsideChannel(const vector<user>& userList, const user& client) {
 	for (vector<user>::const_iterator it = userList.begin(); it != userList.end(); it++) {
 		if (client.getFd() == it->getFd()) {
 			return true;
@@ -50,16 +51,26 @@ bool LIST::clientIsInsideChannel(const user& client, const vector<user>& userLis
 	return false;
 }
 
+// returns a string containing all of the modes a channel has enabled
 string LIST::addMode(vector<channel>::const_iterator it) {
 	return it->getChannelModes().empty() ? "" : ("+" + it->getChannelModes());
 }
 
+/**
+ * returns a string containing the topic of a channel. However if the channel is private (+p),
+ * an empty string will be returned
+*/
 string LIST::addTopic(vector<channel>::const_iterator it) {
 	return it->getPrivate() ? "" : it->getTopic();
 }
 
+// adds a channel's information to the response stringstream
 void LIST::addToResponse(const command& msg, vector<channel>::const_iterator it, stringstream& response) {
-	if (it->getSecret() && !this->clientIsInsideChannel(msg.getClient(), it->getUsers())) {
+	/**
+	 * if a channel is secret (+s), and the client requesting a list of channels has not joined that
+	 * specific channel, dont include it to the list
+	*/
+	if (it->getSecret() && !this->isClientInsideChannel(it->getUsers(), msg.getClient())) {
 		return;
 	}
 	response << RPL_LIST(msg.getClient().getServername(), msg.getClient().getNickname(), it->getName(),
