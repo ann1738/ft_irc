@@ -4,24 +4,22 @@
 #include "reply.hpp"
 #include "command.hpp"
 
-// #define ERR_NORECIPIENT
-// #define ERR_TOOMANYTARGETS
-
 class PRIVMSG {
 
 private:
 	string    getRecipient(string& buffer);
-	bool      isNicknameJustSpaces(const string& nickname) const;
-	bool      isUserInServer(const vector<user> &userList, const string& nickname) const;
-	bool      isRecipientAChannel(const string& recipient) const;
-	bool      doesChannelExist(const vector<channel>& channelList, const string& channel_name) const;
+	bool      isNicknameJustSpaces(const string& nickname);
+	bool      isNicknameInList(const vector<user> &userList, const string& nickname);
+	bool      isRecipientAChannel(const string& recipient);
+	bool      doesChannelExist(const vector<channel>& channelList, const string& channel_name);
+	channel    getChannel(const vector<channel>& channelList, const string& channel_name);
 
 	void      buildUserResponse(stringstream& response, const command &msg, const vector<user>& userList,
-	                            const string& nickname, const string& message) const;
+	                            const string& nickname, const string& message);
 	void      buildChannelResponse(stringstream& response, const command &msg, const vector<channel>& channelList,
-	                               const string& channel_name, const string& message) const;
+	                               const string& channel_name, const string& message);
 	string    buildResponseMsg(const command &msg, const vector<user>& userList, const vector<channel>& channelList,
-	                        const string& recipient, const string& message) const;
+	                        const string& recipient, const string& message);
 
 	size_t    getChannelIndex(const vector<channel>& channelList, string channel_name);
 	size_t    getUserIndex(const vector<user>& userList, string nickname);

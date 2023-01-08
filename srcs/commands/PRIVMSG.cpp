@@ -14,11 +14,15 @@ string PRIVMSG::getRecipient(string& buffer) {
 	return recipient;
 }
 
-bool PRIVMSG::isNicknameJustSpaces(const string& nickname) const {
+bool PRIVMSG::isNicknameJustSpaces(const string& nickname) {
 	return nickname.find_first_not_of(' ') == string::npos;
 }
 
-bool PRIVMSG::isUserInServer(const vector<user> &userList, const string& nickname) const {
+/**
+ * a helper function used to check if a given nickname is included in a list of nicknames. These
+ * lists could either be a list of users in a server or a list of users in a channel
+*/
+bool PRIVMSG::isNicknameInList(const vector<user> &userList, const string& nickname) {
 	for (vector<user>::const_iterator it = userList.begin(); it != userList.end(); it++) {
 		if (it->getNickname() == nickname) {
 			return true;
@@ -27,7 +31,7 @@ bool PRIVMSG::isUserInServer(const vector<user> &userList, const string& nicknam
 	return false;
 }
 
-bool PRIVMSG::doesChannelExist(const vector<channel>& channelList, const string& channel_name) const {
+bool PRIVMSG::doesChannelExist(const vector<channel>& channelList, const string& channel_name) {
 	for (vector<channel>::const_iterator it = channelList.begin(); it != channelList.end(); it++) {
 		if (("#" + it->getName()) == channel_name) {
 			return true;
@@ -36,26 +40,52 @@ bool PRIVMSG::doesChannelExist(const vector<channel>& channelList, const string&
 	return false;
 }
 
-bool PRIVMSG::isRecipientAChannel(const string& recipient) const {
+channel PRIVMSG::getChannel(const vector<channel>& channelList, const string& channel_name) {
+	for (vector<channel>::const_iterator it = channelList.begin(); it != channelList.end(); it++) {
+		if (("#" + it->getName()) == channel_name) {
+			return *it;
+		}
+	}
+	return *channelList.end();
+}
+
+bool PRIVMSG::isRecipientAChannel(const string& recipient) {
 	return !recipient.empty() && *recipient.begin() == '#';
 }
 
 void PRIVMSG::buildUserResponse(stringstream& response, const command &msg, const vector<user>& userList, 
-                                const string& nickname, const string& message) const {
+                                const string& nickname, const string& message) {
+	// 
 	if (this->isNicknameJustSpaces(nickname)) {
 		response << ERR_NOTEXTTOSEND(msg.getClient().getServername());
-	} else if (!this->isUserInServer(userList, nickname)) {
+	}
+	
+	// ensures that the recepient of the message has joined the server
+	else if (!this->isNicknameInList(userList, nickname)) {
 		response << ERR_NOSUCHNICK(msg.getClient().getServername(), nickname);
-	} else {
+	}
+	
+	// send a message to a specific user if no errors have been encountered
+	else {
 		response << RPL_PRIVMSG(msg.getClient().getNickname(), nickname, message);
 	}
 }
 
 void PRIVMSG::buildChannelResponse(stringstream& response, const command &msg, const vector<channel>& channelList, 
-                                   const string& channel_name, const string& message) const {
+                                   const string& channel_name, const string& message) {
 	if (!this->doesChannelExist(channelList, channel_name)) {
 		response << ERR_NOSUCHCHANNEL(msg.getClient().getServername(), channel_name);
-	} else {
+		return;
+	}
+
+	channel recepient = this->getChannel(channelList, channel_name);
+	// if the channel doesn't want to receive external messages (+n) & the client is not in the channel
+	if (recepient.getNoExternalMsg() && !this->isNicknameInList(recepient.getUsers(), msg.getClient().getNickname())) {
+		response << ERR_CANNOTSENDTOCHAN(msg.getClient().getServername(), channel_name);
+	}
+
+	// send a message to a all users in the channel if no errors have been encountered
+	else {
 		response << RPL_PRIVMSG(msg.getClient().getNickname(), channel_name, message);
 	}
 
@@ -64,7 +94,7 @@ void PRIVMSG::buildChannelResponse(stringstream& response, const command &msg, c
 }
 
 string PRIVMSG::buildResponseMsg(const command &msg, const vector<user>& userList, const vector<channel>& channelList,
-                              const string& recipient, const string& message) const {
+                              const string& recipient, const string& message) {
 	stringstream response;
 	this->isRecipientAChannel(recipient) ? this->buildChannelResponse(response, msg, channelList, recipient, message) :
 	                                       this->buildUserResponse(response, msg, userList, recipient, message);
@@ -88,7 +118,6 @@ size_t  PRIVMSG::getUserIndex(const vector<user>& userList, string nickname) {
 	}
 	return (i);
 }
-
 
 vector<reply> PRIVMSG::execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList) {
 	vector<reply> r;
