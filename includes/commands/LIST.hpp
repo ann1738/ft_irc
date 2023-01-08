@@ -7,15 +7,15 @@
 class LIST {
 
 private:
-	string           userCountToString(vector<channel>::const_iterator& channel);
-	vector<string>   parseChannelNames(string& message);
+	string           userCountToString(const vector<channel>::const_iterator& channel);
+	vector<string>   parseChannelNames(const string& message);
 
 	bool             doesChannelExist(const vector<string>& channels, const string& channel_name);
 	bool             isClientInsideChannel(const vector<user>& userList, const user& client);
 
-	string           addMode(vector<channel>::const_iterator it);
-	string           addTopic(vector<channel>::const_iterator it);
-	void             addToResponse(const command &msg, vector<channel>::const_iterator it, stringstream& response);
+	string           addMode(const vector<channel>::const_iterator& it);
+	string           addTopic(const vector<channel>::const_iterator& it);
+	void             addToResponse(const command& msg, const vector<channel>::const_iterator& it, stringstream& response);
 	void             addChannelsToList(const command& msg, const vector<channel>& channelList, stringstream& response);
 	string           getList(const command& msg, const vector<channel>& channelList);
 	vector<reply>    buildResponse(const command& msg, const vector<channel> &channelList);
