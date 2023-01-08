@@ -31,33 +31,18 @@ bool PRIVMSG::isNicknameInList(const vector<user> &users, const string& nickname
 	return false;
 }
 
-bool PRIVMSG::doesChannelExist(const vector<channel>& channels, const string& channel_name) {
-	for (vector<channel>::const_iterator it = channels.begin(); it != channels.end(); it++) {
-		if (!it->getName().compare(channel_name)) {
-			return true;
-		}
-	}
-	return false;
-}
-
-channel PRIVMSG::getChannel(const vector<channel>& channels, const string& channel_name) {
-	for (vector<channel>::const_iterator it = channels.begin(); it != channels.end(); it++) {
-		if (!it->getName().compare(channel_name)) {
-			return *it;
-		}
-	}
-	return *channels.end();
-}
-
 bool PRIVMSG::isRecipientAChannel(const string& recipient) {
 	return !recipient.empty() && *recipient.begin() == '#';
 }
 
-void PRIVMSG::buildUserResponse(stringstream& response, const command& msg, const vector<user>& users,
-                                const string& nickname, const string& message) {
-	response << (this->isNicknameJustSpaces(nickname) ? ERR_NOTEXTTOSEND(msg.getClient().getServername()) :
-	            !this->isNicknameInList(users, nickname) ? ERR_NOSUCHNICK(msg.getClient().getServername(), nickname) :
-	                                                       RPL_PRIVMSG(msg.getClient().getNickname(), nickname, message));
+// check if a channel exists & saves it for future use in the ::buildChannelResponse function
+pair<bool, const vector<channel>::const_iterator> PRIVMSG::findChannel(const vector<channel>& channels, const string& channel_name) {
+	for (vector<channel>::const_iterator it = channels.begin(); it != channels.end(); it++) {
+		if (!it->getName().compare(channel_name)) {
+			return make_pair(true, it);
+		}
+	}
+	return make_pair(false, channels.end());
 }
 
 bool PRIVMSG::canClientMessageChannel(const user& client, const channel& Channel) {
@@ -75,17 +60,24 @@ bool PRIVMSG::canClientMessageChannel(const user& client, const channel& Channel
 	return true;
 }
 
+void PRIVMSG::buildUserResponse(stringstream& response, const command& msg, const vector<user>& users,
+                                const string& nickname, const string& message) {
+	response << (this->isNicknameJustSpaces(nickname) ? ERR_NOTEXTTOSEND(msg.getClient().getServername()) :
+	            !this->isNicknameInList(users, nickname) ? ERR_NOSUCHNICK(msg.getClient().getServername(), nickname) :
+	                                                       RPL_PRIVMSG(msg.getClient().getNickname(), nickname, message));
+}
+
 void PRIVMSG::buildChannelResponse(stringstream& response, const command& msg, const vector<channel>& channels,
                                    const string& channel_name, const string& message) {
-	if (!this->doesChannelExist(channels, &channel_name.at(1))) {
+	pair<bool, const vector<channel>::const_iterator> channel_info = this->findChannel(channels, &channel_name.at(1));
+
+	if (!channel_info.first) {
 		response << ERR_NOSUCHCHANNEL(msg.getClient().getServername(), channel_name);
 		return;
 	}
-
-	const user client = msg.getClient();
-	const channel Channel = this->getChannel(channels, &channel_name.at(1));
-	response << (this->canClientMessageChannel(client, Channel) ? RPL_PRIVMSG(client.getNickname(), channel_name, message) :
-	                                                              ERR_CANNOTSENDTOCHAN(client.getServername(), channel_name));
+	response << (this->canClientMessageChannel(msg.getClient(), *channel_info.second) ? 
+	            RPL_PRIVMSG(msg.getClient().getNickname(), channel_name, message) :
+	            ERR_CANNOTSENDTOCHAN(msg.getClient().getServername(), channel_name));
 }
 
 string PRIVMSG::buildResponse(const command& msg, const vector<user>& users, const vector<channel>& channels,

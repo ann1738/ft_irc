@@ -11,8 +11,8 @@ private:
 	bool       isNicknameJustSpaces(const string& nickname);
 	bool       isNicknameInList(const vector<user> &users, const string& nickname);
 	bool       isRecipientAChannel(const string& recipient);
-	bool       doesChannelExist(const vector<channel>& channels, const string& channel_name);
-	channel    getChannel(const vector<channel>& channels, const string& channel_name);
+
+	pair<bool, const vector<channel>::const_iterator>    findChannel(const vector<channel>& channels, const string& channel_name);
 	bool       canClientMessageChannel(const user& client, const channel& channel);
 
 	void       buildUserResponse(stringstream& response, const command& msg, const vector<user>& users,
