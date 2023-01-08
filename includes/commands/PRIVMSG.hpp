@@ -13,6 +13,7 @@ private:
 	bool       isRecipientAChannel(const string& recipient);
 	bool       doesChannelExist(const vector<channel>& channels, const string& channel_name);
 	channel    getChannel(const vector<channel>& channels, const string& channel_name);
+	bool       canClientMessageChannel(const user& client, const channel& channel);
 
 	void       buildUserResponse(stringstream& response, const command &msg, const vector<user>& users,
 	                             const string& nickname, const string& message);

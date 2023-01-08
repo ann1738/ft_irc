@@ -71,6 +71,21 @@ void PRIVMSG::buildUserResponse(stringstream& response, const command &msg, cons
 	}
 }
 
+bool PRIVMSG::canClientMessageChannel(const user& client, const channel& Channel) {
+	// if the channel doesn't want to receive external messages (+n) & the client is not in the channel
+	if (Channel.getNoExternalMsg() && !this->isNicknameInList(Channel.getUsers(), client.getNickname())) {
+		return false;
+	}
+
+	// if the channel is moderated (+m) and the client is in the channel but not an operator (+o) or voiced (+v)
+	else if (Channel.getModerated()) {
+		return !this->isNicknameInList(Channel.getUsers(), client.getNickname()) ? false :
+		       Channel.isOperator(client) ? true :
+		       Channel.isVoicedUser(client) ? true : false;
+	}
+	return true;
+}
+
 void PRIVMSG::buildChannelResponse(stringstream& response, const command &msg, const vector<channel>& channels,
                                    const string& channel_name, const string& message) {
 	if (!this->doesChannelExist(channels, &channel_name.at(1))) {
@@ -78,21 +93,10 @@ void PRIVMSG::buildChannelResponse(stringstream& response, const command &msg, c
 		return;
 	}
 
-	channel recepient = this->getChannel(channels, &channel_name.at(1));
-	// if the channel doesn't want to receive external messages (+n) & the client is not in the channel
-	if (recepient.getNoExternalMsg() && !this->isNicknameInList(recepient.getUsers(), msg.getClient().getNickname())) {
-		response << ERR_CANNOTSENDTOCHAN(msg.getClient().getServername(), channel_name);
-	}
-
-	// if the channel is moderated (+m) and the client is in the channel but not an operator (+o) or voiced (+v)
-	else if (recepient.getModerated() && this->isNicknameInList(recepient.getUsers(), msg.getClient().getNickname())) {
-		response << ERR_CANNOTSENDTOCHAN(msg.getClient().getServername(), channel_name);
-	}
-
-	// send a message to a all users in the channel if no errors have been encountered
-	else {
-		response << RPL_PRIVMSG(msg.getClient().getNickname(), channel_name, message);
-	}
+	const user client = msg.getClient();
+	const channel Channel = this->getChannel(channels, &channel_name.at(1));
+	response << (this->canClientMessageChannel(client, Channel) ? RPL_PRIVMSG(client.getNickname(), channel_name, message) :
+	                                                              ERR_CANNOTSENDTOCHAN(client.getServername(), channel_name));
 }
 
 string PRIVMSG::buildResponse(const command& msg, const vector<user>& users, const vector<channel>& channels,
