@@ -1,5 +1,4 @@
-#include "../includes/server.hpp"
-#include "channel.hpp"
+#include "server.hpp"
 
 server::server(int port) : listenPort(port),
                            stopServer(false) {
@@ -161,8 +160,6 @@ void			server::handleExistingConnection(int clientFd){
 		std::cout << buffer << std::endl;
 		std::cout << "e-------------------" << std::endl;
 	
-		commandParse	parser;
-	
 		parser.parse(buffer, getUser(clientFd));
 		parser.test();
 
@@ -188,7 +185,7 @@ void			server::loopAndHandleConnections(){
 				handleNewConnection();
 			else
 				handleExistingConnection(clientSockets[i].fd);
-    }
+		}
 	}
   
 }

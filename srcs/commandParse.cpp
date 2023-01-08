@@ -25,6 +25,7 @@ void	commandParse::saveNewCommand(const string &buff, size_t start, size_t i, us
 }
 
 void	commandParse::parse(const string &buff, user& u) {
+	cmd.clear();
 	size_t i = 0;
 	for (size_t start = 0; start < buff.size(); start = (!start)? 0: (start + 1)) {
 		size_t end = buff.find('\n', start);

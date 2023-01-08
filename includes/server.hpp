@@ -63,6 +63,8 @@ private:
 
 	/*-----------------------------------------------------------------------*/
 
+	commandParse	parser;
+
 	std::vector<user>			users;
 	std::vector<channel>		channels;
 
