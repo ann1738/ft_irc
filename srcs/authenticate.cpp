@@ -1,11 +1,15 @@
 #include "authenticate.hpp"
 
 authenticate::authenticate(const commandParse &cmd, const string& serverPassword){
-	this->correct_order = (cmd.getParsedCmd(0).getCmdType() =="PASS")? true: false;
-	if (correct_order == true && (this->getPassword(cmd.getParsedCmd(0).getParameters()) == serverPassword))
+	this->correct_order = (cmd.getParsedCmd(0).getCmdType() == "PASS")? true: false;
+	if (correct_order == true && (this->getPassword(cmd.getParsedCmd(0).getParameters()) == serverPassword)) {
 		this->correct_Password = true;
-	else
+		this->msg = "";
+	}
+	else {
 		this->correct_Password = false;
+		this->msg = ERR_PASSWDMISMATCH(cmd.getParsedCmd(0).getClient().getServername(), cmd.getParsedCmd(0).getClient().getNickname());
+	}
 }
 
 string	authenticate::getPassword(const string& parameters){
@@ -15,7 +19,12 @@ string	authenticate::getPassword(const string& parameters){
 }
 
 bool	authenticate::isAuthenticated(){
-	return ((correct_order == true) && (correct_Password == true))
+	return ((correct_order == true) && (correct_Password == true));
+}
+
+string	authenticate::getErrorMsg() const{
+	return (this->msg);
+
 }
 
 authenticate::~authenticate(){}

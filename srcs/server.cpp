@@ -1,7 +1,8 @@
 #include "server.hpp"
 
-server::server(int port) : listenPort(port),
-                           stopServer(false) {
+server::server(int port, const string& password) : listenPort(port),
+                        					stopServer(false),
+											serverPassword(password) {
 	createSocket();
 	changeSocketOpt();
 	makeFdNonBlock(listenerFd);
@@ -163,9 +164,16 @@ void			server::handleExistingConnection(int clientFd){
 		parser.parse(buffer, getUser(clientFd));
 		parser.test();
 
-		if (!this->isUserAuthenticated(getUser(clientFd))) {
-			getUser(clientFd).enterServer();
-			getUser(clientFd).saveUserInfo(buffer);
+		if (!this->isUserAuthenticated(getUser(clientFd)) && !isCapOrJOIN(parser.getParsedCmd(0))) {
+			authenticate	a(parser, this->serverPassword);
+			if (a.isAuthenticated() == true){
+				getUser(clientFd).enterServer();
+				getUser(clientFd).saveUserInfo(buffer);
+			}
+			else {
+				send(clientFd, a.getErrorMsg().c_str(), a.getErrorMsg().length(), 0);
+				close(clientFd);
+			}
 		} else {
 			redirectCommand	funnel;
 			for (size_t i = 0; i < parser.getCommandAmount(); i++){
@@ -187,7 +195,7 @@ void			server::loopAndHandleConnections(){
 				handleExistingConnection(clientSockets[i].fd);
 		}
 	}
-  
+
 }
 
 /*-----------------------------------------------------------------------*/
@@ -203,6 +211,10 @@ user&		server::getUser(int fd){
 		}
 	}
 	return users[0];
+}
+
+bool	server::isCapOrJOIN(const command& cmd) const {
+	return (cmd.getCmdType() == "JOIN" || cmd.getCmdType() == "CAP");
 }
 
 /**

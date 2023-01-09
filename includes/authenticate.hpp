@@ -2,12 +2,14 @@
 # define AUTHENTICATE_HPP
 
 #include "commandParse.hpp"
+#include "reply.hpp"
 
 class authenticate {
 
 private:
 	bool	correct_order;
 	bool	correct_Password;
+	string	msg;
 
 	string	getPassword(const string& parameters);
 
@@ -15,6 +17,8 @@ public:
 	authenticate(const commandParse &cmd, const string& serverPassword);
 
 	bool	isAuthenticated();
+
+	string	getErrorMsg() const;
 	
 	~authenticate();
 
