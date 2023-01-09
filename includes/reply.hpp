@@ -72,6 +72,9 @@
 #define ERR_NEEDMOREPARAMS(servername, nickname, cmd) \
 (":" + servername + " 461 * " + nickname + " " + cmd + " :Not enough parameters\n")
 
+#define ERR_PASSWDMISMATCH(servername, nickname) \
+(":" + servername + " 464 * " + nickname + " :Password incorrect\n")
+
 #define ERR_CHANNELISFULL(server_name, nickname, channel_name) \
 (":" + server_name + " 471 * " + nickname + " #" + channel_name + " :Cannot join channel (+l)\n")
 

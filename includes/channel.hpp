@@ -28,12 +28,12 @@ private:
 	bool	isKeyEnabled;        //k
 	bool	isUserCountLimited;  //l
 
-	vector<user> users;
-	vector<user> operators;
-	vector<user> invitedUsers;
-	vector<user> voicedUsers;
+	vector<const user *> users;
+	vector<const user *> operators;
+	vector<const user *> invitedUsers;
+	vector<const user *> voicedUsers;
 
-	size_t	findUser(const vector<user> &userList, const user &User) const;
+	size_t	findUser(const vector<const user *> &userList, const user &User) const;
 
 public:
 	channel();
@@ -59,10 +59,10 @@ public:
 
 	string	getChannelModes() const;
 
-	const vector<user>	getUsers() const;
-	const vector<user>	getOperators() const;
-	const vector<user>	getInvitedUsers() const;
-	const vector<user>	getVoicedUsers() const;
+	const vector<const user *>	getUsers() const;
+	const vector<const user *>	getOperators() const;
+	const vector<const user *>	getInvitedUsers() const;
+	const vector<const user *>	getVoicedUsers() const;
 
 	/* setters */
 	void	setName(string name);
@@ -81,21 +81,21 @@ public:
 	void	setKeyEnabled(bool mode);
 	void	setUserCountLimited(bool mode);
 
-	void	addUser(user const &User);
-	void	removeUser(user const &User);
-	bool	isUser(user const &User) const;
+	void	addUser(const user &User);
+	void	removeUser(const user &User);
+	bool	isUser(const user &User) const;
 
-	void	addOperator(user const &Op);
-	void	removeOperator(user const &Op);
-	bool	isOperator(user const &Op) const;
+	void	addOperator(const user &Op);
+	void	removeOperator(const user &Op);
+	bool	isOperator(const user &Op) const;
 	
-	void	addVoicedUser(user const &User);
-	void	removeVoicedUser(user const &User);
-	bool	isVoicedUser(user const &User) const;
+	void	addVoicedUser(const user &User);
+	void	removeVoicedUser(const user &User);
+	bool	isVoicedUser(const user &User) const;
 	
-	void	addInvitedUser(user const &User);
-	void	removeInvitedUser(user const &User);
-	bool	isInvitedUser(user const &User) const;
+	void	addInvitedUser(const user &User);
+	void	removeInvitedUser(const user &User);
+	bool	isInvitedUser(const user &User) const;
 };
 
 #endif 

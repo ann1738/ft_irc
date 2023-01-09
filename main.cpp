@@ -14,23 +14,19 @@ static void signalHandler(int sig) {
 
 int main(int argc, char **argv)
 {
-	initialParse init;
-	try {
-		init.parse(argc, argv);
-		cout << "Parsing done" << endl;
-	} catch (std::exception &e) {
-		cout << e.what() << endl;
-		return 1;
-	}
-
 	signal(SIGINT, signalHandler);
 	signal(SIGQUIT, signalHandler);
+
 	try {
-		server ircserv(init.getPort());
+		initialParse init;
+		init.parse(argc, argv);
+
+		server ircserv(init.getPort(), init.getPassword());
 		getServerPtr(&ircserv);
 		ircserv.run();
 	} catch (std::exception &e) {
 		cout << e.what() << endl;
+		return 1;
 	}
 	return 0;
 }

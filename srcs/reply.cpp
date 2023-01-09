@@ -4,15 +4,15 @@ reply::reply(): userFds(), msg("") {}
 	
 void	reply::setUserFds(const channel& c){
 	for (size_t i = 0; i < c.getUsers().size(); i++) {
-		this->userFds.push_back(c.getUsers()[i].getFd());
+		this->userFds.push_back(c.getUsers()[i]->getFd());
 	}
 }
 
 void	reply::setUserFds(const channel& c, int fd){
 	for (size_t i = 0; i < c.getUsers().size(); i++) {
 
-		if (c.getUsers()[i].getFd() != fd)
-			this->userFds.push_back(c.getUsers()[i].getFd());
+		if (c.getUsers()[i]->getFd() != fd)
+			this->userFds.push_back(c.getUsers()[i]->getFd());
 	}
 }
 
