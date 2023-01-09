@@ -17,21 +17,16 @@ int main(int argc, char **argv)
 	signal(SIGINT, signalHandler);
 	signal(SIGQUIT, signalHandler);
 
-	initialParse init;
 	try {
+		initialParse init;
 		init.parse(argc, argv);
-		cout << "Parsing done" << endl;
-	} catch (std::exception &e) {
-		cout << e.what() << endl;
-		return 1;
-	}
 
-	try {
 		server ircserv(init.getPort());
 		getServerPtr(&ircserv);
 		ircserv.run();
 	} catch (std::exception &e) {
 		cout << e.what() << endl;
+		return 1;
 	}
 	return 0;
 }
