@@ -11,7 +11,7 @@ private:
 	vector<string>   parseChannelNames(const string& message);
 
 	bool             doesChannelExist(const vector<string>& channels, const string& channel_name);
-	bool             isClientInsideChannel(const vector<user>& userList, const user& client);
+	bool             isClientInsideChannel(const vector<const user*>& users, const user& client);
 
 	string           addMode(const vector<channel>::const_iterator& it);
 	string           addTopic(const vector<channel>::const_iterator& it);
