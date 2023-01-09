@@ -88,7 +88,7 @@ void LIST::addChannelsToList(const command& msg, const vector<channel>& channelL
 		}
 
 		// if specific channels have been provided, check if they exist and then print their information
-		else if (!message.empty() && this->doesChannelExist(channels, '#' + it->getName())) {
+		else if (this->doesChannelExist(channels, '#' + it->getName())) {
 			this->addToResponse(msg, it, response);
 		}
 	}
