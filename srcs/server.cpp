@@ -1,6 +1,4 @@
-#include "../includes/server.hpp"
-#include "channel.hpp"
-#include "redirectCommand.hpp"
+#include "server.hpp"
 
 server::server(int port) : listenPort(port),
                            stopServer(false) {
@@ -50,11 +48,16 @@ void			server::addSocket(int fd, short event){
 	fdCount++;
 }
 
-void			server::removeSocket(int socketIndex){
-	clientSockets.erase(clientSockets.begin() + socketIndex);
-	fdCount--;
+void			server::removeSocket(int fd){
+	for (std::vector<struct pollfd>::iterator it = clientSockets.begin(); it != clientSockets.end(); it++){
+		if (it->fd == fd)
+		{
+			clientSockets.erase(it);
+			fdCount--;
+			break ;
+		}
+	}
 }
-
 
 void			server::createSocket() throw(std::runtime_error){
 	listenerFd = socket(AF_INET, SOCK_STREAM, 0);
@@ -113,17 +116,12 @@ void			server::pollClients() throw(std::runtime_error){
 }
 
 void			server::handshakeNewConnection(int clientFd) throw(std::runtime_error){
-	//change the message to be customizable to the specific user
 	int 		status;
 	std::string msg;
 
 	msg = "CAP * ACK multi-prefix\r\n";
 	status = send(clientFd, msg.c_str(), msg.length(), 0);
 	checkStatusAndThrow(status, SEND_ERR);
-
-	// msg = this->createWelcomeMessage(this->findUserNickname(clientFd));
-	// status = send(clientFd, msg.c_str(), msg.length(), 0);
-	// checkStatusAndThrow(status, SEND_ERR);
 }
 
 void			server::handleNewConnection(){
@@ -136,16 +134,16 @@ void			server::handleNewConnection(){
 	{
 		makeFdNonBlock(clientSocketFd);
 		addSocket(clientSocketFd, POLLIN);
-		this->addUser(clientSocketFd);
+		addUser(clientSocketFd);
 		handshakeNewConnection(clientSocketFd);
 	}
 }
 
-void			server::handleExistingConnection(int socketIndex){
+void			server::handleExistingConnection(int clientFd){
 	char	buffer[MAX_MSG_LENGTH] = {0};
 	int		readBytes;
 
-	readBytes = recv(clientSockets[socketIndex].fd, buffer, sizeof(buffer), 0);
+	readBytes = recv(clientFd, buffer, sizeof(buffer), 0);
 	if (readBytes == -1)
 	{
 		std::cerr << "recv()" << std::endl;
@@ -154,23 +152,20 @@ void			server::handleExistingConnection(int socketIndex){
 	}
 	else if (readBytes == 0) //connection closed
 	{
-		removeSocket(socketIndex);
+		removeSocket(clientFd);
 	}
 	else
 	{
 		std::cout << "s-------------------" << std::endl;
 		std::cout << buffer << std::endl;
 		std::cout << "e-------------------" << std::endl;
-		
-		int fd = clientSockets[socketIndex].fd;
-		commandParse	parser;
-
-		parser.parse(buffer, getUser(fd));
+	
+		parser.parse(buffer, getUser(clientFd));
 		parser.test();
 
-		if (!this->isUserAuthenticated(users[socketIndex - 1])) {
-			users[socketIndex - 1].enterServer();
-			users[socketIndex - 1].saveUserInfo(buffer);
+		if (!this->isUserAuthenticated(getUser(clientFd))) {
+			getUser(clientFd).enterServer();
+			getUser(clientFd).saveUserInfo(buffer);
 		} else {
 			redirectCommand	funnel;
 			for (size_t i = 0; i < parser.getCommandAmount(); i++){
@@ -189,12 +184,11 @@ void			server::loopAndHandleConnections(){
 			if (clientSockets[i].fd == listenerFd)
 				handleNewConnection();
 			else
-				handleExistingConnection(i);
-    }
+				handleExistingConnection(clientSockets[i].fd);
+		}
 	}
   
 }
-
 
 /*-----------------------------------------------------------------------*/
 
@@ -210,38 +204,6 @@ user&		server::getUser(int fd){
 	}
 	return users[0];
 }
-
-// vector<channel>::const_iterator	server::findChannel(const string& message) {
-// 	if (message.empty()) {
-// 		return channels.end();
-// 	}
-
-// 	string channel_name = message.substr(message.find('#'), message.find(' '));
-// 	if (channel_name.back() == '\n') {
-// 		channel_name.resize(channel_name.length() - 1);
-// 	}
-
-// 	for (vector<channel>::iterator it = channels.begin(); it != channels.end(); it++) {
-// 		if (('#' + it->getName()) == channel_name) {
-// 			return it;
-// 		}
-// 	}
-// 	return channels.end();
-// }
-
-// vector<user>::const_iterator	server::findUser(const string& message) {
-// 	if (message.empty()) {
-// 		return users.end();
-// 	}
-
-// 	string nickname = message.substr(message.find("PRIVMSG ") + 8, message.find(' ') - 1);
-// 	for (vector<user>::iterator it = users.begin(); it != users.end(); it++) {
-// 		if (it->getNickname() == nickname) {
-// 			return it;
-// 		}
-// 	}
-// 	return users.end();
-// }
 
 /**
  * checks if a user has been admitted to the server or not. This allows us to determine
