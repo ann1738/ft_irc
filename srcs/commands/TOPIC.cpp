@@ -41,6 +41,7 @@ void TOPIC::organizeInfo(command msg){
 	{
 		topicChangeRequested = true;
 		m_parsedChannelName = parameters.substr(0, endIndex);
+		// m_parsedChannelTopic = parameters.substr(parameters.find_first_of(':') + 1);
 		m_parsedChannelTopic = parameters.substr(endIndex + 2);
 	}
 	else
@@ -54,32 +55,35 @@ void TOPIC::organizeInfo(command msg){
 vector<channel>::iterator	TOPIC::findChannel(const string &channelName, vector<channel> &globalChannelList){
 	for (vector<channel>::iterator it = globalChannelList.begin(); it != globalChannelList.end(); it++)
 	{
-		if (it->getName() == channelName)
+		cout << it->getName() << " == " << channelName << endl;
+		if ("#" +it->getName() == channelName)
 			return it;
 	}
+	cout << "CHANNEL NOT FOUND GOT OUT OF LOOP" << endl;
 	return globalChannelList.end();
 }
 
-void	TOPIC::constructReplyMsg(const command &message, vector<channel> &globalChannelList, vector<channel>::iterator iter){
-	if (m_parsedChannelName.empty())
+void	TOPIC::constructReplyMsg(const command &message, bool isChannel){
+
+	if (cout << "IF<1>" << endl && m_parsedChannelName.empty())
 		m_reply = ERR_NEEDMOREPARAMS(m_user.getServername(), m_user.getNickname(), message.getCmdType());
-	/*	 Channel does not exist	*/
-	else if (iter == globalChannelList.end())
+	/*	 Cha(nnel does not exist	*/
+	else if (cout << "IF<2>" << endl && !isChannel)
 		m_reply = ERR_NOSUCHCHANNEL(m_user.getServername(), m_parsedChannelName);
 	/*	 User is not on the channel	*/
-	else if (isUserOnChannel() == false)
+	else if ( cout << "IF<3>" << endl && isTopicChangeRequested() && isUserOnChannel() == false )
 		m_reply = ERR_NOTONCHANNEL(m_user.getServername(), m_user.getNickname(), m_channel->getName());
 	/*	Channel restricts changing the topic to operators and user is not an operator	*/
-	else if (isTopicChangeRequested() && isSafeTopicModeOn() && m_channel->isOperator(m_user) == false)
+	else if (cout << "IF<4>" << endl && isTopicChangeRequested() && isSafeTopicModeOn() && m_channel->isOperator(m_user) == false)
 		m_reply = ERR_CHANOPRIVSNEEDED(m_user.getServername(), m_user.getNickname(), m_channel->getName());
 	/*	Uses requests a topic change */
-	else if (isTopicChangeRequested())
+	else if (cout << "IF<5>" << endl && isTopicChangeRequested())
 	{
 		setTopic(m_parsedChannelTopic);
 		m_reply = RPL_TOPIC(m_user.getServername(), m_user.getNickname(), m_channel->getName(), m_channel->getTopic());
 	}
 	/* Channel does not have a topic	*/
-	else if (m_channel->getTopic().empty())
+	else if (cout << "IF<6>" << endl && m_channel->getTopic().empty())
 		m_reply = RPL_NOTOPIC(m_user.getServername(), m_user.getNickname(), m_channel->getName());
 	/*	User requests to read the channel topic	*/
 	else
@@ -87,25 +91,32 @@ void	TOPIC::constructReplyMsg(const command &message, vector<channel> &globalCha
 }
 
 bool	TOPIC::isReplyForChannel(){
-	return ((m_reply == RPL_TOPIC(m_user.getServername(), m_user.getNickname(), m_channel->getName(), m_channel->getTopic()) \
-	&& isTopicChangeRequested()));
+	return (isTopicChangeRequested() && m_reply == RPL_TOPIC(m_user.getServername(), m_user.getNickname(), m_channel->getName(), m_channel->getTopic()));
 }
 
 vector<reply>	TOPIC::execute(const command &message, vector<user> &globalUserList, vector<channel> &globalChannelList){
 	(void)globalUserList;
 	organizeInfo(message);
+	std::cout << "1" << std::endl;
 
 	vector<reply>	r;
 	r.push_back(reply());
+	std::cout << "2" << std::endl;
 
+	std::cout << "channel name is: "<<  m_parsedChannelName << std::endl;
 	vector<channel>::iterator iter = findChannel(m_parsedChannelName, globalChannelList);
 	if (iter != globalChannelList.end())
-		m_channel = &*iter; //am I copying a new channel or a reference 
+		m_channel = &*iter; 
+	std::cout << "3" << std::endl;
 
-	constructReplyMsg(message, globalChannelList, iter);
+	bool	isChannel = iter != globalChannelList.end();
+	constructReplyMsg(message, isChannel);
+	std::cout << "4" << std::endl;
 	
 	r[0].setMsg(m_reply);
-	(isReplyForChannel())? r[0].setUserFds(*iter): r[0].setUserFds(m_user);
+	std::cout << "5" << std::endl;
+	(iter != globalChannelList.end() && isReplyForChannel())? r[0].setUserFds(*iter): r[0].setUserFds(m_user);
+	std::cout << "6" << std::endl;
 
 	return r;
 }
