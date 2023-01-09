@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 		initialParse init;
 		init.parse(argc, argv);
 
-		server ircserv(init.getPort());
+		server ircserv(init.getPort(), init.getPassword());
 		getServerPtr(&ircserv);
 		ircserv.run();
 	} catch (std::exception &e) {

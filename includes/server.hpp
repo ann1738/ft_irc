@@ -15,6 +15,7 @@
 #include "user.hpp"
 #include "commandParse.hpp"
 #include "redirectCommand.hpp"
+#include "authenticate.hpp"
 
 /* -------------- Macros --------------- */
 #define TIMEOUT 100000
@@ -42,6 +43,8 @@ private:
 	int							fdCount;
 	std::vector<struct pollfd>	clientSockets;
 
+	string 						serverPassword;
+
 	void			addSocket(int fd, short event);
 	void			removeSocket(int socketIndex);
 	void			checkStatusAndThrow(int exitCode, std::string msg) throw(std::runtime_error);
@@ -61,6 +64,8 @@ private:
 	void			pollClients() throw(std::runtime_error);
 	void			loopAndHandleConnections();
 
+	bool			isCapOrJOIN(const command& cmd) const;
+
 	/*-----------------------------------------------------------------------*/
 
 	commandParse	parser;
@@ -75,7 +80,7 @@ private:
 	void			sendReplies(const vector<reply>& replies);
 
 public:
-	server(int port);
+	server(int port, const string& password);
 	~server();
 
 	void			terminateServer();
