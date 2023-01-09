@@ -8,7 +8,7 @@ class authenticate {
 
 private:
 	bool	correct_order;
-	bool	correct_Password;
+	bool	correct_password;
 	string	msg;
 
 	string	getPassword(const string& parameters);
