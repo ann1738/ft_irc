@@ -19,6 +19,15 @@
 #define RPL_PRIVMSG(sender, recipient, message) \
 (":" + sender + " PRIVMSG " + recipient + " " + message + "\n")
 
+#define RPL_LISTSTART(servername, nickname) \
+(":" + servername + " 321 " + nickname + " Channel :Users Name\n")
+
+#define RPL_LIST(servername, nickname, channel_name, user_count, channel_mode, channel_topic) \
+(":" + servername + " 322 " + nickname + " #" + channel_name + " " + user_count + " [" + channel_mode + "] " + channel_topic + "\n")
+
+#define RPL_LISTEND(servername, nickname) \
+(":" + servername + " 323 " + nickname + " :End of /LIST\n")
+
 #define RPL_NOTOPIC(servername, nickname, channel) \
 (":" + servername + " 331 * " + nickname  + " #" + channel + " :No topic is set" + "\n")
 

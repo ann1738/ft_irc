@@ -14,6 +14,7 @@ private:
 	PRIVMSG privmsg;
 	MODE mode;
 	PING ping;
+	LIST list;
 
 public:
 	redirectCommand();
