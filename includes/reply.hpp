@@ -27,6 +27,9 @@
 
 #define RPL_CHANNELMODEIS(nickname, channel, mode, modeParams) \
 ("324 " + nickname + " #" + channel + " " + mode + " " + modeParams + "\n")
+
+#define RPL_PING(servername, message) \
+(":" + servername + " PONG " + message + "\n")
 // -----
 
 // ----- error replies

@@ -2,25 +2,32 @@
 #include "channel.hpp"
 #include "redirectCommand.hpp"
 
-server::server(int port)
-{
-	listenPort = port;
-
+server::server(int port) : listenPort(port),
+                           stopServer(false) {
 	createSocket();
 	changeSocketOpt();
 	makeFdNonBlock(listenerFd);
 	bindSocket();
 	listenToSocket();
 	setupPoll();
-	while (true)
-	{
+}
+
+void server::terminateServer() {
+	stopServer = true;
+}
+
+void server::run() {
+	while (!stopServer) {
 		pollClients();
 		loopAndHandleConnections();
 	}
 }
 
-server::~server()
-{
+server::~server() {
+	for (vector<struct pollfd>::iterator it = clientSockets.begin(); it != clientSockets.end(); it++) {
+		close(it->fd);
+	}
+	cout << "\nWeBareBears IRC Server has been terminated." << endl;
 }
 
 void			server::checkStatusAndThrow(int exitCode, std::string msg) throw(std::runtime_error){
@@ -175,7 +182,7 @@ void			server::handleExistingConnection(int socketIndex){
 }
 
 void			server::loopAndHandleConnections(){
-	for(int i = 0; i <= fdCount; i++)
+	for(int i = 0; i < fdCount; i++)
 	{
 		if (clientSockets[i].revents & POLLIN)
 		{
