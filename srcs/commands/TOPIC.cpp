@@ -32,8 +32,8 @@ void TOPIC::organizeInfo(command msg){
 	m_user = msg.getClient();
 	string	parameters = msg.getParameters();
 	
-	if (parameters[parameters.size() - 1] == '\n') parameters.pop_back();
-	if (parameters[parameters.size() - 1] == '\r') parameters.pop_back();
+	if (parameters[parameters.size() - 1] == '\n') parameters.resize(parameters.size() - 1);
+	if (parameters[parameters.size() - 1] == '\r') parameters.resize(parameters.size() - 1);
 
 	/* store the channel's name and topic */
 	size_t endIndex = parameters.find_first_of(' ');
@@ -41,7 +41,6 @@ void TOPIC::organizeInfo(command msg){
 	{
 		topicChangeRequested = true;
 		m_parsedChannelName = parameters.substr(0, endIndex);
-		// m_parsedChannelTopic = parameters.substr(parameters.find_first_of(':') + 1);
 		m_parsedChannelTopic = parameters.substr(endIndex + 2);
 	}
 	else
@@ -56,10 +55,9 @@ vector<channel>::iterator	TOPIC::findChannel(const string &channelName, vector<c
 	for (vector<channel>::iterator it = globalChannelList.begin(); it != globalChannelList.end(); it++)
 	{
 		cout << it->getName() << " == " << channelName << endl;
-		if ("#" +it->getName() == channelName)
+		if ("#" + it->getName() == channelName)
 			return it;
 	}
-	cout << "CHANNEL NOT FOUND GOT OUT OF LOOP" << endl;
 	return globalChannelList.end();
 }
 
@@ -67,7 +65,7 @@ void	TOPIC::constructReplyMsg(const command &message, bool isChannel){
 
 	if (cout << "IF<1>" << endl && m_parsedChannelName.empty())
 		m_reply = ERR_NEEDMOREPARAMS(m_user.getServername(), m_user.getNickname(), message.getCmdType());
-	/*	 Cha(nnel does not exist	*/
+	/*	 Channel does not exist	*/
 	else if (cout << "IF<2>" << endl && !isChannel)
 		m_reply = ERR_NOSUCHCHANNEL(m_user.getServername(), m_parsedChannelName);
 	/*	 User is not on the channel	*/
@@ -97,26 +95,20 @@ bool	TOPIC::isReplyForChannel(){
 vector<reply>	TOPIC::execute(const command &message, vector<user> &globalUserList, vector<channel> &globalChannelList){
 	(void)globalUserList;
 	organizeInfo(message);
-	std::cout << "1" << std::endl;
 
 	vector<reply>	r;
 	r.push_back(reply());
-	std::cout << "2" << std::endl;
 
 	std::cout << "channel name is: "<<  m_parsedChannelName << std::endl;
 	vector<channel>::iterator iter = findChannel(m_parsedChannelName, globalChannelList);
 	if (iter != globalChannelList.end())
 		m_channel = &*iter; 
-	std::cout << "3" << std::endl;
 
 	bool	isChannel = iter != globalChannelList.end();
 	constructReplyMsg(message, isChannel);
-	std::cout << "4" << std::endl;
 	
 	r[0].setMsg(m_reply);
-	std::cout << "5" << std::endl;
 	(iter != globalChannelList.end() && isReplyForChannel())? r[0].setUserFds(*iter): r[0].setUserFds(m_user);
-	std::cout << "6" << std::endl;
 
 	return r;
 }
