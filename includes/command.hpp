@@ -23,6 +23,7 @@ public:
 	string	getCmdType() const;
 	string	getParameters() const;
 	user&	getClient() const;
+	user*	getClientPtr() const;
 
 	friend class commandParse;
 

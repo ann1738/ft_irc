@@ -97,22 +97,22 @@ pair<size_t, string>	JOIN::goThroughErrors(user& client, size_t position, vector
 	return (make_pair(i, ""));
 }
 
-vector<reply>	JOIN::doJoinAction(user& client, vector<channel> &globalChannelList){
+vector<reply>	JOIN::doJoinAction(user* client, vector<channel> &globalChannelList){
 	vector<reply> ret;
 	for(size_t i = 0; i < this->channel_names.size(); i++){
-		pair<size_t, string> temp  = this->goThroughErrors(client, i, globalChannelList);
+		pair<size_t, string> temp  = this->goThroughErrors(*client, i, globalChannelList);
 		ret.push_back(reply());
 		
 		if (!temp.second.size()) {
-			client.addChannel(this->channel_names[i]);
+			client->addChannel(this->channel_names[i]);
 			globalChannelList[temp.first].addUser(client);
-			temp.second = RPL_JOIN(client.getNickname(), this->channel_names[i]);
+			temp.second = RPL_JOIN(client->getNickname(), this->channel_names[i]);
 			ret[i].setUserFds(globalChannelList[temp.first]);
 			/* --------- making the channel invite only to test error sending --------- */
 			// globalChannelList[temp.first].setInviteOnly(true);
 		}
 		else
-			ret[i].setUserFds(client);
+			ret[i].setUserFds(*client);
 
 		ret[i].setMsg(temp.second);
 	}
@@ -123,7 +123,7 @@ vector<reply>	JOIN::execute(const command &msg, vector<user> &globalUserList, ve
 	(void)globalUserList;
 
 	this->parseCmdParameters(msg.getParameters());
-	return (this->doJoinAction(msg.getClient(), globalChannelList));
+	return (this->doJoinAction(msg.getClientPtr(), globalChannelList));
 }
 
 JOIN::~JOIN(){}

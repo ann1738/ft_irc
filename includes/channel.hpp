@@ -81,19 +81,19 @@ public:
 	void	setKeyEnabled(bool mode);
 	void	setUserCountLimited(bool mode);
 
-	void	addUser(const user &User);
+	void	addUser(const user *User);
 	void	removeUser(const user &User);
 	bool	isUser(const user &User) const;
 
-	void	addOperator(const user &Op);
+	void	addOperator(const user *Op);
 	void	removeOperator(const user &Op);
 	bool	isOperator(const user &Op) const;
 	
-	void	addVoicedUser(const user &User);
+	void	addVoicedUser(const user *User);
 	void	removeVoicedUser(const user &User);
 	bool	isVoicedUser(const user &User) const;
 	
-	void	addInvitedUser(const user &User);
+	void	addInvitedUser(const user *User);
 	void	removeInvitedUser(const user &User);
 	bool	isInvitedUser(const user &User) const;
 };

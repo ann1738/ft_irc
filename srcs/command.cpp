@@ -14,6 +14,10 @@ user&	command::getClient() const{
 	return (*this->client);
 }
 
+user*	command::getClientPtr() const{
+	return (this->client);
+}
+
 void	command::setCmdType(string t){
 	this->cmd_type = t;
 }

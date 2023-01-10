@@ -170,8 +170,8 @@ void	channel::setUserCountLimited(bool mode){
 }
 
 /* vectors */
-void	channel::addUser(user const &User){
-	users.push_back(&User);
+void	channel::addUser(user const *User){
+	users.push_back(User);
 	if (users.size() == 1)    //make the first the channel user an operator 
 		addOperator(User);
 }
@@ -193,8 +193,8 @@ bool	channel::isUser(const user &User) const{
 }
 
 
-void	channel::addOperator(const user &Op){
-	operators.push_back(&Op);
+void	channel::addOperator(const user *Op){
+	operators.push_back(Op);
 }
 
 void	channel::removeOperator(const user &Op){
@@ -207,8 +207,8 @@ bool	channel::isOperator(const user &Op) const{
 	return true;
 }
 
-void	channel::addVoicedUser(const user &User){
-	voicedUsers.push_back(&User);
+void	channel::addVoicedUser(const user *User){
+	voicedUsers.push_back(User);
 }
 
 void	channel::removeVoicedUser(const user &User){
@@ -222,8 +222,8 @@ bool	channel::isVoicedUser(const user &User) const{
 
 }
 
-void	channel::addInvitedUser(const user &User){
-	invitedUsers.push_back(&User);
+void	channel::addInvitedUser(const user *User){
+	invitedUsers.push_back(User);
 }
 
 void	channel::removeInvitedUser(const user &User){

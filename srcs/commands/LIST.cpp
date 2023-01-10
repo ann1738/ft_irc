@@ -42,9 +42,9 @@ bool LIST::doesChannelExist(const vector<string>& channels, const string& channe
 	return false;
 }
 
-bool LIST::isClientInsideChannel(const vector<user>& userList, const user& client) {
-	for (vector<user>::const_iterator it = userList.begin(); it != userList.end(); it++) {
-		if (client.getFd() == it->getFd()) {
+bool LIST::isClientInsideChannel(const vector<const user *>& userList, const user& client) {
+	for (vector<const user *>::const_iterator it = userList.begin(); it != userList.end(); it++) {
+		if (client.getFd() == (*it)->getFd()) {
 			return true;
 		}
 	}

@@ -261,7 +261,7 @@ string	MODE::handleModeO(bool isPlus, vector<user> &globalUserList){
 		return "";
 
 	/*give/take privilege*/		
-	(isPlus == true) ? m_channel->addOperator(*userIter) : m_channel->removeOperator(*userIter);
+	(isPlus == true) ? m_channel->addOperator(&*userIter) : m_channel->removeOperator(*userIter);
 
 	/*construct reply*/		
 	string mode = isPlus ? "+" : "-";
@@ -293,7 +293,7 @@ string	MODE::handleModeV(bool isPlus, vector<user> &globalUserList){
 		return "";
 
 	/*give/take privilege*/		
-	(isPlus == true) ? m_channel->addVoicedUser(*userIter) : m_channel->removeVoicedUser(*userIter);
+	(isPlus == true) ? m_channel->addVoicedUser(&*userIter) : m_channel->removeVoicedUser(*userIter);
 
 	/*construct reply*/		
 	string mode = isPlus ? "+" : "-";
