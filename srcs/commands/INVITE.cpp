@@ -7,8 +7,8 @@ INVITE::INVITE(): invited_client(""), channel_name("") {
 void	INVITE::parseParameters(const string& parameters){
 	size_t space = parameters.find(' ');
 	invited_client = parameters.substr(0, space);
-	space = (parameters.find('#'))? parameters.find('#'): space;
-	channel_name = parameters.substr(++space);
+	space = ((parameters.find('#') != string::npos)? parameters.find('#'): parameters.find(' ')) + 1;
+	channel_name = parameters.substr(space, (parameters.size() - space - 1));
 }
 
 size_t	INVITE::findUser(vector<user> &globalUserList){
@@ -49,8 +49,18 @@ vector<reply>	INVITE::doInviteAction(user& client, vector<user> &globalUserList,
 	string msg = goThroughErrors(client, globalUserList, globalChannelList);
 
 	r.push_back(reply());
-	r[0].setMsg((msg == "")? RPL_INVITING(client.getNickname(), channel_name): msg);
-	r[0].setUserFds(client);
+	if (msg == "") {
+		globalChannelList[findChannel(globalChannelList)].addInvitedUser(globalUserList[findUser(globalUserList)]);
+		r[0].setMsg(RPL_INVITING(client.getServername(), invited_client, channel_name));
+		r[0].setUserFds(client);
+		r.push_back(reply());
+		r[1].setMsg(RPL_INVITED(client.getServername(), client.getNickname(), channel_name));
+		r[1].setUserFds(globalUserList[findUser(globalUserList)]);
+	}
+	else {
+		r[0].setMsg(msg);
+		r[0].setUserFds(client);
+	}
 	return (r);
 }
 

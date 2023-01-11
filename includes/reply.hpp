@@ -40,8 +40,11 @@
 #define RPL_PING(servername, message) \
 (":" + servername + " PONG " + message + "\n")
 
-#define RPL_INVITING(nickname, channel) \
-("341 #" + channel + " " + nickname + "\n")
+#define RPL_INVITING(servername, invited, channel) \
+(":" + servername + "341 Inviting " + invited + " to #" + channel + "\n")
+
+#define RPL_INVITED(servername, inviter, channel) \
+(":" + servername + " " + inviter + " invited you to  #" + channel + "\n")
 // -----
 
 // ----- error replies
