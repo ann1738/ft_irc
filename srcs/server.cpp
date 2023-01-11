@@ -178,6 +178,12 @@ void			server::handleExistingConnection(int clientFd){
 			redirectCommand	funnel;
 			for (size_t i = 0; i < parser.getCommandAmount(); i++){
 				vector<reply> replies = funnel.redirect(parser.getParsedCmd(i), users, channels);
+				if (parser.getParsedCmd(i).getCmdType() == "QUIT")
+				{
+					removeSocket(clientFd);
+					removeUser(clientFd); 
+					close(clientFd);
+				}
 				this->sendReplies(replies);
 			}
 		}
@@ -202,6 +208,16 @@ void			server::loopAndHandleConnections(){
 
 void			server::addUser(int fd) {
 	users.push_back(user(fd));
+}
+
+void			server::removeUser(int fd){
+	for (vector<user>::iterator it = users.begin(); it != users.end(); it++) {
+		if (it->getFd() == fd)
+		{
+			users.erase(it);
+			break ;
+		}
+	}
 }
 
 user&		server::getUser(int fd){

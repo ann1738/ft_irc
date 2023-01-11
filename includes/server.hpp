@@ -74,6 +74,7 @@ private:
 	std::vector<channel>		channels;
 
 	void			addUser(int fd);
+	void			removeUser(int fd);
 	user&			getUser(int fd);
 	bool			isUserAuthenticated(const user& User);
 

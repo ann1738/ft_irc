@@ -16,6 +16,7 @@ private:
 	PING ping;
 	LIST list;
 	INVITE invite;
+	QUIT quit;
 
 public:
 	redirectCommand();
