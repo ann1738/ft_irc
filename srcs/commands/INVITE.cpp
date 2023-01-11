@@ -11,7 +11,7 @@ void	INVITE::parseParameters(const string& parameters){
 	channel_name = parameters.substr(space, (parameters.size() - space - 1));
 }
 
-size_t	INVITE::findUser(vector<user> &globalUserList){
+size_t	INVITE::findUser(const vector<user> &globalUserList) const{
 	for (size_t i = 0; i < globalUserList.size(); i++) {
 		if (globalUserList[i].getNickname() == this->invited_client)
 			return (i);
@@ -19,7 +19,7 @@ size_t	INVITE::findUser(vector<user> &globalUserList){
 	return (string::npos);
 }
 
-size_t	INVITE::findChannel(vector<channel> &globalChannelList){
+size_t	INVITE::findChannel(const vector<channel> &globalChannelList) const{
 	for (size_t i = 0; i < globalChannelList.size(); i++) {
 		if (globalChannelList[i].getName() == this->channel_name)
 			return (i);
@@ -27,7 +27,7 @@ size_t	INVITE::findChannel(vector<channel> &globalChannelList){
 	return (string::npos);
 }
 
-string	INVITE::goThroughErrors(user& client, vector<user> &globalUserList, vector<channel> &globalChannelList) {
+string	INVITE::goThroughErrors(const user& client, const vector<user> &globalUserList, const vector<channel> &globalChannelList) const{
 	size_t channel_index = this->findChannel(globalChannelList);
 	size_t user_index = this->findUser(globalUserList);
 

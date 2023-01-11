@@ -13,10 +13,10 @@ private:
 
 	void			parseParameters(const string& parameters);
 
-	size_t			findUser(vector<user> &globalUserList);
-	size_t			findChannel(vector<channel> &globalChannelList);
+	size_t			findUser(const vector<user> &globalUserList) const;
+	size_t			findChannel(const vector<channel> &globalChannelList) const;
 
-	string			goThroughErrors(user& client, vector<user> &globalUserList, vector<channel> &globalChannelList);
+	string			goThroughErrors(const user& client, const vector<user> &globalUserList, const vector<channel> &globalChannelList) const;
 	vector<reply>	doInviteAction(user& client, vector<user> &globalUserList, vector<channel> &globalChannelList);
 
 public:
