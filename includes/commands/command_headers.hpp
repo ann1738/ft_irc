@@ -9,5 +9,6 @@
 #include "MODE.hpp"
 #include "PING.hpp"
 #include "LIST.hpp"
+#include "INVITE.hpp"
 
 #endif

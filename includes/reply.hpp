@@ -39,6 +39,9 @@
 
 #define RPL_PING(servername, message) \
 (":" + servername + " PONG " + message + "\n")
+
+#define RPL_INVITING(nickname, channel) \
+("341 #" + channel + " " + nickname + "\n")
 // -----
 
 // ----- error replies
@@ -68,6 +71,9 @@
 
 #define ERR_NOTONCHANNEL(servername, nickname, channel) \
 (":" + servername + " 442 * " + nickname + " #" + channel + " :You're not on that channel\n")
+
+#define ERR_USERONCHANNEL(servername, nickname, channel) \
+(":" + servername + " 443 * " + nickname + " #" + channel + " :is already on channel\n")
 
 #define ERR_NEEDMOREPARAMS(servername, nickname, cmd) \
 (":" + servername + " 461 * " + nickname + " " + cmd + " :Not enough parameters\n")
