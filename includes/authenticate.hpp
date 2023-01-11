@@ -26,11 +26,9 @@ public:
 
 #endif
 
-// #define ERR_ALREADYREGISTERED(servername, nickname) \
-// (":" + servername + " 462 * " + nickname + " :You may not reregister\n")
+// #define ERR_ALREADYREGISTERED(servername, nickname) (":" + servername + " 462 * " + nickname + " :You may not reregister\n")
 
-// #define ERR_PASSWDMISMATCH(servername, nickname) \
-// (":" + servername + " 464 * " + nickname + " :Password incorrect\n")
+// #define ERR_PASSWDMISMATCH(servername, nickname) (":" + servername + " 464 * " + nickname + " :Password incorrect\n")
 
 /* ----------------------------------------------------------------------------------------------------- *\
 |*                              Step 1: check if user is already connected                               *|
