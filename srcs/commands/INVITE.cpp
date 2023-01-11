@@ -44,12 +44,12 @@ string	INVITE::goThroughErrors(const user& client, const vector<user> &globalUse
 	return ("");
 }
 
-vector<reply>	INVITE::doInviteAction(user& client, vector<user> &globalUserList, vector<channel> &globalChannelList) {
+vector<reply>	INVITE::doInviteAction(const user& client, const vector<user> &globalUserList, vector<channel> &globalChannelList) {
 	vector<reply> r;
 	string msg = goThroughErrors(client, globalUserList, globalChannelList);
 
 	r.push_back(reply());
-	if (msg == "") {
+	if (msg.empty()) {
 		globalChannelList[findChannel(globalChannelList)].addInvitedUser(globalUserList[findUser(globalUserList)]);
 		r[0].setMsg(RPL_INVITING(client.getServername(), invited_client, channel_name));
 		r[0].setUserFds(client);

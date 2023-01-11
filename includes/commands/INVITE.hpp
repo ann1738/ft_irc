@@ -17,7 +17,7 @@ private:
 	size_t			findChannel(const vector<channel> &globalChannelList) const;
 
 	string			goThroughErrors(const user& client, const vector<user> &globalUserList, const vector<channel> &globalChannelList) const;
-	vector<reply>	doInviteAction(user& client, vector<user> &globalUserList, vector<channel> &globalChannelList);
+	vector<reply>	doInviteAction(const user& client, const vector<user> &globalUserList, vector<channel> &globalChannelList);
 
 public:
 	INVITE();
