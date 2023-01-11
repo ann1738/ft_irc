@@ -60,5 +60,13 @@ irssi: rm_irssi
 rm_irssi:
 	@docker rm -f my-running-irssi 2> /dev/null || exit 0
 
+client:
+	docker run -it -e TERM -u $(id -u):$(id -g) \
+	--log-driver=none \
+    -v ${HOME}/.irssi:/home/user/.irssi:ro \
+    irssi
+
+rm_clients:
+	bash rm_clients.sh
 
 .PHONY: all clean fclean re
