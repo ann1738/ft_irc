@@ -15,6 +15,7 @@ private:
 	MODE mode;
 	PING ping;
 	LIST list;
+	INVITE invite;
 
 public:
 	redirectCommand();

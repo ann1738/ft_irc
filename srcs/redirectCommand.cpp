@@ -30,6 +30,8 @@ vector<reply>	redirectCommand::redirect(const command &message, vector<user> &gl
 		return ping.execute(message, globalUserList, globalChannelList);
 	else if (cmd == "LIST")
 		return list.execute(message, globalUserList, globalChannelList);
+	else if (cmd == "INVITE")
+		return invite.execute(message, globalUserList, globalChannelList);
 	else
 		ret[0].setMsg(""); // ret[0].setMsg(ERR_UNKNOWNCOMMAND);
 	ret[0].setUserFds(message.getClient());
