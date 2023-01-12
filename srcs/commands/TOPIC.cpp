@@ -40,13 +40,13 @@ void TOPIC::organizeInfo(command msg){
 	if (endIndex != string::npos) //there are spaces (meaning that it is a request for changing the topic)
 	{
 		topicChangeRequested = true;
-		m_parsedChannelName = parameters.substr(0, endIndex);
+		m_parsedChannelName = parameters[0] == '#' ? parameters.substr(1, endIndex - 1) : parameters.substr(0, endIndex);
 		m_parsedChannelTopic = parameters.substr(endIndex + 2);
 	}
 	else
 	{
 		topicChangeRequested = false;
-		m_parsedChannelName = parameters;
+		m_parsedChannelName = parameters[0] == '#' ? parameters.substr(1) : parameters;
 		m_parsedChannelTopic = "";
 	}
 }
@@ -54,8 +54,7 @@ void TOPIC::organizeInfo(command msg){
 vector<channel>::iterator	TOPIC::findChannel(const string &channelName, vector<channel> &globalChannelList){
 	for (vector<channel>::iterator it = globalChannelList.begin(); it != globalChannelList.end(); it++)
 	{
-		cout << it->getName() << " == " << channelName << endl;
-		if ("#" + it->getName() == channelName)
+		if (it->getName() == channelName)
 			return it;
 	}
 	return globalChannelList.end();
@@ -63,25 +62,25 @@ vector<channel>::iterator	TOPIC::findChannel(const string &channelName, vector<c
 
 void	TOPIC::constructReplyMsg(const command &message, bool isChannel){
 
-	if (cout << "IF<1>" << endl && m_parsedChannelName.empty())
+	if (m_parsedChannelName.empty())
 		m_reply = ERR_NEEDMOREPARAMS(m_user.getServername(), m_user.getNickname(), message.getCmdType());
 	/*	 Channel does not exist	*/
-	else if (cout << "IF<2>" << endl && !isChannel)
+	else if (!isChannel)
 		m_reply = ERR_NOSUCHCHANNEL(m_user.getServername(), m_parsedChannelName);
 	/*	 User is not on the channel	*/
-	else if ( cout << "IF<3>" << endl && isTopicChangeRequested() && isUserOnChannel() == false )
+	else if (isTopicChangeRequested() && isUserOnChannel() == false )
 		m_reply = ERR_NOTONCHANNEL(m_user.getServername(), m_user.getNickname(), m_channel->getName());
 	/*	Channel restricts changing the topic to operators and user is not an operator	*/
-	else if (cout << "IF<4>" << endl && isTopicChangeRequested() && isSafeTopicModeOn() && m_channel->isOperator(m_user) == false)
+	else if (isTopicChangeRequested() && isSafeTopicModeOn() && m_channel->isOperator(m_user) == false)
 		m_reply = ERR_CHANOPRIVSNEEDED(m_user.getServername(), m_user.getNickname(), m_channel->getName());
 	/*	Uses requests a topic change */
-	else if (cout << "IF<5>" << endl && isTopicChangeRequested())
+	else if (isTopicChangeRequested())
 	{
 		setTopic(m_parsedChannelTopic);
 		m_reply = RPL_TOPIC(m_user.getServername(), m_user.getNickname(), m_channel->getName(), m_channel->getTopic());
 	}
 	/* Channel does not have a topic	*/
-	else if (cout << "IF<6>" << endl && m_channel->getTopic().empty())
+	else if (m_channel->getTopic().empty())
 		m_reply = RPL_NOTOPIC(m_user.getServername(), m_user.getNickname(), m_channel->getName());
 	/*	User requests to read the channel topic	*/
 	else
@@ -99,7 +98,6 @@ vector<reply>	TOPIC::execute(const command &message, vector<user> &globalUserLis
 	vector<reply>	r;
 	r.push_back(reply());
 
-	std::cout << "channel name is: "<<  m_parsedChannelName << std::endl;
 	vector<channel>::iterator iter = findChannel(m_parsedChannelName, globalChannelList);
 	if (iter != globalChannelList.end())
 		m_channel = &*iter; 
