@@ -63,6 +63,6 @@ client:
     irssi
 
 rm_clients:
-	bash rm_clients.sh
+	docker rm -f `docker ps -a -q --filter ancestor=irssi` || exit 0
 
 .PHONY: all clean fclean re
