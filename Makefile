@@ -10,7 +10,7 @@ OBJS_DIR = objs
 INCLUDES_DIR = includes
 INCLUDES_COMMAND_DIR = includes/commands
 
-CMD_SRCS = NICK.cpp TOPIC.cpp JOIN.cpp PART.cpp PRIVMSG.cpp MODE.cpp PING.cpp LIST.cpp INVITE.cpp
+CMD_SRCS = NICK.cpp TOPIC.cpp JOIN.cpp PART.cpp PRIVMSG.cpp MODE.cpp PING.cpp LIST.cpp INVITE.cpp QUIT.cpp
 SRCS =  main.cpp initialParse.cpp server.cpp user.cpp channel.cpp commandParse.cpp command.cpp redirectCommand.cpp reply.cpp authenticate.cpp ${CMD_SRCS}
 
 OBJS = $(addprefix ${OBJS_DIR}/, $(SRCS:%.cpp=%.o))
@@ -46,10 +46,6 @@ ${OBJS_DIR}:
 
 run: all
 	./${NAME} 6667 password
-
-client:
-	${CXX} simpleClient.cpp -o cli && ./cli
-	rm -f cli
 
 irssi: rm_irssi
 	docker run -it --name my-running-irssi -e TERM -u $(id -u):$(id -g) \

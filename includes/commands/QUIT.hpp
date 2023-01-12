@@ -5,7 +5,7 @@
 #include "command.hpp"
 
 #define RPL_QUIT(channel, nickname, message) \
-(":" + nickname + " #" + channel + " QUIT " + "Quit: " + message +  "\n")
+(":" + nickname + " QUIT :" + message + " - #" + channel +  "\n")
 
 class QUIT {
 private:
