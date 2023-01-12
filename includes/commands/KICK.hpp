@@ -18,7 +18,7 @@ private:
 	size_t			findChannel(const vector<channel> &globalChannelList) const;
 
 	string			goThroughErrors(const user& client, const vector<user> &globalUserList, const vector<channel> &globalChannelList) const;
-	vector<reply>	doKickAction(const user& client, const vector<user> &globalUserList, vector<channel> &globalChannelList);
+	vector<reply>	doKickAction(user& client, vector<user> &globalUserList, vector<channel> &globalChannelList);
 
 public:
 

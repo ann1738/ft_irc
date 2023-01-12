@@ -38,37 +38,42 @@ string			KICK::goThroughErrors(const user& client, const vector<user> &globalUse
 	size_t channel_index = this->findChannel(globalChannelList);
 	size_t user_index = this->findUser(globalUserList);
 
-	if (user_index == string::npos)
-		return (ERR_NOSUCHNICK(client.getServername(), invited_client));
 	if (channel_index == string::npos)
 		return (ERR_NOSUCHCHANNEL(client.getServername(), channel_name));
+	if (user_index == string::npos)
+		return (ERR_NOSUCHNICK(client.getServername(), kicked_client));
 	if (!globalChannelList[channel_index].isUser(client))
 		return (ERR_NOTONCHANNEL(client.getServername(), client.getNickname(), channel_name));
 	if (!globalChannelList[channel_index].isOperator(client))
 		return (ERR_CHANOPRIVSNEEDED(client.getServername(), client.getNickname(), channel_name));
-	if (globalChannelList[channel_index].isUser(globalUserList[user_index]))
-		return (ERR_USERONCHANNEL(client.getServername(), invited_client, channel_name));
+
 	return ("");
 }
 
-// 403     ERR_NOSUCHCHANNEL
-// "<channel name> :No such channel"
+vector<reply>	KICK::doKickAction(user& client, vector<user> &globalUserList, vector<channel> &globalChannelList) {
+	vector<reply> r;
+	string msg = goThroughErrors(client, globalUserList, globalChannelList);
 
-// 482     ERR_CHANOPRIVSNEEDED
-// "<channel> :You're not channel operator"
-
-// 442     ERR_NOTONCHANNEL
-// "<channel> :You're not on that channel"
-
-vector<reply>	KICK::doKickAction(const user& client, const vector<user> &globalUserList, vector<channel> &globalChannelList) {
-	;
+	r.push_back(reply());
+	if (msg.empty()) {
+		globalUserList[findUser(globalUserList)].removeChannel(channel_name);
+		globalChannelList[findChannel(globalChannelList)].removeUser((globalUserList[findUser(globalUserList)]));
+		r[0].setMsg(RPL_KICK(client.getNickname(), kicked_client, channel_name, reason));
+		r[0].setUserFds(globalChannelList[findChannel(globalChannelList)]);
+		r.push_back(reply());
+		r[1].setMsg(RPL_KICKED(client.getServername(), client.getNickname(), channel_name, reason) + RPL_PART(kicked_client, channel_name));
+		r[1].setUserFds(globalUserList[findUser(globalUserList)]);
+	}
+	else {
+		r[0].setMsg(msg);
+		r[0].setUserFds(client);
+	}
+	return (r);
 }
 
 vector<reply>	KICK::execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList){
-	(void)globalUserList;
-	(void)globalChannelList;
-	parseParameters(msg.getParameters());
-	return (vector<reply>());
+	this->parseParameters(msg.getParameters());
+	return (this->doKickAction(msg.getClient(), globalUserList, globalChannelList));
 }
 
 KICK::~KICK(){

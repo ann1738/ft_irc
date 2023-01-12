@@ -51,8 +51,8 @@ vector<reply>	INVITE::doInviteAction(const user& client, const vector<user> &glo
 	r.push_back(reply());
 	if (msg.empty()) {
 		globalChannelList[findChannel(globalChannelList)].addInvitedUser(globalUserList[findUser(globalUserList)]);
-		r[0].setMsg(RPL_INVITING(client.getServername(), invited_client, channel_name));
-		r[0].setUserFds(client);
+		r[0].setMsg(RPL_INVITE(client.getNickname(), invited_client, channel_name));
+		r[0].setUserFds(globalChannelList[findChannel(globalChannelList)]);
 		r.push_back(reply());
 		r[1].setMsg(RPL_INVITED(client.getServername(), client.getNickname(), channel_name));
 		r[1].setUserFds(globalUserList[findUser(globalUserList)]);
