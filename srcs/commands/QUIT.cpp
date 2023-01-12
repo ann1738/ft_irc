@@ -20,10 +20,9 @@ vector<reply>	QUIT::constructReply(const command &msg, const string &parsedQuitM
 	for (vector<channel>::iterator channelIter = globalChannelList.begin(); channelIter != globalChannelList.end(); channelIter++){
 		if (channelIter->isUser(msg.getClient()) == true)
 		{
-			cout << "I am in this channel" << endl;
 			replies.push_back(reply());
 			channelIter->removeUser(msg.getClient());
-			replies[channelIndex].setMsg(RPL_QUIT(channelIter->getName(), msg.getClient().getNickname(), parsedQuitMsg));
+			replies[channelIndex].setMsg(RPL_QUIT(msg.getClient().getServername(), channelIter->getName(), msg.getClient().getNickname(), parsedQuitMsg));
 			replies[channelIndex].setUserFds(*channelIter);
 			channelIndex++;
 		}
@@ -37,10 +36,7 @@ vector<reply>	QUIT::constructReply(const command &msg, const string &parsedQuitM
 
 
 vector<reply>    QUIT::execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList){
-	string	parsedQuitMsg;
-
-	parsedQuitMsg = parseQuitMsg(msg.getParameters());
-	cout << "QUIT MESSAGE IS " << parsedQuitMsg  << endl;
+	string	parsedQuitMsg = parseQuitMsg(msg.getParameters());
 
 	return constructReply(msg, parsedQuitMsg, globalUserList, globalChannelList);
 }
