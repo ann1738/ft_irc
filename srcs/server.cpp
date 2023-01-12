@@ -164,13 +164,13 @@ void			server::handleExistingConnection(int clientFd){
 		parser.parse(buffer, getUser(clientFd));
 		parser.test();
 
-		if (!this->isUserAuthenticated(getUser(clientFd)) && !isCapOrJOIN(parser.getParsedCmd(0))) {
+		if (!this->isUserAuthenticated(getUser(clientFd))) {
 			authenticate	a(parser, this->serverPassword);
-			if (a.isAuthenticated() == true){
+			if (a.isAuthenticated() == 1){
 				getUser(clientFd).enterServer();
 				getUser(clientFd).saveUserInfo(buffer);
 			}
-			else {
+			else if (a.isAuthenticated() == -1){
 				send(clientFd, a.getErrorMsg().c_str(), a.getErrorMsg().length(), 0);
 				close(clientFd);
 			}
