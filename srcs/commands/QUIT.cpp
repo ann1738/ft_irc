@@ -14,7 +14,7 @@ string			QUIT::parseQuitMsg(const string &paramaters){
 
 vector<reply>	QUIT::constructReply(const command &msg, const string &parsedQuitMsg, vector<user> &globalUserList, vector<channel> &globalChannelList){
 	(void)globalUserList;
-	size_t			channelIndex = 0;
+	size_t			replyIndex = 0;
 	vector<reply>	replies;
 
 	for (vector<channel>::iterator channelIter = globalChannelList.begin(); channelIter != globalChannelList.end(); channelIter++){
@@ -22,9 +22,9 @@ vector<reply>	QUIT::constructReply(const command &msg, const string &parsedQuitM
 		{
 			replies.push_back(reply());
 			channelIter->removeUser(msg.getClient());
-			replies[channelIndex].setMsg(RPL_QUIT(msg.getClient().getServername(), channelIter->getName(), msg.getClient().getNickname(), parsedQuitMsg));
-			replies[channelIndex].setUserFds(*channelIter);
-			channelIndex++;
+			replies[replyIndex].setMsg(RPL_QUIT(msg.getClient().getServername(), channelIter->getName(), msg.getClient().getNickname(), parsedQuitMsg));
+			replies[replyIndex].setUserFds(*channelIter);
+			replyIndex++;
 		}
 	}
 
