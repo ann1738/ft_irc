@@ -1,4 +1,4 @@
-#include "../includes/initialParse.hpp"
+#include "initialParse.hpp"
 
 initialParse::initialParse()
 {
@@ -22,6 +22,9 @@ bool			initialParse::checkValidPort(std::string portArg){
 	int					tempPort;
 	std::stringstream	sstream;
 	sstream << portArg;
+
+	if (portArg.find_first_not_of("0123456789") != std::string::npos)
+		return false;
 	sstream >> tempPort;
 	if (tempPort < 1023 || tempPort > 65535)
 		return false;

@@ -32,12 +32,15 @@ void TOPIC::organizeInfo(command msg){
 	m_user = msg.getClient();
 	string	parameters = msg.getParameters();
 	
-	if (parameters[parameters.size() - 1] == '\n') parameters.resize(parameters.size() - 1);
-	if (parameters[parameters.size() - 1] == '\r') parameters.resize(parameters.size() - 1);
+	if (parameters.at(parameters.size() - 1) == '\n') parameters.resize(parameters.size() - 1);
+	if (parameters.at(parameters.size() - 1) == '\r') parameters.resize(parameters.size() - 1);
+
+	/* remove '#' from input */
+	if (parameters.at(0) == '#') parameters.erase(parameters.begin());
 
 	/* store the channel's name and topic */
 	size_t endIndex = parameters.find_first_of(' ');
-	if (endIndex != string::npos) //there are spaces (meaning that it is a request for changing the topic)
+	if (endIndex != string::npos) //there are spaces (meaning that it's a topic change request)
 	{
 		topicChangeRequested = true;
 		m_parsedChannelName = parameters.substr(0, endIndex);
@@ -60,14 +63,15 @@ vector<channel>::iterator	TOPIC::findChannel(const string &channelName, vector<c
 	return globalChannelList.end();
 }
 
-void	TOPIC::constructReplyMsg(const command &message, vector<channel> &globalChannelList, vector<channel>::iterator iter){
+void	TOPIC::constructReplyMsg(const command &message, bool isChannel){
+
 	if (m_parsedChannelName.empty())
 		m_reply = ERR_NEEDMOREPARAMS(m_user.getServername(), m_user.getNickname(), message.getCmdType());
 	/*	 Channel does not exist	*/
-	else if (iter == globalChannelList.end())
+	else if (!isChannel)
 		m_reply = ERR_NOSUCHCHANNEL(m_user.getServername(), m_parsedChannelName);
 	/*	 User is not on the channel	*/
-	else if (isUserOnChannel() == false)
+	else if (isTopicChangeRequested() && isUserOnChannel() == false )
 		m_reply = ERR_NOTONCHANNEL(m_user.getServername(), m_user.getNickname(), m_channel->getName());
 	/*	Channel restricts changing the topic to operators and user is not an operator	*/
 	else if (isTopicChangeRequested() && isSafeTopicModeOn() && m_channel->isOperator(m_user) == false)
@@ -87,8 +91,7 @@ void	TOPIC::constructReplyMsg(const command &message, vector<channel> &globalCha
 }
 
 bool	TOPIC::isReplyForChannel(){
-	return ((m_reply == RPL_TOPIC(m_user.getServername(), m_user.getNickname(), m_channel->getName(), m_channel->getTopic()) \
-	&& isTopicChangeRequested()));
+	return (isTopicChangeRequested() && m_reply == RPL_TOPIC(m_user.getServername(), m_user.getNickname(), m_channel->getName(), m_channel->getTopic()));
 }
 
 vector<reply>	TOPIC::execute(const command &message, vector<user> &globalUserList, vector<channel> &globalChannelList){
@@ -99,13 +102,15 @@ vector<reply>	TOPIC::execute(const command &message, vector<user> &globalUserLis
 	r.push_back(reply());
 
 	vector<channel>::iterator iter = findChannel(m_parsedChannelName, globalChannelList);
-	if (iter != globalChannelList.end())
-		m_channel = &*iter; //am I copying a new channel or a reference 
+	bool	isChannel = (iter != globalChannelList.end());
+	
+	if (isChannel)
+		m_channel = &*iter; 
 
-	constructReplyMsg(message, globalChannelList, iter);
+	constructReplyMsg(message, isChannel);
 	
 	r[0].setMsg(m_reply);
-	(isReplyForChannel())? r[0].setUserFds(*iter): r[0].setUserFds(m_user);
+	(isChannel && isReplyForChannel())? r[0].setUserFds(*iter): r[0].setUserFds(m_user);
 
 	return r;
 }
