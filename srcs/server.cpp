@@ -132,13 +132,7 @@ void			server::handleNewConnection(){
 	if (clientSocketFd == -1)
 		std::cerr << ACCEPT_ERR << std::endl;
 	else
-	{
 		addUserToServer(clientSocketFd);
-		// makeFdNonBlock(clientSocketFd);
-		// addSocket(clientSocketFd, POLLIN);
-		// addUser(clientSocketFd);
-		// handshakeNewConnection(clientSocketFd);
-	}
 }
 
 void			server::handleExistingConnection(int clientFd){

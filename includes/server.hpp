@@ -19,7 +19,7 @@
 
 /* -------------- Macros --------------- */
 #define TIMEOUT 100000
-#define MAX_CONNECTIONS 10
+#define MAX_CONNECTIONS 10000
 #define MAX_MSG_LENGTH 512
 
 /* ------------ Error messages ------------ */
