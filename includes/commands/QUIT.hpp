@@ -8,7 +8,7 @@
 class QUIT {
 private:
 	string			parseQuitMsg(const string &paramaters);
-	vector<reply>	constructReply(const command &msg, const string &parsedQuitMsg, vector<user> &globalUserList, vector<channel> &globalChannelList);
+	vector<reply>	constructReply(const command &msg, const string &parsedQuitMsg, vector<channel> &globalChannelList);
 
 public:
 	QUIT();

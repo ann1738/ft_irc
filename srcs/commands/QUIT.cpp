@@ -12,8 +12,7 @@ string			QUIT::parseQuitMsg(const string &paramaters){
 	return parsedQuitMsg;
 }
 
-vector<reply>	QUIT::constructReply(const command &msg, const string &parsedQuitMsg, vector<user> &globalUserList, vector<channel> &globalChannelList){
-	(void)globalUserList;
+vector<reply>	QUIT::constructReply(const command &msg, const string &parsedQuitMsg, vector<channel> &globalChannelList){
 	size_t			replyIndex = 0;
 	vector<reply>	replies;
 
@@ -36,7 +35,8 @@ vector<reply>	QUIT::constructReply(const command &msg, const string &parsedQuitM
 
 
 vector<reply>    QUIT::execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList){
+	(void)globalUserList;
 	string	parsedQuitMsg = parseQuitMsg(msg.getParameters());
 
-	return constructReply(msg, parsedQuitMsg, globalUserList, globalChannelList);
+	return constructReply(msg, parsedQuitMsg, globalChannelList);
 }
