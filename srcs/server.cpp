@@ -172,15 +172,19 @@ void			server::handleExistingConnection(int clientFd){
 			}
 			else {
 				send(clientFd, a.getErrorMsg().c_str(), a.getErrorMsg().length(), 0);
-				close(clientFd);
+				removeUserFromServer(clientFd);
 			}
 		} else {
 			redirectCommand	funnel;
 			for (size_t i = 0; i < parser.getCommandAmount(); i++){
 				vector<reply> replies = funnel.redirect(parser.getParsedCmd(i), users, channels);
+				if (parser.getParsedCmd(i).getCmdType() == "QUIT")
+					removeUserFromServer(clientFd);
 				this->sendReplies(replies);
 			}
 		}
+		logUsers();
+		cout << endl << CYAN << "The amount of fds: " << WHITE << fdCount << endl;
 	}
 }
 
@@ -204,6 +208,22 @@ void			server::addUser(int fd) {
 	users.push_back(user(fd));
 }
 
+void			server::removeUser(int fd){
+	for (vector<user>::iterator it = users.begin(); it != users.end(); it++) {
+		if (it->getFd() == fd)
+		{
+			users.erase(it);
+			break ;
+		}
+	}
+}
+
+void			server::removeUserFromServer(int fd){
+	removeSocket(fd);
+	removeUser(fd);
+	close(fd);
+}
+
 user&		server::getUser(int fd){
 	for (vector<user>::iterator iter = users.begin(); iter != users.end(); iter++) {
 		if (iter->getFd() == fd) {
@@ -213,7 +233,7 @@ user&		server::getUser(int fd){
 	return users[0];
 }
 
-bool	server::isCapOrJOIN(const command& cmd) const {
+bool		server::isCapOrJOIN(const command& cmd) const {
 	return (cmd.getCmdType() == "JOIN" || cmd.getCmdType() == "CAP");
 }
 
@@ -231,7 +251,7 @@ bool		server::isUserAuthenticated(const user& User) {
 	       !User.getRealname().empty();
 }
 
-void	server::sendReplies(const vector<reply>& replies){
+void		server::sendReplies(const vector<reply>& replies){
 	for (size_t reply_count = 0; reply_count < replies.size(); reply_count++) {
 		for (size_t user_count = 0; user_count < replies[reply_count].getUserFds().size(); user_count++)
 			send(replies[reply_count].getUserFds()[user_count], replies[reply_count].getMsg().c_str(), replies[reply_count].getMsg().length(), 0);
@@ -239,4 +259,20 @@ void	server::sendReplies(const vector<reply>& replies){
 		cout << replies[reply_count].getMsg() << endl;
 		cout << "******* sent reply end *******" << endl;
 	}
+}
+
+void		server::logUsers() const{
+	cout << endl << PURPLE << "List of users in the server:" << WHITE << endl;
+	for (vector<user>::const_iterator it = users.begin(); it != users.end(); it++){
+		cout << it->getNickname() << endl;
+	}
+	cout << PURPLE <<  "End of list" << WHITE << endl;
+}
+
+void		server::logChannels() const{
+	cout << endl << PURPLE <<  "List of channels in the server:" << WHITE << endl;
+	for (vector<channel>::const_iterator it = channels.begin(); it != channels.end(); it++){
+		cout << it->getName() << endl;
+	}
+	cout << PURPLE <<  "End of list" << WHITE << endl;
 }

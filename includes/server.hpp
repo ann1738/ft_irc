@@ -74,11 +74,15 @@ private:
 	std::vector<channel>		channels;
 
 	void			addUser(int fd);
+	void			removeUser(int fd);
+	void			removeUserFromServer(int fd);
 	user&			getUser(int fd);
 	bool			isUserAuthenticated(const user& User);
 
 	void			sendReplies(const vector<reply>& replies);
 
+	void			logUsers() const;
+	void			logChannels() const;
 public:
 	server(int port, const string& password);
 	~server();
