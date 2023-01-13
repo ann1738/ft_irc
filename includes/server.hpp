@@ -73,7 +73,8 @@ private:
 	std::vector<user>			users;
 	std::vector<channel>		channels;
 
-	void			addUser(int fd);
+	bool			addUserToVector(int fd);
+	void			addUserToServer(int fd);
 	void			removeUser(int fd);
 	void			removeUserFromServer(int fd);
 	user&			getUser(int fd);
