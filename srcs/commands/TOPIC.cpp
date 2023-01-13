@@ -32,21 +32,24 @@ void TOPIC::organizeInfo(command msg){
 	m_user = msg.getClient();
 	string	parameters = msg.getParameters();
 	
-	if (parameters[parameters.size() - 1] == '\n') parameters.resize(parameters.size() - 1);
-	if (parameters[parameters.size() - 1] == '\r') parameters.resize(parameters.size() - 1);
+	if (parameters.at(parameters.size() - 1) == '\n') parameters.resize(parameters.size() - 1);
+	if (parameters.at(parameters.size() - 1) == '\r') parameters.resize(parameters.size() - 1);
+
+	/* remove '#' from input */
+	if (parameters.at(0) == '#') parameters.erase(parameters.begin());
 
 	/* store the channel's name and topic */
 	size_t endIndex = parameters.find_first_of(' ');
-	if (endIndex != string::npos) //there are spaces (meaning that it is a request for changing the topic)
+	if (endIndex != string::npos) //there are spaces (meaning that it's a topic change request)
 	{
 		topicChangeRequested = true;
-		m_parsedChannelName = parameters[0] == '#' ? parameters.substr(1, endIndex - 1) : parameters.substr(0, endIndex);
+		m_parsedChannelName = parameters.substr(0, endIndex);
 		m_parsedChannelTopic = parameters.substr(endIndex + 2);
 	}
 	else
 	{
 		topicChangeRequested = false;
-		m_parsedChannelName = parameters[0] == '#' ? parameters.substr(1) : parameters;
+		m_parsedChannelName = parameters;
 		m_parsedChannelTopic = "";
 	}
 }
