@@ -10,6 +10,9 @@ MODE::~MODE()
 
 /*	parsing	*/
 void	MODE::parseChannelName(string &parameters){
+	if (parameters.at(parameters.size() - 1) == '\n') parameters.resize(parameters.size() - 1);
+	if (parameters.at(parameters.size() - 1) == '\r') parameters.resize(parameters.size() - 1);
+
 	parsedChannelName = parameters.substr(0, parameters.find(' '));
 	parameters.erase(0, parameters.find(' ') + 1);                        //erase the channel name
 }
