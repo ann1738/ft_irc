@@ -17,10 +17,9 @@ private:
 	string	getPassword(const string& parameters);
 
 	void	checkPass(const commandParse &cmd, const string& serverPassword);
+	bool	isOrderCorrect(const commandParse &cmd);
 
-	size_t	getNickIndex(const commandParse &cmd);
-	size_t	getUserIndex(const commandParse &cmd);
-	size_t	getPassIndex(const commandParse &cmd);
+	size_t	getCommandIndex(const commandParse &cmd, string cmd_type);
 
 public:
 	authenticate(const commandParse &cmd, const string& serverPassword);
