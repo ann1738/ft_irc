@@ -102,14 +102,15 @@ vector<reply>	TOPIC::execute(const command &message, vector<user> &globalUserLis
 	r.push_back(reply());
 
 	vector<channel>::iterator iter = findChannel(m_parsedChannelName, globalChannelList);
-	if (iter != globalChannelList.end())
+	bool	isChannel = (iter != globalChannelList.end());
+	
+	if (isChannel)
 		m_channel = &*iter; 
 
-	bool	isChannel = iter != globalChannelList.end();
 	constructReplyMsg(message, isChannel);
 	
 	r[0].setMsg(m_reply);
-	(iter != globalChannelList.end() && isReplyForChannel())? r[0].setUserFds(*iter): r[0].setUserFds(m_user);
+	(isChannel && isReplyForChannel())? r[0].setUserFds(*iter): r[0].setUserFds(m_user);
 
 	return r;
 }
