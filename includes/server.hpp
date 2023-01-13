@@ -14,6 +14,8 @@
 #include "channel.hpp"
 #include "user.hpp"
 #include "commandParse.hpp"
+#include "redirectCommand.hpp"
+#include "authenticate.hpp"
 
 /* -------------- Macros --------------- */
 #define TIMEOUT 100000
@@ -36,9 +38,12 @@ class server
 private:
 	int 						listenPort;
 	int							listenerFd;
+	bool						stopServer;
 
 	int							fdCount;
 	std::vector<struct pollfd>	clientSockets;
+
+	string 						serverPassword;
 
 	void			addSocket(int fd, short event);
 	void			removeSocket(int socketIndex);
@@ -48,7 +53,7 @@ private:
 	void			makeFdNonBlock(int fd) throw(std::runtime_error);
 	void			setupPoll();
 	void			handleNewConnection();
-	void			handleExistingConnection(int socketIndex);
+	void			handleExistingConnection(int clientFd);
 	int				acceptClient(int clientFd);
 	void			handshakeNewConnection(int clientFd) throw(std::runtime_error);
 
@@ -59,24 +64,31 @@ private:
 	void			pollClients() throw(std::runtime_error);
 	void			loopAndHandleConnections();
 
+	bool			isCapOrJOIN(const command& cmd) const;
 
 	/*-----------------------------------------------------------------------*/
+
+	commandParse	parser;
 
 	std::vector<user>			users;
 	std::vector<channel>		channels;
 
 	void			addUser(int fd);
+	void			removeUser(int fd);
+	void			removeUserFromServer(int fd);
 	user&			getUser(int fd);
 	bool			isUserAuthenticated(const user& User);
 
-	// vector<user>::const_iterator	findUser(const string& message);
-	// vector<channel>::const_iterator	findChannel(const string& message);
+	void			sendReplies(const vector<reply>& replies);
 
-	void		sendReplies(const vector<reply>& replies);
-
+	void			logUsers() const;
+	void			logChannels() const;
 public:
-	server(int port);
+	server(int port, const string& password);
 	~server();
+
+	void			terminateServer();
+	void			run();
 };
 
 

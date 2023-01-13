@@ -108,11 +108,11 @@ vector<reply>	JOIN::doJoinAction(user& client, vector<channel> &globalChannelLis
 			globalChannelList[temp.first].addUser(client);
 			temp.second = RPL_JOIN(client.getNickname(), this->channel_names[i]);
 			ret[i].setUserFds(globalChannelList[temp.first]);
-			/* --------- making the channel invite only to test error sending --------- */
-			// globalChannelList[temp.first].setInviteOnly(true);
 		}
-		else
+		else {
+			temp.second =  RPL_KICK(client.getNickname(), client.getNickname(), channel_names[i], "") + temp.second;
 			ret[i].setUserFds(client);
+		}
 
 		ret[i].setMsg(temp.second);
 	}

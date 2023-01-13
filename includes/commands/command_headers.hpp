@@ -7,5 +7,10 @@
 #include "PART.hpp"
 #include "PRIVMSG.hpp"
 #include "MODE.hpp"
+#include "PING.hpp"
+#include "LIST.hpp"
+#include "INVITE.hpp"
+#include "KICK.hpp"
+#include "QUIT.hpp"
 
 #endif

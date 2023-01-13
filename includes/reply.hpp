@@ -19,6 +19,15 @@
 #define RPL_PRIVMSG(sender, recipient, message) \
 (":" + sender + " PRIVMSG " + recipient + " " + message + "\n")
 
+#define RPL_LISTSTART(servername, nickname) \
+(":" + servername + " 321 " + nickname + " Channel :Users Name\n")
+
+#define RPL_LIST(servername, nickname, channel_name, user_count, channel_mode, channel_topic) \
+(":" + servername + " 322 " + nickname + " #" + channel_name + " " + user_count + " [" + channel_mode + "] " + channel_topic + "\n")
+
+#define RPL_LISTEND(servername, nickname) \
+(":" + servername + " 323 " + nickname + " :End of /LIST\n")
+
 #define RPL_NOTOPIC(servername, nickname, channel) \
 (":" + servername + " 331 * " + nickname  + " #" + channel + " :No topic is set" + "\n")
 
@@ -27,6 +36,21 @@
 
 #define RPL_CHANNELMODEIS(nickname, channel, mode, modeParams) \
 ("324 " + nickname + " #" + channel + " " + mode + " " + modeParams + "\n")
+
+#define RPL_PING(servername, message) \
+(":" + servername + " PONG " + message + "\n")
+
+#define RPL_INVITE(inviter, invited, channel) \
+(":" + inviter + " INVITE " + invited + " #" + channel + "\n")
+
+#define RPL_INVITED(servername, inviter, channel) \
+(":" + servername + " " + inviter + " invited you to  #" + channel + "\n")
+
+#define RPL_KICK(kicker, kicked, channel, reason) \
+(":" + kicker + " KICK #" + channel + " " + kicked + " :" + reason + "\n")
+
+#define RPL_KICKED(servername, kicker, channel, reason) \
+(":" + servername + " " + kicker + " kicked you from #" + channel + " :" + reason + "\n")
 // -----
 
 // ----- error replies
@@ -57,8 +81,14 @@
 #define ERR_NOTONCHANNEL(servername, nickname, channel) \
 (":" + servername + " 442 * " + nickname + " #" + channel + " :You're not on that channel\n")
 
+#define ERR_USERONCHANNEL(servername, nickname, channel) \
+(":" + servername + " 443 * " + nickname + " #" + channel + " :is already on channel\n")
+
 #define ERR_NEEDMOREPARAMS(servername, nickname, cmd) \
 (":" + servername + " 461 * " + nickname + " " + cmd + " :Not enough parameters\n")
+
+#define ERR_PASSWDMISMATCH(servername, nickname) \
+(":" + servername + " 464 * " + nickname + " :Password incorrect\n")
 
 #define ERR_CHANNELISFULL(server_name, nickname, channel_name) \
 (":" + server_name + " 471 * " + nickname + " #" + channel_name + " :Cannot join channel (+l)\n")
@@ -74,6 +104,9 @@
 
 #define ERR_PASSTOOSMALL(servername, nickname) \
 (":" + servername + " " + nickname + " :Channel key must be at least 3 characters\n")
+
+#define RPL_QUIT(servername, channel, nickname, message) \
+(":" + servername + " " + nickname + " has quit #" + channel + " [Quit: " + message + "] \n")
 
 // -----
 
