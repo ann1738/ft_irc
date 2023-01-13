@@ -10,7 +10,7 @@ OBJS_DIR = objs
 INCLUDES_DIR = includes
 INCLUDES_COMMAND_DIR = includes/commands
 
-CMD_SRCS = NICK.cpp TOPIC.cpp JOIN.cpp PART.cpp PRIVMSG.cpp MODE.cpp PING.cpp LIST.cpp INVITE.cpp
+CMD_SRCS = NICK.cpp TOPIC.cpp JOIN.cpp PART.cpp PRIVMSG.cpp MODE.cpp PING.cpp LIST.cpp INVITE.cpp QUIT.cpp
 SRCS =  main.cpp initialParse.cpp server.cpp user.cpp channel.cpp commandParse.cpp command.cpp redirectCommand.cpp reply.cpp authenticate.cpp ${CMD_SRCS}
 
 OBJS = $(addprefix ${OBJS_DIR}/, $(SRCS:%.cpp=%.o))
@@ -47,10 +47,6 @@ ${OBJS_DIR}:
 run: all
 	./${NAME} 6667 password
 
-client:
-	${CXX} simpleClient.cpp -o cli && ./cli
-	rm -f cli
-
 irssi: rm_irssi
 	docker run -it --name my-running-irssi -e TERM -u $(id -u):$(id -g) \
 	--log-driver=none \
@@ -60,5 +56,13 @@ irssi: rm_irssi
 rm_irssi:
 	@docker rm -f my-running-irssi 2> /dev/null || exit 0
 
+client:
+	docker run -it -e TERM -u $(id -u):$(id -g) \
+	--log-driver=none \
+    -v ${HOME}/.irssi:/home/user/.irssi:ro \
+    irssi
+
+rm_clients:
+	docker rm -f `docker ps -a -q --filter ancestor=irssi` || exit 0
 
 .PHONY: all clean fclean re

@@ -99,6 +99,9 @@
 #define ERR_PASSTOOSMALL(servername, nickname) \
 (":" + servername + " " + nickname + " :Channel key must be at least 3 characters\n")
 
+#define RPL_QUIT(servername, channel, nickname, message) \
+(":" + servername + " " + nickname + " has quit #" + channel + " [Quit: " + message + "] \n")
+
 // -----
 
 class reply {
