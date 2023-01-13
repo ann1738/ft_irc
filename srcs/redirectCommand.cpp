@@ -32,6 +32,8 @@ vector<reply>	redirectCommand::redirect(const command &message, vector<user> &gl
 		return list.execute(message, globalUserList, globalChannelList);
 	else if (cmd == "INVITE")
 		return invite.execute(message, globalUserList, globalChannelList);
+	else if (cmd == "KICK")
+		return kick.execute(message, globalUserList, globalChannelList);
 	else if (cmd == "QUIT")
 		return quit.execute(message, globalUserList, globalChannelList);
 	else

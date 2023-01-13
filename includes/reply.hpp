@@ -40,11 +40,17 @@
 #define RPL_PING(servername, message) \
 (":" + servername + " PONG " + message + "\n")
 
-#define RPL_INVITING(servername, invited, channel) \
-(":" + servername + "341 Inviting " + invited + " to #" + channel + "\n")
+#define RPL_INVITE(inviter, invited, channel) \
+(":" + inviter + " INVITE " + invited + " #" + channel + "\n")
 
 #define RPL_INVITED(servername, inviter, channel) \
 (":" + servername + " " + inviter + " invited you to  #" + channel + "\n")
+
+#define RPL_KICK(kicker, kicked, channel, reason) \
+(":" + kicker + " KICK #" + channel + " " + kicked + " :" + reason + "\n")
+
+#define RPL_KICKED(servername, kicker, channel, reason) \
+(":" + servername + " " + kicker + " kicked you from #" + channel + " :" + reason + "\n")
 // -----
 
 // ----- error replies

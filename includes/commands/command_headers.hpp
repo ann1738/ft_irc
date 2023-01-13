@@ -10,6 +10,7 @@
 #include "PING.hpp"
 #include "LIST.hpp"
 #include "INVITE.hpp"
+#include "KICK.hpp"
 #include "QUIT.hpp"
 
 #endif

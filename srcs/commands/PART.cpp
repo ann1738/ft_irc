@@ -52,9 +52,7 @@ vector<reply>	PART::doPartAction(user& client, vector<channel> &globalChannelLis
 			temp.second = RPL_PART(client.getNickname(), this->channel_names[i]);
 			ret[i].setUserFds(globalChannelList[temp.first]);
 		}
-		else
-			ret[i].setUserFds(client);
-		
+		ret[i].setUserFds(client);
 		ret[i].setMsg(temp.second);
 
 	}
