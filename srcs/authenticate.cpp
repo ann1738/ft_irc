@@ -25,7 +25,7 @@ bool	authenticate::isOrderCorrect(const commandParse &cmd){
 
 void	authenticate::checkPass(const commandParse &cmd, const string& serverPassword){
 	size_t pass_index = getCommandIndex(cmd, "PASS");
-	if ((pass_index == string::npos) || isOrderCorrect(cmd) || (serverPassword != getPassword(cmd.getParsedCmd(pass_index).getParameters()))){
+	if ((pass_index == string::npos) || !isOrderCorrect(cmd) || (serverPassword != getPassword(cmd.getParsedCmd(pass_index).getParameters()))){
 		authenticated = NOT_AUTHENTICATED;
 		msg = ERR_PASSWDMISMATCH(cmd.getParsedCmd(0).getClient().getServername(), cmd.getParsedCmd(0).getClient().getNickname());
 	}
