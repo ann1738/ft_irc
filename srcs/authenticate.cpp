@@ -4,13 +4,15 @@ authenticate::authenticate(const commandParse &cmd, const string& serverPassword
 	if (getCommandIndex(cmd, "NICK") != string::npos && getCommandIndex(cmd, "USER") != string::npos) {
 		checkPass(cmd, serverPassword);
 	}
+	else if ((getCommandIndex(cmd, "NICK") == string::npos || getCommandIndex(cmd, "USER") == string::npos) && getCommandIndex(cmd, "PASS") != string::npos)
+		authenticated = NOT_AUTHENTICATED;
 	else
 		authenticated = UNDETERMINED;
 }
 
 size_t	authenticate::getCommandIndex(const commandParse &cmd, string cmd_type){
 	for (size_t i = 0; i < cmd.getCommandAmount(); i++){
-		if (cmd.getParsedCmd(i).getCmdType() == cmd_type/*"NICK"*/)
+		if (cmd.getParsedCmd(i).getCmdType() == cmd_type)
 			return (i);
 	}
 	return (string::npos);
