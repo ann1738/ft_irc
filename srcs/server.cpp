@@ -220,7 +220,7 @@ void			server::addUserToServer(int fd) {
 	}
 }
 
-void			server::removeUser(int fd){
+void			server::removeUserFromVector(int fd){
 	for (vector<user>::iterator it = users.begin(); it != users.end(); it++) {
 		if (it->getFd() == fd)
 		{
@@ -232,7 +232,7 @@ void			server::removeUser(int fd){
 
 void			server::removeUserFromServer(int fd){
 	removeSocket(fd);
-	removeUser(fd);
+	removeUserFromVector(fd);
 	close(fd);
 }
 

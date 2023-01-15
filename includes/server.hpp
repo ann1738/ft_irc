@@ -75,7 +75,7 @@ private:
 
 	bool			addUserToVector(int fd);
 	void			addUserToServer(int fd);
-	void			removeUser(int fd);
+	void			removeUserFromVector(int fd);
 	void			removeUserFromServer(int fd);
 	user&			getUser(int fd);
 	bool			isUserAuthenticated(const user& User);
