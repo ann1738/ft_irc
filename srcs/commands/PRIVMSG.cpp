@@ -52,7 +52,7 @@ bool PRIVMSG::canClientMessageChannel(const user& client, const channel& Channel
 	}
 
 	// if the channel is moderated (+m) and the client is in the channel but not an operator (+o) or voiced (+v)
-	else if (Channel.getModerated()) {
+	if (Channel.getModerated()) {
 		return !this->isNicknameInList(Channel.getUsers(), client.getNickname()) ? false :
 		       Channel.isOperator(client) ? true :
 		       Channel.isVoicedUser(client) ? true : false;
