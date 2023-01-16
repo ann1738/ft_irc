@@ -132,12 +132,7 @@ void			server::handleNewConnection(){
 	if (clientSocketFd == -1)
 		std::cerr << ACCEPT_ERR << std::endl;
 	else
-	{
-		makeFdNonBlock(clientSocketFd);
-		addSocket(clientSocketFd, POLLIN);
-		addUser(clientSocketFd);
-		handshakeNewConnection(clientSocketFd);
-	}
+		addUserToServer(clientSocketFd);
 }
 
 void			server::handleExistingConnection(int clientFd){
@@ -204,11 +199,28 @@ void			server::loopAndHandleConnections(){
 
 /*-----------------------------------------------------------------------*/
 
-void			server::addUser(int fd) {
+bool			server::addUserToVector(int fd) {
+	if (users.empty()) {
+		users.reserve(MAX_CONNECTIONS);
+	}
+
+	if (users.size() == MAX_CONNECTIONS) {
+		close(fd);
+		return false;
+	}
 	users.push_back(user(fd));
+	return true;
 }
 
-void			server::removeUser(int fd){
+void			server::addUserToServer(int fd) {
+	makeFdNonBlock(fd);
+	addSocket(fd, POLLIN);
+	if (addUserToVector(fd)) {
+		handshakeNewConnection(fd);
+	}
+}
+
+void			server::removeUserFromVector(int fd){
 	for (vector<user>::iterator it = users.begin(); it != users.end(); it++) {
 		if (it->getFd() == fd)
 		{
@@ -220,7 +232,7 @@ void			server::removeUser(int fd){
 
 void			server::removeUserFromServer(int fd){
 	removeSocket(fd);
-	removeUser(fd);
+	removeUserFromVector(fd);
 	close(fd);
 }
 

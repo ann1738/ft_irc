@@ -19,7 +19,7 @@
 
 /* -------------- Macros --------------- */
 #define TIMEOUT 100000
-#define MAX_CONNECTIONS 10
+#define MAX_CONNECTIONS 10000
 #define MAX_MSG_LENGTH 512
 
 /* ------------ Error messages ------------ */
@@ -73,8 +73,9 @@ private:
 	std::vector<user>			users;
 	std::vector<channel>		channels;
 
-	void			addUser(int fd);
-	void			removeUser(int fd);
+	bool			addUserToVector(int fd);
+	void			addUserToServer(int fd);
+	void			removeUserFromVector(int fd);
 	void			removeUserFromServer(int fd);
 	user&			getUser(int fd);
 	bool			isUserAuthenticated(const user& User);

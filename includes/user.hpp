@@ -9,6 +9,11 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#define SERVER_NAME    "WeBareBears"
+
+#define RPL_WELCOME(nickname) \
+("001 " + nickname + " :Welcome to the Internet Relay Network " + nickname + "\n")
+
 using namespace std;
 
 class user {
@@ -20,13 +25,11 @@ private:
 	string            m_servername;
 	string            m_realname;
 	string            m_nickname;
-	// string            m_mode;
 	vector<string>    m_channels;
 	bool              m_entered_server;
 
 	vector<string> parseMessage(char* buffer) const;
 	void initNickname();
-	string createWelcomeMessage();
 
 public:
 	user();
