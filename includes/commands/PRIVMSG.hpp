@@ -9,7 +9,8 @@ class PRIVMSG {
 private:
 	string    getRecipient(string& buffer);
 	bool      isNicknameJustSpaces(const string& nickname);
-	bool      isNicknameInList(const vector<user> &users, const string& nickname);
+	bool      isNicknameInServer(const vector<user> &users, const string& nickname);
+	bool      isNicknameInChannel(const vector<const user*> &users, const string& nickname);
 	bool      isRecipientAChannel(const string& recipient);
 
 	pair<bool, const vector<channel>::const_iterator>    findChannel(const vector<channel>& channels, const string& channel_name);

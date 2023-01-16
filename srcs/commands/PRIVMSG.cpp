@@ -18,13 +18,18 @@ bool PRIVMSG::isNicknameJustSpaces(const string& nickname) {
 	return nickname.find_first_not_of(' ') == string::npos;
 }
 
-/**
- * a helper function used to check if a given nickname is included in a list of nicknames. These
- * lists could either represent a list of users in the server, or a list of users in a channel
-*/
-bool PRIVMSG::isNicknameInList(const vector<user> &users, const string& nickname) {
+bool PRIVMSG::isNicknameInServer(const vector<user> &users, const string& nickname) {
 	for (vector<user>::const_iterator it = users.begin(); it != users.end(); it++) {
 		if (!it->getNickname().compare(nickname)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool PRIVMSG::isNicknameInChannel(const vector<const user*> &users, const string& nickname) {
+	for (vector<const user*>::const_iterator it = users.begin(); it != users.end(); it++) {
+		if (!(*it)->getNickname().compare(nickname)) {
 			return true;
 		}
 	}
@@ -47,13 +52,13 @@ pair<bool, const vector<channel>::const_iterator> PRIVMSG::findChannel(const vec
 
 bool PRIVMSG::canClientMessageChannel(const user& client, const channel& Channel) {
 	// if the channel doesn't want to receive external messages (+n) & the client is not in the channel
-	if (Channel.getNoExternalMsg() && !this->isNicknameInList(Channel.getUsers(), client.getNickname())) {
+	if (Channel.getNoExternalMsg() && !this->isNicknameInChannel(Channel.getUsers(), client.getNickname())) {
 		return false;
 	}
 
 	// if the channel is moderated (+m) and the client is in the channel but not an operator (+o) or voiced (+v)
 	if (Channel.getModerated()) {
-		return !this->isNicknameInList(Channel.getUsers(), client.getNickname()) ? false :
+		return !this->isNicknameInChannel(Channel.getUsers(), client.getNickname()) ? false :
 		       Channel.isOperator(client) ? true :
 		       Channel.isVoicedUser(client) ? true : false;
 	}
@@ -63,8 +68,8 @@ bool PRIVMSG::canClientMessageChannel(const user& client, const channel& Channel
 void PRIVMSG::buildUserResponse(stringstream& response, const user& client, const vector<user>& users,
                                 const string& nickname, const string& message) {
 	response << (this->isNicknameJustSpaces(nickname) ? ERR_NOTEXTTOSEND(client.getServername()) :
-	            !this->isNicknameInList(users, nickname) ? ERR_NOSUCHNICK(client.getServername(), nickname) :
-	                                                       RPL_PRIVMSG(client.getNickname(), nickname, message));
+	            !this->isNicknameInServer(users, nickname) ? ERR_NOSUCHNICK(client.getServername(), nickname) :
+	                                                         RPL_PRIVMSG(client.getNickname(), nickname, message));
 }
 
 void PRIVMSG::buildChannelResponse(stringstream& response, const user& client, const vector<channel>& channels,
