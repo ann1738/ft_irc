@@ -162,8 +162,11 @@ void			server::handleExistingConnection(int clientFd){
 		if (!this->isUserAuthenticated(getUser(clientFd))) {
 			authenticate	a(parser, this->serverPassword);
 			if (a.isAuthenticated() == 1){
-				getUser(clientFd).enterServer();
-				getUser(clientFd).saveUserInfo(buffer);
+				string reply = getUser(clientFd).enterServer(buffer, users);
+				send(clientFd, reply.c_str(), reply.length(), 0);
+				if (reply.find("Welcome") == string::npos) {
+					this->removeUserFromServer(clientFd);
+				}
 			}
 			else if (a.isAuthenticated() == -1){
 				send(clientFd, a.getErrorMsg().c_str(), a.getErrorMsg().length(), 0);
