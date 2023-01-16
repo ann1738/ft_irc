@@ -72,11 +72,11 @@ void PRIVMSG::buildChannelResponse(stringstream& response, const user& client, c
 	pair<bool, const vector<channel>::const_iterator> channel_info = this->findChannel(channels, &channel_name.at(1));
 
 	if (!channel_info.first) {
-		response << ERR_NOSUCHCHANNEL(client.getServername(), channel_name);
+		response << ERR_NOSUCHCHANNEL(client.getServername(), &channel_name.at(1));
 		return;
 	}
 	response << (this->canClientMessageChannel(client, *channel_info.second) ? RPL_PRIVMSG(client.getNickname(), channel_name, message) :
-	                                                                           ERR_CANNOTSENDTOCHAN(client.getServername(), channel_name));
+	                                                                           ERR_CANNOTSENDTOCHAN(client.getServername(), &channel_name.at(1)));
 }
 
 string PRIVMSG::buildResponse(const command& msg, const vector<user>& users, const vector<channel>& channels,
@@ -90,7 +90,7 @@ string PRIVMSG::buildResponse(const command& msg, const vector<user>& users, con
 size_t  PRIVMSG::getChannelIndex(const vector<channel>& channels, string channel_name) {
 	size_t i = 0;
 	for (; i < channels.size(); i++) {
-		if (channels[i].getName() == channel_name)
+		if (channels.at(i).getName() == channel_name)
 			break ;
 	}
 	return (i);
@@ -99,7 +99,7 @@ size_t  PRIVMSG::getChannelIndex(const vector<channel>& channels, string channel
 size_t  PRIVMSG::getUserIndex(const vector<user>& users, string nickname) {
 	size_t i = 0;
 	for (; i < users.size(); i++) {
-		if (users[i].getNickname() == nickname)
+		if (users.at(i).getNickname() == nickname)
 			break ;
 	}
 	return (i);
@@ -107,9 +107,9 @@ size_t  PRIVMSG::getUserIndex(const vector<user>& users, string nickname) {
 
 void PRIVMSG::setDestination(const user& client, const vector<user>& users, const vector<channel>& channels,
                              vector<reply>& ret, const string& recipient) {
-	ret[0].getMsg().find("PRIVMSG") == string::npos ? ret[0].setUserFds(client) :
-	this->isRecipientAChannel(recipient) ? ret[0].setUserFds(channels[this->getChannelIndex(channels, &recipient[1])], client.getFd()) :
-	                                       ret[0].setUserFds(users[this->getUserIndex(users, recipient)]);
+	ret.at(0).getMsg().find("PRIVMSG") == string::npos ? ret.at(0).setUserFds(client) :
+	this->isRecipientAChannel(recipient) ? ret.at(0).setUserFds(channels.at(this->getChannelIndex(channels, &recipient.at(1))), client.getFd()) :
+	                                       ret.at(0).setUserFds(users.at(this->getUserIndex(users, recipient)));
 }
 
 vector<reply> PRIVMSG::execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList) {
@@ -120,7 +120,7 @@ vector<reply> PRIVMSG::execute(const command &msg, vector<user> &globalUserList,
 	       recipient = this->getRecipient(buffer),
 	       message = buffer;
 
-	ret[0].setMsg(this->buildResponse(msg, globalUserList, globalChannelList, recipient, message));
+	ret.at(0).setMsg(this->buildResponse(msg, globalUserList, globalChannelList, recipient, message));
 	this->setDestination(msg.getClient(), globalUserList, globalChannelList, ret, recipient);
 	return ret;
 }

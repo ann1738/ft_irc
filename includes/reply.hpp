@@ -45,11 +45,11 @@
 #define ERR_NOSUCHNICK(servername, nickname) \
 (":" + servername + " 401 * " + nickname + " :No such nick/channel\n")
 
-#define ERR_NOSUCHCHANNEL(servername, channel) \
-(":" + servername + " 403 * " + channel + " :No such channel\n")
+#define ERR_NOSUCHCHANNEL(servername, channel_name) \
+(":" + servername + " 403 * #" + channel_name + " :No such channel\n")
 
 #define ERR_CANNOTSENDTOCHAN(servername, channel_name) \
-(":" + servername + " 404 * " + channel_name + " :Cannot send to channel\n")
+(":" + servername + " 404 * #" + channel_name + " :Cannot send to channel\n")
 
 #define ERR_TOOMANYCHANNELS(server_name, client_name, channel_name) \
 (":" + server_name + " 405 " + client_name + " #" + channel_name + " :You have joined too many channels\n")
