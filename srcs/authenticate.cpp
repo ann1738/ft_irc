@@ -1,15 +1,36 @@
 #include "authenticate.hpp"
 
 authenticate::authenticate(const commandParse &cmd, const string& serverPassword){
-	this->correct_order = (cmd.getParsedCmd(0).getCmdType() == "PASS")? true: false;
-	if (correct_order == true && (this->getPassword(cmd.getParsedCmd(0).getParameters()) == serverPassword)) {
-		this->correct_password = true;
-		this->msg = "";
+	if (getCommandIndex(cmd, "NICK") != string::npos && getCommandIndex(cmd, "USER") != string::npos) {
+		checkPass(cmd, serverPassword);
 	}
-	else {
-		this->correct_password = false;
-		this->msg = ERR_PASSWDMISMATCH(cmd.getParsedCmd(0).getClient().getServername(), cmd.getParsedCmd(0).getClient().getNickname());
+	else if ((getCommandIndex(cmd, "NICK") == string::npos || getCommandIndex(cmd, "USER") == string::npos) && getCommandIndex(cmd, "PASS") != string::npos)
+		authenticated = NOT_AUTHENTICATED;
+	else
+		authenticated = UNDETERMINED;
+}
+
+size_t	authenticate::getCommandIndex(const commandParse &cmd, string cmd_type){
+	for (size_t i = 0; i < cmd.getCommandAmount(); i++){
+		if (cmd.getParsedCmd(i).getCmdType() == cmd_type)
+			return (i);
 	}
+	return (string::npos);
+}
+
+bool	authenticate::isOrderCorrect(const commandParse &cmd){
+	return ((getCommandIndex(cmd, "USER") > getCommandIndex(cmd, "NICK")) && \
+	(getCommandIndex(cmd, "NICK") > getCommandIndex(cmd, "PASS")));
+}
+
+void	authenticate::checkPass(const commandParse &cmd, const string& serverPassword){
+	size_t pass_index = getCommandIndex(cmd, "PASS");
+	if ((pass_index == string::npos) || !isOrderCorrect(cmd) || (serverPassword != getPassword(cmd.getParsedCmd(pass_index).getParameters()))){
+		authenticated = NOT_AUTHENTICATED;
+		msg = ERR_PASSWDMISMATCH(cmd.getParsedCmd(0).getClient().getServername(), cmd.getParsedCmd(0).getClient().getNickname());
+	}
+	else
+		authenticated = AUTHENTICATED;
 }
 
 string	authenticate::getPassword(const string& parameters){
@@ -18,13 +39,12 @@ string	authenticate::getPassword(const string& parameters){
 	return (parameters.substr(start, (end - start)));
 }
 
-bool	authenticate::isAuthenticated(){
-	return ((correct_order == true) && (correct_password == true));
+int	authenticate::isAuthenticated(){
+	return (authenticated);
 }
 
 string	authenticate::getErrorMsg() const{
 	return (this->msg);
-
 }
 
 authenticate::~authenticate(){}
