@@ -57,8 +57,8 @@
 #define ERR_NOSUCHNICK(servername, nickname) \
 (":" + servername + " 401 * " + nickname + " :No such nick/channel\n")
 
-#define ERR_NOSUCHCHANNEL(servername, channel) \
-(":" + servername + " 403 * #" + channel + " :No such channel\n")
+#define ERR_NOSUCHCHANNEL(servername, channel_name) \
+(":" + servername + " 403 * #" + channel_name + " :No such channel\n")
 
 #define ERR_CANNOTSENDTOCHAN(servername, channel_name) \
 (":" + servername + " 404 * #" + channel_name + " :Cannot send to channel\n")

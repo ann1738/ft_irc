@@ -4,27 +4,29 @@
 #include "reply.hpp"
 #include "command.hpp"
 
-// #define ERR_NORECIPIENT
-// #define ERR_TOOMANYTARGETS
-
 class PRIVMSG {
 
 private:
 	string    getRecipient(string& buffer);
-	bool      isNicknameJustSpaces(const string& nickname) const;
-	bool      isUserInServer(const vector<user> &userList, const string& nickname) const;
-	bool      isRecipientAChannel(const string& recipient) const;
-	bool      doesChannelExist(const vector<channel>& channelList, const string& channel_name) const;
+	bool      isNicknameJustSpaces(const string& nickname);
+	bool      isNicknameInServer(const vector<user> &users, const string& nickname);
+	bool      isNicknameInChannel(const vector<const user*> &users, const string& nickname);
+	bool      isRecipientAChannel(const string& recipient);
 
-	void      buildUserResponse(stringstream& response, const command &msg, const vector<user>& userList,
-	                            const string& nickname, const string& message) const;
-	void      buildChannelResponse(stringstream& response, const command &msg, const vector<channel>& channelList,
-	                               const string& channel_name, const string& message) const;
-	string    buildResponseMsg(const command &msg, const vector<user>& userList, const vector<channel>& channelList,
-	                        const string& recipient, const string& message) const;
+	pair<bool, const vector<channel>::const_iterator>    findChannel(const vector<channel>& channels, const string& channel_name);
+	bool      canClientMessageChannel(const user& client, const channel& channel);
+
+	void      buildUserResponse(stringstream& response, const user& client, const vector<user>& users,
+	                            const string& nickname, const string& message);
+	void      buildChannelResponse(stringstream& response, const user& client, const vector<channel>& channels,
+	                               const string& channel_name, const string& message);
+	string    buildResponse(const command& msg, const vector<user>& users, const vector<channel>& channels,
+	                        const string& recipient, const string& message);
 
 	size_t    getChannelIndex(const vector<channel>& channelList, string channel_name);
 	size_t    getUserIndex(const vector<user>& userList, string nickname);
+	void      setDestination(const user& client, const vector<user>& users, const vector<channel>& channels,
+	                         vector<reply>& ret, const string& recipient);
 
 public:
 	PRIVMSG();

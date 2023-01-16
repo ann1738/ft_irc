@@ -14,97 +14,118 @@ string PRIVMSG::getRecipient(string& buffer) {
 	return recipient;
 }
 
-bool PRIVMSG::isNicknameJustSpaces(const string& nickname) const {
+bool PRIVMSG::isNicknameJustSpaces(const string& nickname) {
 	return nickname.find_first_not_of(' ') == string::npos;
 }
 
-bool PRIVMSG::isUserInServer(const vector<user> &userList, const string& nickname) const {
-	for (vector<user>::const_iterator it = userList.begin(); it != userList.end(); it++) {
-		if (it->getNickname() == nickname) {
+bool PRIVMSG::isNicknameInServer(const vector<user> &users, const string& nickname) {
+	for (vector<user>::const_iterator it = users.begin(); it != users.end(); it++) {
+		if (!it->getNickname().compare(nickname)) {
 			return true;
 		}
 	}
 	return false;
 }
 
-bool PRIVMSG::doesChannelExist(const vector<channel>& channelList, const string& channel_name) const {
-	for (vector<channel>::const_iterator it = channelList.begin(); it != channelList.end(); it++) {
-		if (("#" + it->getName()) == channel_name) {
+bool PRIVMSG::isNicknameInChannel(const vector<const user*> &users, const string& nickname) {
+	for (vector<const user*>::const_iterator it = users.begin(); it != users.end(); it++) {
+		if (!(*it)->getNickname().compare(nickname)) {
 			return true;
 		}
 	}
 	return false;
 }
 
-bool PRIVMSG::isRecipientAChannel(const string& recipient) const {
+bool PRIVMSG::isRecipientAChannel(const string& recipient) {
 	return !recipient.empty() && *recipient.begin() == '#';
 }
 
-void PRIVMSG::buildUserResponse(stringstream& response, const command &msg, const vector<user>& userList, 
-                                const string& nickname, const string& message) const {
-	if (this->isNicknameJustSpaces(nickname)) {
-		response << ERR_NOTEXTTOSEND(msg.getClient().getServername());
-	} else if (!this->isUserInServer(userList, nickname)) {
-		response << ERR_NOSUCHNICK(msg.getClient().getServername(), nickname);
-	} else {
-		response << RPL_PRIVMSG(msg.getClient().getNickname(), nickname, message);
+// check if a channel exists & saves it for future use in the ::buildChannelResponse function
+pair<bool, const vector<channel>::const_iterator> PRIVMSG::findChannel(const vector<channel>& channels, const string& channel_name) {
+	for (vector<channel>::const_iterator it = channels.begin(); it != channels.end(); it++) {
+		if (!it->getName().compare(channel_name)) {
+			return make_pair(true, it);
+		}
 	}
+	return make_pair(false, channels.end());
 }
 
-void PRIVMSG::buildChannelResponse(stringstream& response, const command &msg, const vector<channel>& channelList, 
-                                   const string& channel_name, const string& message) const {
-	if (!this->doesChannelExist(channelList, channel_name)) {
-		response << ERR_NOSUCHCHANNEL(msg.getClient().getServername(), channel_name);
-	} else {
-		response << RPL_PRIVMSG(msg.getClient().getNickname(), channel_name, message);
+bool PRIVMSG::canClientMessageChannel(const user& client, const channel& Channel) {
+	// if the channel doesn't want to receive external messages (+n) & the client is not in the channel
+	if (Channel.getNoExternalMsg() && !this->isNicknameInChannel(Channel.getUsers(), client.getNickname())) {
+		return false;
 	}
 
-	// if a channel exists and its mode has 'm'
-	// response << ERR_CANNOTSENDTOCHAN(msg.getClient().getServername(), channel_name);
+	// if the channel is moderated (+m) and the client is in the channel but not an operator (+o) or voiced (+v)
+	if (Channel.getModerated()) {
+		return !this->isNicknameInChannel(Channel.getUsers(), client.getNickname()) ? false :
+		       Channel.isOperator(client) ? true :
+		       Channel.isVoicedUser(client) ? true : false;
+	}
+	return true;
 }
 
-string PRIVMSG::buildResponseMsg(const command &msg, const vector<user>& userList, const vector<channel>& channelList,
-                              const string& recipient, const string& message) const {
+void PRIVMSG::buildUserResponse(stringstream& response, const user& client, const vector<user>& users,
+                                const string& nickname, const string& message) {
+	response << (this->isNicknameJustSpaces(nickname) ? ERR_NOTEXTTOSEND(client.getServername()) :
+	            !this->isNicknameInServer(users, nickname) ? ERR_NOSUCHNICK(client.getServername(), nickname) :
+	                                                         RPL_PRIVMSG(client.getNickname(), nickname, message));
+}
+
+void PRIVMSG::buildChannelResponse(stringstream& response, const user& client, const vector<channel>& channels,
+                                   const string& channel_name, const string& message) {
+	pair<bool, const vector<channel>::const_iterator> channel_info = this->findChannel(channels, &channel_name.at(1));
+
+	if (!channel_info.first) {
+		response << ERR_NOSUCHCHANNEL(client.getServername(), &channel_name.at(1));
+		return;
+	}
+	response << (this->canClientMessageChannel(client, *channel_info.second) ? RPL_PRIVMSG(client.getNickname(), channel_name, message) :
+	                                                                           ERR_CANNOTSENDTOCHAN(client.getServername(), &channel_name.at(1)));
+}
+
+string PRIVMSG::buildResponse(const command& msg, const vector<user>& users, const vector<channel>& channels,
+                              const string& recipient, const string& message) {
 	stringstream response;
-	this->isRecipientAChannel(recipient) ? this->buildChannelResponse(response, msg, channelList, recipient, message) :
-	                                       this->buildUserResponse(response, msg, userList, recipient, message);
+	this->isRecipientAChannel(recipient) ? this->buildChannelResponse(response, msg.getClient(), channels, recipient, message) :
+	                                       this->buildUserResponse(response, msg.getClient(), users, recipient, message);
 	return response.str();
 }
 
-size_t  PRIVMSG::getChannelIndex(const vector<channel>& channelList, string channel_name) {
+size_t  PRIVMSG::getChannelIndex(const vector<channel>& channels, string channel_name) {
 	size_t i = 0;
-	for (; i < channelList.size(); i++) {
-		if (channelList[i].getName() == channel_name)
+	for (; i < channels.size(); i++) {
+		if (channels.at(i).getName() == channel_name)
 			break ;
 	}
 	return (i);
 }
 
-size_t  PRIVMSG::getUserIndex(const vector<user>& userList, string nickname) {
+size_t  PRIVMSG::getUserIndex(const vector<user>& users, string nickname) {
 	size_t i = 0;
-	for (; i < userList.size(); i++) {
-		if (userList[i].getNickname() == nickname)
+	for (; i < users.size(); i++) {
+		if (users.at(i).getNickname() == nickname)
 			break ;
 	}
 	return (i);
 }
 
+void PRIVMSG::setDestination(const user& client, const vector<user>& users, const vector<channel>& channels,
+                             vector<reply>& ret, const string& recipient) {
+	ret.at(0).getMsg().find("PRIVMSG") == string::npos ? ret.at(0).setUserFds(client) :
+	this->isRecipientAChannel(recipient) ? ret.at(0).setUserFds(channels.at(this->getChannelIndex(channels, &recipient.at(1))), client.getFd()) :
+	                                       ret.at(0).setUserFds(users.at(this->getUserIndex(users, recipient)));
+}
 
 vector<reply> PRIVMSG::execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList) {
-	vector<reply> r;
-	r.push_back(reply());
+	vector<reply> ret;
+	ret.push_back(reply());
 	
 	string buffer = msg.getParameters(),
 	       recipient = this->getRecipient(buffer),
 	       message = buffer;
 
-	r[0].setMsg(this->buildResponseMsg(msg, globalUserList, globalChannelList, recipient, message));
-	if (r[0].getMsg().find("PRIVMSG") == string::npos)
-		r[0].setUserFds(msg.getClient());
-	else if (this->isRecipientAChannel(recipient))
-		r[0].setUserFds(globalChannelList[getChannelIndex(globalChannelList, &recipient[1])], msg.getClient().getFd());
-	else
-		r[0].setUserFds(globalUserList[getUserIndex(globalUserList, recipient)]);
-	
-	return r;
+	ret.at(0).setMsg(this->buildResponse(msg, globalUserList, globalChannelList, recipient, message));
+	this->setDestination(msg.getClient(), globalUserList, globalChannelList, ret, recipient);
+	return ret;
 }
