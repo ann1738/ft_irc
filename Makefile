@@ -19,7 +19,7 @@ red=`tput setaf 1`
 yellow=`tput setaf 11`
 green=`tput setaf 28`
 light_blue=`tput setaf 81`
-purpule=`tput setaf 57`
+purple=`tput setaf 57`
 gray=`tput setaf 241`
 brown=`tput setaf 130`
 reset=`tput sgr0`
@@ -48,7 +48,7 @@ ART = "\
 all: ${NAME}
 
 ${NAME}: ${OBJS_DIR} ${OBJS}
-	@echo "✨⛓️ ✨ ${purpule}Linking...${gray}"
+	@echo "✨⛓️ ✨ ${purple}Linking...${gray}"
 	${CXX} ${CPPFLAGS} ${OBJS} -o ${NAME}
 	@echo "${reser}"
 	@echo ${ART}
@@ -68,7 +68,7 @@ ${OBJS_DIR}/%.o: %.cpp
 	@echo "${reser}"
 
 clean:
-	@echo "✨💧✨ ${light_blue}Cleaning... ${reser}"
+	@echo "✨💧✨ ${light_blue}Cleaning... ${reset}"
 	@${REMOVE} ${OBJS_DIR}
 
 fclean: clean
