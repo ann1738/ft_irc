@@ -113,7 +113,7 @@ void user::removeChannel(const string& channel_name) {
 
 void user::enterServer() {
 	if (!m_entered_server) {
-		string message = RPL_WELCOME(this->getNickname());
+		string message = RPL_WELCOME(this->getNickname()) + WEBAREBEARS + "\r\n";
 		send(this->getFd(), message.c_str(), message.length(), 0);
 		m_entered_server = true;
 	}
