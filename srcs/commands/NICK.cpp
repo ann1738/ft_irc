@@ -84,14 +84,14 @@ vector<reply>    NICK::buildReplies(const command &msg, vector<user> &globalUser
 	if (response.find("NICK") != string::npos) {
 		for (size_t i = 0; i < globalUserList.size(); i++){
 			ret.push_back(reply());
-			ret[i_ret].setMsg(response);
-			ret[i_ret++].setUserFds(globalUserList[i]);
+			ret.at(i_ret).setMsg(response);
+			ret.at(i_ret++).setUserFds(globalUserList.at(i));
 		}
 	}
 	if (!i_ret) {
 		ret.push_back(reply());
-		ret[0].setMsg(response);
-		ret[0].setUserFds(msg.getClient());
+		ret.at(0).setMsg(response);
+		ret.at(0).setUserFds(msg.getClient());
 	}
 	return (ret);
 }
