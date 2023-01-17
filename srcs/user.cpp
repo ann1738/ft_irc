@@ -130,6 +130,15 @@ void user::saveUserInfo(const vector<string>& client_message) {
 	}
 }
 
+int user::getNicknameOwnerFd(const vector<user>& users, const string& nickname) {
+	for (vector<user>::const_iterator it = users.begin(); it != users.end(); it++) {
+		if (!it->getNickname().compare(nickname)) {
+			return it->getFd();
+		}
+	}
+	return users.begin()->getFd();
+}
+
 #include <iostream>
 string user::enterServer(char *buffer, const vector<user>& users) {
 	if (this->m_entered_server) {
@@ -151,13 +160,38 @@ string user::enterServer(char *buffer, const vector<user>& users) {
 		return ERR_ERRONEUSNICKNAME(this->getServername(), this->getNickname());
 	} else if (this->isNicknameTaken(users, this->getNickname(), this->getFd())) {
 
-		string message = "PING :" + this->getNickname() + "\n";
-		send(this->getFd(), message.c_str(), message.length(), 0);
-		// cout << "sent: " << message << endl;
-		// if suspended
+		struct timeval timeout;
+		timeout.tv_sec = 10;
+		timeout.tv_usec = 0;
 
-		// else
-		return ERR_ALREADYREGISTRED(this->getServername());
+		char buffer[512] = {0};
+		if (setsockopt(this->getFd(), SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
+			throw std::runtime_error("socket");
+		}
+		string message = "PING " + this->getNickname() + "\n";
+		int fd = this->getNicknameOwnerFd(users, this->getNickname());
+		send(fd, message.c_str(), message.length(), 0);
+		cout << "sent: " << message << "to fd:" << fd << " from fd:" << this->getFd() << endl;
+
+		// int error = 0;
+		// socklen_t len = sizeof (error);
+		// int bytes = getsockopt (fd, SOL_SOCKET, SO_ERROR, &error, &len);
+
+		// if (bytes != 0) {
+		// 	return "ZERO";
+		// } else if (error != 0) {
+		// 	return "ERROR";
+		// }
+		int bytes = recv(fd, buffer, sizeof(buffer), 0);
+		if (!bytes) {
+			return "ZERO";
+		} else if (bytes < 0) {
+			return "TRANSFER";
+		} else {
+			cout << "bytes = " << bytes << "." << endl;
+			cout << "buffer = " << buffer << "." << endl;
+			return ERR_ALREADYREGISTRED(this->getServername());
+		}
 	}
 
 	this->saveUserInfo(client_message);

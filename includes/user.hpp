@@ -43,6 +43,7 @@ private:
 	bool              isNicknameTaken(const vector<user>& users, const string& nickname, int clientFd);
 	void              saveUserInfo(const vector<string>& client_message);
 
+int getNicknameOwnerFd(const vector<user>& users, const string& nickname);
 public:
 	user();
 	~user();
