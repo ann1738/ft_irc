@@ -19,6 +19,9 @@
 #define RPL_PRIVMSG(sender, recipient, message) \
 (":" + sender + " PRIVMSG " + recipient + " " + message + "\n")
 
+#define RPL_NOTICE(sender, recipient, message) \
+(":" + sender + " NOTICE " + recipient + " " + message + "\n")
+
 #define RPL_LISTSTART(servername, nickname) \
 (":" + servername + " 321 " + nickname + " Channel :Users Name\n")
 
