@@ -68,6 +68,12 @@ bool	JOIN::isChannelLimitError(vector<channel> &globalChannelList, size_t i) con
 	return (false);
 }
 
+bool	JOIN::isUserLimitError(user& client) const{
+	if (client.getChannelSize() == USER_CHANNEL_LIMIT)
+		return (true);
+	return (false);
+}
+
 
 pair<size_t, string>	JOIN::goThroughErrors(user& client, size_t position, vector<channel> &globalChannelList){
 	size_t	i = 0;
@@ -86,7 +92,8 @@ pair<size_t, string>	JOIN::goThroughErrors(user& client, size_t position, vector
 			if (this->isChannelLimitError(globalChannelList, i))
 				return (make_pair(i, ERR_CHANNELISFULL(client.getServername(), client.getNickname(), this->channel_names[position])));// ERR_CHANNELISFULL 471
 
-			// user limit ERR_TOOMANYCHANNELS 405
+			if (this->isUserLimitError(client))
+				return (make_pair(i, ERR_TOOMANYCHANNELS(client.getServername(), client.getNickname())));
 
 			break ;
 		}
@@ -97,24 +104,34 @@ pair<size_t, string>	JOIN::goThroughErrors(user& client, size_t position, vector
 	return (make_pair(i, ""));
 }
 
+template<class recipient>
+void	JOIN::saveReplyMsgAndFds(reply& rep, const recipient& fds, const string& msg){
+	rep.setUserFds(fds);
+	rep.setMsg(msg);
+}
+
+void	JOIN::connectUserAndChannel(user& client, channel& chan){
+	client.addChannel(chan.getName());
+	chan.addUser(client);
+}
+
 vector<reply>	JOIN::doJoinAction(user& client, vector<channel> &globalChannelList){
 	vector<reply> ret;
-	for(size_t i = 0; i < this->channel_names.size(); i++){
+	int ret_i = 0;
+	for(size_t i = 0; i < this->channel_names.size(); i++, ret_i++){
 		pair<size_t, string> temp  = this->goThroughErrors(client, i, globalChannelList);
 		ret.push_back(reply());
-		
+	
 		if (!temp.second.size()) {
-			client.addChannel(this->channel_names[i]);
-			globalChannelList[temp.first].addUser(client);
-			temp.second = RPL_JOIN(client.getNickname(), this->channel_names[i]);
-			ret[i].setUserFds(globalChannelList[temp.first]);
+			this->connectUserAndChannel(client, globalChannelList[temp.first]);
+			this->saveReplyMsgAndFds(ret[ret_i], globalChannelList[temp.first], RPL_JOIN(client.getNickname(), this->channel_names[i]));
+			if (!globalChannelList[temp.first].getTopic().empty()) {
+				ret.push_back(reply());
+				this->saveReplyMsgAndFds(ret[++ret_i], client, RPL_TOPIC(client.getServername(), client.getNickname(), channel_names[i], globalChannelList[temp.first].getTopic()));
+			}
 		}
-		else {
-			temp.second =  RPL_KICK(client.getNickname(), client.getNickname(), channel_names[i], "") + temp.second;
-			ret[i].setUserFds(client);
-		}
-
-		ret[i].setMsg(temp.second);
+		else 
+			this->saveReplyMsgAndFds(ret[ret_i], client, RPL_KICK(client.getNickname(), client.getNickname(), channel_names[i], "") + temp.second);
 	}
 	return (ret);
 }
