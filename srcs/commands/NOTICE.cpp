@@ -10,15 +10,15 @@ NOTICE::~NOTICE()
 
 void NOTICE::buildUserResponse(stringstream& response, const user& client, const vector<user>& users,
                                 const string& nickname, const string& message) {
-	if (!isNicknameJustSpaces(nickname) && isNicknameInServer(users, nickname)) {
+	if (!m_utility.isNicknameJustSpaces(nickname) && m_utility.isNicknameInServer(users, nickname)) {
 		response << RPL_NOTICE(client.getNickname(), nickname, message);
 	}
 }
 
 void NOTICE::buildChannelResponse(stringstream& response, const user& client, const vector<channel>& channels,
                                    const string& channel_name, const string& message) {
-	pair<bool, const vector<channel>::const_iterator> channel_info = findChannel(channels, &channel_name.at(1));
-	if (channel_info.first && canClientMessageChannel(client, *channel_info.second)) {
+	pair<bool, const vector<channel>::const_iterator> channel_info = m_utility.findChannel(channels, &channel_name.at(1));
+	if (channel_info.first && m_utility.canClientMessageChannel(client, *channel_info.second)) {
 		response << RPL_NOTICE(client.getNickname(), channel_name, message);
 	}
 }
@@ -26,8 +26,8 @@ void NOTICE::buildChannelResponse(stringstream& response, const user& client, co
 string NOTICE::buildResponse(const command& msg, const vector<user>& users, const vector<channel>& channels,
                               const string& recipient, const string& message) {
 	stringstream response;
-	isRecipientAChannel(recipient) ? this->buildChannelResponse(response, msg.getClient(), channels, recipient, message) :
-	                                 this->buildUserResponse(response, msg.getClient(), users, recipient, message);
+	m_utility.isRecipientAChannel(recipient) ? this->buildChannelResponse(response, msg.getClient(), channels, recipient, message) :
+	                                           this->buildUserResponse(response, msg.getClient(), users, recipient, message);
 	return response.str();
 }
 
@@ -39,14 +39,14 @@ void NOTICE::setDestination(const user& client, const vector<user>& users, const
 	}
 
 	// message is meant for a channel, destination fds will be the fd of each user in the channel
-	else if (isRecipientAChannel(recipient)) {
-		size_t i = getChannelIndex(channels, &recipient.at(1));
+	else if (m_utility.isRecipientAChannel(recipient)) {
+		size_t i = m_utility.getChannelIndex(channels, &recipient.at(1));
 		ret.at(0).setUserFds(channels.at(i), client.getFd());
 	}
 
 	// message is meant for a single client, destination fd will be that specific client
 	else {
-		ret.at(0).setUserFds(users.at(getUserIndex(users, recipient)));
+		ret.at(0).setUserFds(users.at(m_utility.getUserIndex(users, recipient)));
 	}
 }
 
@@ -55,7 +55,7 @@ vector<reply> NOTICE::execute(const command &msg, vector<user> &globalUserList, 
 	ret.push_back(reply());
 	
 	string buffer = msg.getParameters(),
-	       recipient = getRecipient(buffer),
+	       recipient = m_utility.getRecipient(buffer),
 	       message = buffer;
 
 	ret.at(0).setMsg(this->buildResponse(msg, globalUserList, globalChannelList, recipient, message));
