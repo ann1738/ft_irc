@@ -4,27 +4,25 @@
 #include "reply.hpp"
 #include "command.hpp"
 
+string    getRecipient(string&);
+bool      isNicknameJustSpaces(const string&);
+bool      isNicknameInServer(const vector<user>&, const string&);
+bool      isNicknameInChannel(const vector<const user*>&, const string&);
+bool      isRecipientAChannel(const string&);
+bool      canClientMessageChannel(const user&, const channel&);
+size_t    getChannelIndex(const vector<channel>&, string);
+size_t    getUserIndex(const vector<user>&, string);
+pair<bool, const vector<channel>::const_iterator>    findChannel(const vector<channel>&, const string&);
+
 class NOTICE {
 
 private:
-	string    getRecipient(string& buffer);
-	bool      isNicknameJustSpaces(const string& nickname);
-	bool      isNicknameInServer(const vector<user> &users, const string& nickname);
-	bool      isNicknameInChannel(const vector<const user*> &users, const string& nickname);
-	bool      isRecipientAChannel(const string& recipient);
-
-	pair<bool, const vector<channel>::const_iterator>    findChannel(const vector<channel>& channels, const string& channel_name);
-	bool      canClientMessageChannel(const user& client, const channel& channel);
-
 	void      buildUserResponse(stringstream& response, const user& client, const vector<user>& users,
 	                            const string& nickname, const string& message);
 	void      buildChannelResponse(stringstream& response, const user& client, const vector<channel>& channels,
 	                               const string& channel_name, const string& message);
 	string    buildResponse(const command& msg, const vector<user>& users, const vector<channel>& channels,
 	                        const string& recipient, const string& message);
-
-	size_t    getChannelIndex(const vector<channel>& channelList, string channel_name);
-	size_t    getUserIndex(const vector<user>& userList, string nickname);
 	void      setDestination(const user& client, const vector<user>& users, const vector<channel>& channels,
 	                         vector<reply>& ret, const string& recipient);
 
