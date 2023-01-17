@@ -9,8 +9,12 @@ user::~user()
 }
 
 user::user(int fd) : m_fd(fd),
+                     m_username(""),
                      m_hostname(""),
+                     m_servername(""),
+                     m_realname(""),
                      m_nickname(""),
+                     m_buffer(""),
                      m_entered_server(false) {
 	this->initNickname();
 }
@@ -96,6 +100,18 @@ string user::getRealname() const {
 
 string user::getNickname() const {
 	return this->m_nickname;
+}
+
+void user::addToBuffer(string message) {
+	this->m_buffer += message;
+}
+
+string user::getBuffer() {
+	return this->m_buffer;
+}
+
+void user::clearBuffer() {
+	this->m_buffer.clear();
 }
 
 void user::addChannel(const string& channel_name) {

@@ -25,17 +25,27 @@ void	commandParse::saveNewCommand(const string &buff, size_t start, size_t i, us
 }
 
 void	commandParse::parse(const string &buff, user& u) {
+	if (buff.size() == 1 && buff.at(0) == '\n' && u.getBuffer().empty()) {
+		cmd.clear();
+		return;
+	}
+
+	u.addToBuffer(buff);
 	cmd.clear();
-	size_t i = 0;
-	for (size_t start = 0; start < buff.size(); start = (!start)? 0: (start + 1)) {
-		size_t end = buff.find('\n', start);
-		if (end == (size_t)(-1))
-			break ;
+	if (*u.getBuffer().rbegin() == '\n') {
+		size_t i = 0;
+		for (size_t start = 0; start < u.getBuffer().size(); start = (!start)? 0: (start + 1)) {
+			size_t end = u.getBuffer().find('\n', start);
+			if (end == (size_t)(-1)) {
+				u.clearBuffer();
+				break ;
+			}
 
-		this->saveNewCommand(buff, start, i, u);
-
-		start = end;
-		i++;
+			this->saveNewCommand(u.getBuffer(), start, i, u);
+			start = end;
+			i++;
+		}
+		u.clearBuffer();
 	}
 }
 
