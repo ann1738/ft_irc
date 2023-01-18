@@ -9,7 +9,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#define USER_CHANNEL_LIMIT    42
+#define USER_CHANNEL_LIMIT    5
 #define SERVER_NAME    "WeBareBears"
 
 #define WEBAREBEARS "\00308                .- \00305     _________            __           ___________       __________ \n \

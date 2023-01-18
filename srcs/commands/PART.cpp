@@ -2,31 +2,21 @@
 
 PART::PART(){}
 
-size_t	PART::getEnd(const string& s, size_t start){
-	size_t end = s.find(',', start);
+size_t	PART::getNextIndex(const string& s, size_t i){
+	size_t index = s.find(',', i);
 
-	if (end == string::npos || (s.find_first_of(" :", start) != string::npos && end > s.find_first_of(" :", start)))
-		end = s.find_first_of(" :", start);
-	if (end == string::npos || (s.find_first_of("\r\n", start) != string::npos && end > s.find_first_of("\r\n", start)))
-		end = s.find_first_of("\r\n", start);
-	return (end);
-}
-
-size_t	PART::getStart(const string& s, size_t start){
-	size_t new_start = s.find(',', start);
-
-	if (new_start == string::npos || (s.find_first_of(" :", start) != string::npos && new_start > s.find_first_of(" :", start)))
-		new_start = s.find_first_of(" :", start);
-	if (new_start == string::npos || (s.find_first_of("\r\n", start) != string::npos && new_start > s.find_first_of("\r\n", start)))
-		new_start = s.find_first_of("\r\n", start);
-	return (new_start);
+	if (index == string::npos || (s.find_first_of(" :", i) != string::npos && index > s.find_first_of(" :", i)))
+		index = s.find_first_of(" :", i);
+	if (index == string::npos || (s.find_first_of("\r\n", i) != string::npos && index > s.find_first_of("\r\n", i)))
+		index = s.find_first_of("\r\n", i);
+	return (index);
 }
 
 void	PART::parseCmdParameters(const string& parameters){
-	for (size_t start = 0; start != string::npos; start = getStart(parameters, start)){
+	for (size_t start = 0; start != string::npos; start = getNextIndex(parameters, start)){
 		if (start || parameters[0] == '#')
 			start++;
-		size_t end = this->getEnd(parameters, start);
+		size_t end = this->getNextIndex(parameters, start);
 		if (parameters.substr(start, (end - start)) == "")
 			break ;
 		this->channel_names.push_back(parameters.substr(start, (end - start)));

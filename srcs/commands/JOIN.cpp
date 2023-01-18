@@ -74,7 +74,6 @@ bool	JOIN::isUserLimitError(user& client) const{
 	return (false);
 }
 
-
 pair<size_t, string>	JOIN::goThroughErrors(user& client, size_t position, vector<channel> &globalChannelList){
 	size_t	i = 0;
 	bool	chan_not_found = true;

@@ -11,8 +11,7 @@ private:
 	string			reason;
 
 	/* -------------------- parsing -------------------- */
-	size_t	getEnd(const string& s, size_t start);
-	size_t	getStart(const string& s, size_t start);
+	size_t	getNextIndex(const string& s, size_t start);
 	void	parseCmdParameters(const string& parameters);
 	/* ------------------------------------------------- */
 
