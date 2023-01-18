@@ -159,6 +159,10 @@ void			server::handleExistingConnection(int clientFd){
 		parser.parse(buffer, getUser(clientFd));
 		parser.test();
 
+		if (parser.getParsedCmd(0).getCmdType() == "PONG") {
+			parser.getParsedCmd(0).getClient().setToSuspended(false);
+		}
+
 		if (!this->isUserAuthenticated(getUser(clientFd))) {
 			authenticate	a(parser, this->serverPassword);
 			if (a.isAuthenticated() == 1){
@@ -172,6 +176,13 @@ void			server::handleExistingConnection(int clientFd){
 				send(clientFd, a.getErrorMsg().c_str(), a.getErrorMsg().length(), 0);
 				removeUserFromServer(clientFd);
 			}
+
+			for (vector<user>::iterator it = users.begin(); it != users.end(); it++) {
+				string message = "PING WeBareBears\n";
+				send(it->getFd(), message.c_str(), message.length(), 0);
+				it->setToSuspended(true);
+			}
+
 		} else {
 			redirectCommand	funnel;
 			for (size_t i = 0; i < parser.getCommandAmount(); i++){

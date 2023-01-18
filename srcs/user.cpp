@@ -14,7 +14,8 @@ user::user(int fd) : m_fd(fd),
                      m_servername(""),
                      m_realname(""),
                      m_nickname(""),
-                     m_entered_server(false)
+                     m_entered_server(false),
+                     m_suspended(false)
 {
 }
 
@@ -130,13 +131,13 @@ void user::saveUserInfo(const vector<string>& client_message) {
 	}
 }
 
-int user::getNicknameOwnerFd(const vector<user>& users, const string& nickname) {
+const user& user::getNicknameOwner(const vector<user>& users, const string& nickname) {
 	for (vector<user>::const_iterator it = users.begin(); it != users.end(); it++) {
 		if (!it->getNickname().compare(nickname)) {
-			return it->getFd();
+			return *it;
 		}
 	}
-	return users.begin()->getFd();
+	return *users.begin();
 }
 
 #include <iostream>
@@ -159,45 +160,22 @@ string user::enterServer(char *buffer, const vector<user>& users) {
 	} else if (!this->isNicknameValid(this->getNickname())) {
 		return ERR_ERRONEUSNICKNAME(this->getServername(), this->getNickname());
 	} else if (this->isNicknameTaken(users, this->getNickname(), this->getFd())) {
-
-		struct timeval timeout;
-		timeout.tv_sec = 10;
-		timeout.tv_usec = 0;
-
-		char buffer[512] = {0};
-		if (setsockopt(this->getFd(), SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0) {
-			throw std::runtime_error("socket");
+		user temp = this->getNicknameOwner(users, this->getNickname());
+		if (this->getNicknameOwner(users, this->getNickname()).isSuspended()) {
+			cout << "TRANSFER TO NEW FD" << endl;
+			return "001 " + this->getNickname() + " :Welcome back " + this->getNickname() + "\n";
 		}
-		string message = "PING " + this->getNickname() + "\n";
-		int fd = this->getNicknameOwnerFd(users, this->getNickname());
-		send(fd, message.c_str(), message.length(), 0);
-		cout << "sent: " << message << "to fd:" << fd << " from fd:" << this->getFd() << endl;
-
-		// int error = 0;
-		// socklen_t len = sizeof (error);
-		// int bytes = getsockopt (fd, SOL_SOCKET, SO_ERROR, &error, &len);
-
-		// if (bytes != 0) {
-		// 	return "ZERO";
-		// } else if (error != 0) {
-		// 	return "ERROR";
-		// }
-		int bytes = recv(fd, buffer, sizeof(buffer), 0);
-		if (!bytes) {
-			return "ZERO";
-		} else if (bytes < 0) {
-			return "TRANSFER";
-		} else {
-			cout << "bytes = " << bytes << "." << endl;
-			cout << "buffer = " << buffer << "." << endl;
-			return ERR_ALREADYREGISTRED(this->getServername());
-		}
+		return ERR_ALREADYREGISTRED(this->getServername());
 	}
 
 	this->saveUserInfo(client_message);
-	cout << "USER = " << this->getUsername() << "." << endl;
-	cout << "HOST = " << this->getHostname() << "." << endl;
-	cout << "SERV = " << this->getServername() << "." << endl;
-	cout << "REAL = " << this->getRealname() << "." << endl;
 	return RPL_WELCOME(this->getNickname());
+}
+
+bool user::isSuspended() const {
+	return m_suspended;
+}
+
+void user::setToSuspended(bool status) {
+	m_suspended = status;
 }

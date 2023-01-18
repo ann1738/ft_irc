@@ -36,14 +36,15 @@ private:
 	string            m_nickname;
 	vector<string>    m_channels;
 	bool              m_entered_server;
+	bool              m_suspended;
 
 	vector<string>    parseMessage(char* buffer) const;
 	void              initializeNickname(const vector<string>& client_message);
 	bool              isNicknameValid(const string& nickname);
 	bool              isNicknameTaken(const vector<user>& users, const string& nickname, int clientFd);
 	void              saveUserInfo(const vector<string>& client_message);
+	const user&       getNicknameOwner(const vector<user>& users, const string& nickname);
 
-int getNicknameOwnerFd(const vector<user>& users, const string& nickname);
 public:
 	user();
 	~user();
@@ -68,6 +69,8 @@ public:
 	string    enterServer(char *buffer, const vector<user>& users);
 	void      addChannel(const string& channel_name);
 	void      removeChannel(const string& channel_name);
+	bool      isSuspended() const;
+	void      setToSuspended(bool status);
 
 };
 
