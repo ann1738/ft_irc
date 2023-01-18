@@ -98,6 +98,10 @@ string user::getNickname() const {
 	return this->m_nickname;
 }
 
+size_t user::getChannelSize() const{
+	return this->m_channels.size();
+}
+
 void user::addChannel(const string& channel_name) {
 	this->m_channels.push_back(channel_name);
 }

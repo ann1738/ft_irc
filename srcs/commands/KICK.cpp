@@ -61,7 +61,7 @@ vector<reply>	KICK::doKickAction(user& client, vector<user> &globalUserList, vec
 		r[0].setMsg(RPL_KICK(client.getNickname(), kicked_client, channel_name, reason));
 		r[0].setUserFds(globalChannelList[findChannel(globalChannelList)]);
 		r.push_back(reply());
-		r[1].setMsg(RPL_KICKED(client.getServername(), client.getNickname(), channel_name, reason) + RPL_PART(kicked_client, channel_name));
+		r[1].setMsg(RPL_KICKED(client.getServername(), client.getNickname(), channel_name, reason) + RPL_PART(kicked_client, channel_name, reason));
 		r[1].setUserFds(globalUserList[findUser(globalUserList)]);
 	}
 	else {

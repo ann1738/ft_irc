@@ -2,22 +2,30 @@
 
 PART::PART(){}
 
-size_t	PART::getEnd(const string& s, size_t start){
-	size_t end = s.find(',', start);
+size_t	PART::getNextIndex(const string& s, size_t i){
+	size_t index = s.find(',', i);
 
-	if (end == (size_t)(-1) || ((s.find_first_of("\r\n", start) != (size_t)(-1)) && end > s.find_first_of("\r\n", start)))
-		end = s.find_first_of("\r\n", start);
-	return (end);
+	if (index == string::npos || (s.find_first_of(" :", i) != string::npos && index > s.find_first_of(" :", i)))
+		index = s.find_first_of(" :", i);
+	if (index == string::npos || (s.find_first_of("\r\n", i) != string::npos && index > s.find_first_of("\r\n", i)))
+		index = s.find_first_of("\r\n", i);
+	return (index);
 }
 
 void	PART::parseCmdParameters(const string& parameters){
-	for (size_t start = (parameters[0] == '#')? parameters.find_last_of(" :"): 0; start != (size_t)(-1); start = parameters.find(',', start)){
-		if (start)
+	for (size_t start = 0; start != string::npos; start = getNextIndex(parameters, start)){
+		if (start || parameters[0] == '#')
 			start++;
-		size_t end = this->getEnd(parameters, start);
+		size_t end = this->getNextIndex(parameters, start);
+		if (parameters.substr(start, (end - start)) == "")
+			break ;
 		this->channel_names.push_back(parameters.substr(start, (end - start)));
 		if (!start)
 			start++;
+	}
+	if (parameters.find(" :") != string::npos) {
+		size_t start = parameters.find(" :") + 2;
+		this->reason = parameters.substr(start, (parameters.size()- start));
 	}
 }
 
@@ -39,6 +47,16 @@ pair<size_t, string>	PART::goThroughErrors(user& client, size_t position, vector
 	return (make_pair(i, ""));
 }
 
+void	PART::saveReplyMsgAndFds(reply& rep, const user& fd, const string& msg){
+	rep.setUserFds(fd);
+	rep.setMsg(msg);
+}
+
+void	PART::disconnectUserAndChannel(user& client, channel& chan){
+	client.removeChannel(chan.getName());
+	chan.removeUser(client);
+}
+
 vector<reply>	PART::doPartAction(user& client, vector<channel> &globalChannelList){
 	vector<reply> ret;
 
@@ -47,13 +65,11 @@ vector<reply>	PART::doPartAction(user& client, vector<channel> &globalChannelLis
 		ret.push_back(reply());
 
 		if (!temp.second.size()) {
-			client.removeChannel(this->channel_names[i]);
-			globalChannelList[temp.first].removeUser(client);
-			temp.second = RPL_PART(client.getNickname(), this->channel_names[i]);
+			this->disconnectUserAndChannel(client, globalChannelList[temp.first]);
+			temp.second = RPL_PART(client.getNickname(), this->channel_names[i], this->reason);
 			ret[i].setUserFds(globalChannelList[temp.first]);
 		}
-		ret[i].setUserFds(client);
-		ret[i].setMsg(temp.second);
+		saveReplyMsgAndFds(ret[i], client, temp.second);
 
 	}
 	return (ret);

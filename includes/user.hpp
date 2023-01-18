@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#define USER_CHANNEL_LIMIT    5
 #define SERVER_NAME    "WeBareBears"
 
 #define WEBAREBEARS "\00308                .- \00305     _________            __           ___________       __________ \n \
@@ -98,6 +99,7 @@ public:
 	string getServername() const;
 	string getRealname() const;
 	string getNickname() const;
+	size_t getChannelSize() const;
 
 	void addChannel(const string& channel_name);
 	void removeChannel(const string& channel_name);
