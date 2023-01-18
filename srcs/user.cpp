@@ -1,4 +1,5 @@
 #include "user.hpp"
+#include <iostream>
 
 user::user()
 {
@@ -11,8 +12,8 @@ user::~user()
 user::user(int fd) : m_fd(fd),
                      m_hostname(""),
                      m_nickname(""),
-                     m_entered_server(false) {
-	this->initNickname();
+                     m_entered_server(false),
+					 m_authenticated(false) {
 }
 
 int user::getFd() const {
@@ -23,10 +24,10 @@ int user::getFd() const {
  * assigns a "guest_n" nickname to a client that joined the server. Doing so will prevent
  * issues where clients use the same nickname.
 */
-void user::initNickname() {
-	stringstream nickname;
-	nickname << "guest_" << this->getFd() - 3;
-	this->setNickname(nickname.str());
+void user::initNickname(const string& buff) {
+	size_t start = buff.find("NICK") + 5;
+	size_t end = buff.find("\r\n", start);
+	this->setNickname(buff.substr(start, (end - start)));
 }
 
 vector<string> user::parseMessage(char* buffer) const {
@@ -44,6 +45,8 @@ void user::saveUserInfo(char* buffer) {
 	if (!this->getUsername().empty()) {
 		return;
 	}
+
+	initNickname(buffer);
 
 	vector<string> client_message = this->parseMessage(buffer);
 	vector<string>::iterator iter;
@@ -77,6 +80,13 @@ void user::setRealname(string realname) {
 void user::setNickname(string nickname) {
 	this->m_nickname = nickname;
 }
+void user::setChannels(vector<string> channels){
+	this->m_channels = channels;
+}
+
+vector<string> user::getChannels() const{
+	return this->m_channels;
+}
 
 string user::getUsername() const {
 	return this->m_username;
@@ -100,6 +110,26 @@ string user::getNickname() const {
 
 size_t user::getChannelSize() const{
 	return this->m_channels.size();
+}
+
+vector<string> user::getMsgHistory() const{
+	return this->m_msg_history;
+}
+
+void user::addToMsgHistory(const string& msg){
+	this->m_msg_history.push_back(msg);
+}
+// /connect 10.13.7.14 6667 password
+void user::setAuthenticate(bool state){
+	this->m_authenticated = state;
+}
+
+bool user::isAuthenticate() const{
+	return this->m_authenticated;
+}
+
+bool user::isEnteredServer() const{
+	return this->m_entered_server;
 }
 
 void user::addChannel(const string& channel_name) {

@@ -78,9 +78,12 @@ private:
 	void			removeUserFromVector(int fd);
 	void			removeUserFromServer(int fd);
 	user&			getUser(int fd);
-	bool			isUserAuthenticated(const user& User);
+	bool			isNicknameUnique(int clientFd);
 
 	void			sendReplies(const vector<reply>& replies);
+
+	void			authenticateProcess(const int clientFd, char* buff);
+	void			reconnect(int clientFd);
 
 	void			logUsers() const;
 	void			logChannels() const;

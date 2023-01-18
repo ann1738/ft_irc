@@ -74,10 +74,12 @@ private:
 	string            m_realname;
 	string            m_nickname;
 	vector<string>    m_channels;
+	vector<string>    m_msg_history;
 	bool              m_entered_server;
+	bool              m_authenticated;
 
 	vector<string> parseMessage(char* buffer) const;
-	void initNickname();
+	void initNickname(const string& buff);
 
 public:
 	user();
@@ -88,19 +90,27 @@ public:
 
 	void saveUserInfo(char* buffer);
 
+	void setAuthenticate(bool state);
 	void setUsername(string username);
 	void setHostname(string hostname);
 	void setServername(string servername);
 	void setRealname(string realname);
 	void setNickname(string nickname);
+	void setChannels(vector<string> channels);
 
-	string getUsername() const;
-	string getHostname() const;
-	string getServername() const;
-	string getRealname() const;
-	string getNickname() const;
-	size_t getChannelSize() const;
+	string         getUsername() const;
+	string         getHostname() const;
+	string         getServername() const;
+	string         getRealname() const;
+	string         getNickname() const;
+	size_t         getChannelSize() const;
+	vector<string> getMsgHistory() const;
+	vector<string> getChannels() const;
+	
+	bool isEnteredServer() const;
+	bool isAuthenticate() const;
 
+	void addToMsgHistory(const string& msg);
 	void addChannel(const string& channel_name);
 	void removeChannel(const string& channel_name);
 	void enterServer();

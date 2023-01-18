@@ -87,6 +87,9 @@
 #define ERR_NEEDMOREPARAMS(servername, nickname, cmd) \
 (":" + servername + " 461 * " + nickname + " " + cmd + " :Not enough parameters\n")
 
+#define ERR_ALREADYREGISTRED(servername) \
+(":" + servername + " 462 * :You may not reregister\n")
+
 #define ERR_PASSWDMISMATCH(servername, nickname) \
 (":" + servername + " 464 * " + nickname + " :Password incorrect\n")
 
