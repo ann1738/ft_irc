@@ -230,7 +230,7 @@ bool			server::checkUserInfo(const int fd, char* buffer) {
 	}
 
 	if (status > 1) {
-		removeUserFromServer(fd);
+		this->removeUserFromServer(fd);
 		return false;
 	}
 	return true;
