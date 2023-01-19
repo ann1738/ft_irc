@@ -12,6 +12,7 @@ private:
 	JOIN join;
 	PART part;
 	PRIVMSG privmsg;
+	NOTICE notice;
 	MODE mode;
 	PING ping;
 	LIST list;

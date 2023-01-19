@@ -10,14 +10,17 @@
 #define RPL_JOIN(nickname, channel_name) \
 (":" + nickname + " JOIN #" + channel_name + "\n")
 
-#define RPL_PART(nickname, channel_name) \
-(":" + nickname + " PART #" + channel_name + "\n")
+#define RPL_PART(nickname, channel_name, reason) \
+(":" + nickname + " PART #" + channel_name + " :" + reason + "\n")
 
 #define RPL_NICK(old_nickname, new_nickname) \
 (":" + old_nickname + " NICK " + new_nickname + "\n")
 
 #define RPL_PRIVMSG(sender, recipient, message) \
 (":" + sender + " PRIVMSG " + recipient + " " + message + "\n")
+
+#define RPL_NOTICE(sender, recipient, message) \
+(":" + sender + " NOTICE " + recipient + " " + message + "\n")
 
 #define RPL_LISTSTART(servername, nickname) \
 (":" + servername + " 321 " + nickname + " Channel :Users Name\n")
@@ -63,8 +66,8 @@
 #define ERR_CANNOTSENDTOCHAN(servername, channel_name) \
 (":" + servername + " 404 * #" + channel_name + " :Cannot send to channel\n")
 
-#define ERR_TOOMANYCHANNELS(server_name, client_name, channel_name) \
-(":" + server_name + " 405 " + client_name + " #" + channel_name + " :You have joined too many channels\n")
+#define ERR_TOOMANYCHANNELS(server_name, client_name) \
+(":" + server_name + " 405 " + client_name + " :You have joined too many channels\n")
 
 #define ERR_NOTEXTTOSEND(servername) \
 (":" + servername + " 412 * :No text to send\n")

@@ -6,6 +6,7 @@
 #include "JOIN.hpp"
 #include "PART.hpp"
 #include "PRIVMSG.hpp"
+#include "NOTICE.hpp"
 #include "MODE.hpp"
 #include "PING.hpp"
 #include "LIST.hpp"

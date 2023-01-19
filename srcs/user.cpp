@@ -112,6 +112,9 @@ string user::getBuffer() const {
 
 void user::clearBuffer() {
 	this->m_buffer.clear();
+
+size_t user::getChannelSize() const{
+	return this->m_channels.size();
 }
 
 void user::addChannel(const string& channel_name) {

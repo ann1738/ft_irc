@@ -23,7 +23,12 @@ private:
 	bool	isInviteError(user& client, vector<channel> &globalChannelList, size_t i) const;
 	bool	isKeyError(vector<channel> &globalChannelList, size_t i, size_t position) const;
 	bool	isChannelLimitError(vector<channel> &globalChannelList, size_t i) const;
-	// bool	userLimitError();
+	bool	isUserLimitError(user& client) const;
+	
+	template<class recipient>
+	void	saveReplyMsgAndFds(reply& rep, const recipient& fds, const string& msg);
+	void	connectUserAndChannel(user& client, channel& chan);
+
 	pair<size_t, string>	goThroughErrors(user& client, size_t position, vector<channel> &globalChannelList);
 	vector<reply>			doJoinAction(user& client, vector<channel> &globalChannelList);
 	/* ------------------------------------------------- */
