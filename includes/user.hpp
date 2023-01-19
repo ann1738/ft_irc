@@ -88,11 +88,11 @@ public:
 
 	void saveUserInfo(char* buffer);
 
-	void    setUsername(string username);
-	void    setHostname(string hostname);
-	void    setServername(string servername);
-	void    setRealname(string realname);
-	void    setNickname(string nickname);
+	void    setUsername(const string& username);
+	void    setHostname(const string& hostname);
+	void    setServername(const string& servername);
+	void    setRealname(const string& realname);
+	void    setNickname(const string& nickname);
 
 	string    getUsername() const;
 	string    getHostname() const;
