@@ -73,6 +73,7 @@ private:
 	string            m_servername;
 	string            m_realname;
 	string            m_nickname;
+	string            m_buffer;
 	vector<string>    m_channels;
 	bool              m_entered_server;
 
@@ -88,22 +89,26 @@ public:
 
 	void saveUserInfo(char* buffer);
 
-	void setUsername(string username);
-	void setHostname(string hostname);
-	void setServername(string servername);
-	void setRealname(string realname);
-	void setNickname(string nickname);
+	void    setUsername(const string& username);
+	void    setHostname(const string& hostname);
+	void    setServername(const string& servername);
+	void    setRealname(const string& realname);
+	void    setNickname(const string& nickname);
 
-	string getUsername() const;
-	string getHostname() const;
-	string getServername() const;
-	string getRealname() const;
-	string getNickname() const;
-	size_t getChannelSize() const;
+	string    getUsername() const;
+	string    getHostname() const;
+	string    getServername() const;
+	string    getRealname() const;
+	string    getNickname() const;
+  size_t    getChannelSize() const;
 
-	void addChannel(const string& channel_name);
-	void removeChannel(const string& channel_name);
-	void enterServer();
+	void      addToBuffer(const string& message);
+	string    getBuffer() const;
+	void      clearBuffer();
+	void      addChannel(const string& channel_name);
+	void      removeChannel(const string& channel_name);
+	void      enterServer();
+
 };
 
 #endif

@@ -9,8 +9,12 @@ user::~user()
 }
 
 user::user(int fd) : m_fd(fd),
+                     m_username(""),
                      m_hostname(""),
+                     m_servername(""),
+                     m_realname(""),
                      m_nickname(""),
+                     m_buffer(""),
                      m_entered_server(false) {
 	this->initNickname();
 }
@@ -58,23 +62,23 @@ void user::saveUserInfo(char* buffer) {
 	this->setRealname(client_message[i++]);
 }
 
-void user::setUsername(string username) {
+void user::setUsername(const string& username) {
 	this->m_username = username;
 }
 
-void user::setHostname(string hostname) {
+void user::setHostname(const string& hostname) {
 	this->m_hostname = hostname;
 }
 
-void user::setServername(string servername) {
+void user::setServername(const string& servername) {
 	this->m_servername = servername;
 }
 
-void user::setRealname(string realname) {
+void user::setRealname(const string& realname) {
 	this->m_realname = realname.substr(1, realname.length() - 1);
 }
 
-void user::setNickname(string nickname) {
+void user::setNickname(const string& nickname) {
 	this->m_nickname = nickname;
 }
 
@@ -97,6 +101,17 @@ string user::getRealname() const {
 string user::getNickname() const {
 	return this->m_nickname;
 }
+
+void user::addToBuffer(const string& message) {
+	this->m_buffer += message;
+}
+
+string user::getBuffer() const {
+	return this->m_buffer;
+}
+
+void user::clearBuffer() {
+	this->m_buffer.clear();
 
 size_t user::getChannelSize() const{
 	return this->m_channels.size();
