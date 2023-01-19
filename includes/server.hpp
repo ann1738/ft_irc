@@ -82,6 +82,7 @@ private:
 
 	void			sendReplies(const vector<reply>& replies);
 
+	bool			checkUserInfo(const int fd, char* buffer);
 	void			authenticateProcess(const int clientFd, char* buff);
 	void			reconnect(int clientFd);
 

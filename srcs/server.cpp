@@ -216,10 +216,32 @@ void			server::reconnect(int clientFd){
 	}
 }
 
+bool			server::checkUserInfo(const int fd, char* buffer) {
+	int status = getUser(fd).saveUserInfo(buffer);
+	string error_message, servername = "WeBareBears";
+
+	error_message = status == EMPTY_NICK ? ERR_NONICKNAMEGIVEN(servername) :
+	                status == INVALID_NICK ? ERR_ERRONEUSNICKNAME(servername, getUser(fd).getNickname()) :
+	                "";
+
+	// if an error about the nickname is encountered, inform the client about the issue
+	if (!error_message.empty()) {
+		send(fd, error_message.c_str(), error_message.length(), 0);
+	}
+
+	if (status > 1) {
+		removeUserFromServer(fd);
+		return false;
+	}
+	return true;
+}
+
 void			server::authenticateProcess(const int clientFd, char* buff){
 	authenticate	a(parser, this->serverPassword);
 	if (a.isAuthenticated() == AUTHENTICATED){
-		getUser(clientFd).saveUserInfo(buff);
+		if (!this->checkUserInfo(clientFd, buff))
+			return;
+
 		getUser(clientFd).setAuthenticate(true);
 		if (isNicknameUnique(clientFd))
 			getUser(clientFd).enterServer();

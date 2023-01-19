@@ -29,7 +29,7 @@ int user::getFd() const {
 */
 void user::initNickname(const string& buff) {
 	size_t start = buff.find("NICK") + 5;
-	size_t end = buff.find("\r\n", start);
+	size_t end = buff.find('\n', start);
 	this->setNickname(buff.substr(start, (end - start)));
 }
 
@@ -44,24 +44,40 @@ vector<string> user::parseMessage(char* buffer) const {
 	return client_message;
 }
 
-void user::saveUserInfo(char* buffer) {
+bool user::isNicknameValid(const string& nickname) const {
+	string alpha("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+	       digits("0123456789"),
+	       special("`|-_^{}[]\\");
+
+	return nickname.length() < 10 &&
+	       nickname.find_first_not_of(alpha + digits + special) == string::npos;
+}
+
+int user::saveUserInfo(char* buffer) {
 	if (!this->getUsername().empty()) {
-		return;
+		return INFO_COLLECTED;
 	}
 
 	initNickname(buffer);
+	if (this->getNickname().find_first_not_of(' ') == string::npos) {
+		return EMPTY_NICK;
+	} else if (!this->isNicknameValid(this->getNickname())) {
+		return INVALID_NICK;
+	}
 
 	vector<string> client_message = this->parseMessage(buffer);
 	vector<string>::iterator iter;
-	if ((iter = find(client_message.begin(), client_message.end(), "USER")) == client_message.end()) {
-		return;
+	if ((iter = find(client_message.begin(), client_message.end(), "USER")) == client_message.end()
+	   || client_message.size() - (iter - client_message.begin() + 1) != 4) {
+		return INFO_INCOMPLETE;
 	}
 
 	size_t i = iter - client_message.begin() + 1;
-	this->setUsername(client_message[i++]);
-	this->setHostname(client_message[i++]);
-	this->setServername(client_message[i++]);
-	this->setRealname(client_message[i++]);
+	this->setUsername(client_message.at(i++));
+	this->setHostname(client_message.at(i++));
+	this->setServername(client_message.at(i++));
+	this->setRealname(client_message.at(i++));
+	return 0;
 }
 
 void user::setUsername(const string& username) {
