@@ -91,12 +91,12 @@ public:
 	void saveUserInfo(char* buffer);
 
 	void setAuthenticate(const bool state);
-	void setUsername(const string username);
-	void setHostname(const string hostname);
-	void setServername(const string servername);
-	void setRealname(const string realname);
-	void setNickname(const string nickname);
-	void setChannels(const vector<string> channels);
+	void setUsername(const string& username);
+	void setHostname(const string& hostname);
+	void setServername(const string& servername);
+	void setRealname(const string& realname);
+	void setNickname(const string& nickname);
+	void setChannels(const vector<string>& channels);
 
 	string         getUsername() const;
 	string         getHostname() const;

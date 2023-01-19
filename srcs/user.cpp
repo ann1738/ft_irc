@@ -1,5 +1,4 @@
 #include "user.hpp"
-#include <iostream>
 
 user::user()
 {
@@ -61,26 +60,26 @@ void user::saveUserInfo(char* buffer) {
 	this->setRealname(client_message[i++]);
 }
 
-void user::setUsername(const string username) {
+void user::setUsername(const string& username) {
 	this->m_username = username;
 }
 
-void user::setHostname(const string hostname) {
+void user::setHostname(const string& hostname) {
 	this->m_hostname = hostname;
 }
 
-void user::setServername(const string servername) {
+void user::setServername(const string& servername) {
 	this->m_servername = servername;
 }
 
-void user::setRealname(const string realname) {
+void user::setRealname(const string& realname) {
 	this->m_realname = realname.substr(1, realname.length() - 1);
 }
 
-void user::setNickname(const string nickname) {
+void user::setNickname(const string& nickname) {
 	this->m_nickname = nickname;
 }
-void user::setChannels(const vector<string> channels){
+void user::setChannels(const vector<string>& channels){
 	this->m_channels = channels;
 }
 
@@ -120,7 +119,7 @@ void user::addToMsgHistory(const string& msg){
 	if (msg.find("PONG") == string::npos)
 		this->m_msg_history.push_back(msg);
 }
-// /connect 10.13.7.14 6667 password
+
 void user::setAuthenticate(const bool state){
 	this->m_authenticated = state;
 }
