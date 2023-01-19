@@ -1,11 +1,11 @@
-#ifndef PRIVMSG_HPP
-#define PRIVMSG_HPP
+#ifndef NOTICE_HPP
+#define NOTICE_HPP
 
 #include "reply.hpp"
 #include "command.hpp"
 #include "messageUtils.hpp"
 
-class PRIVMSG {
+class NOTICE {
 
 private:
 	messageUtils    m_utility;
@@ -20,8 +20,8 @@ private:
 	                         vector<reply>& ret, const string& recipient);
 
 public:
-	PRIVMSG();
-	~PRIVMSG();
+	NOTICE();
+	~NOTICE();
 
 	vector<reply>    execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList);
 
