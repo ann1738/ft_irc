@@ -113,7 +113,6 @@
 
 #define ERR_UNKNOWNCOMMAND(servername, command) \
 (":" + servername + " 421 * " + command + ": Unknown command\n")
-// :servername 421 * servername: Unknown command: command
 
 // -----
 
