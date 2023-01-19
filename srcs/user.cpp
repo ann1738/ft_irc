@@ -102,11 +102,11 @@ string user::getNickname() const {
 	return this->m_nickname;
 }
 
-void user::addToBuffer(string message) {
+void user::addToBuffer(const string& message) {
 	this->m_buffer += message;
 }
 
-string user::getBuffer() {
+string user::getBuffer() const {
 	return this->m_buffer;
 }
 

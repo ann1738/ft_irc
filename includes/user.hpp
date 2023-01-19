@@ -100,8 +100,8 @@ public:
 	string    getRealname() const;
 	string    getNickname() const;
 
-	void      addToBuffer(string message);
-	string    getBuffer();
+	void      addToBuffer(const string& message);
+	string    getBuffer() const;
 	void      clearBuffer();
 	void      addChannel(const string& channel_name);
 	void      removeChannel(const string& channel_name);

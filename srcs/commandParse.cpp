@@ -36,11 +36,8 @@ void	commandParse::parse(const string &buff, user& u) {
 		size_t i = 0;
 		for (size_t start = 0; start < u.getBuffer().size(); start = (!start)? 0: (start + 1)) {
 			size_t end = u.getBuffer().find('\n', start);
-			if (end == (size_t)(-1)) {
-				u.clearBuffer();
+			if (end == string::npos)
 				break ;
-			}
-
 			this->saveNewCommand(u.getBuffer(), start, i, u);
 			start = end;
 			i++;
