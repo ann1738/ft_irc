@@ -77,29 +77,28 @@ string NICK::buildResponse(const command &msg, const vector<user>& userList, con
 	return response.str();
 }
 
-vector<reply>    NICK::buildReplies(const command &msg, vector<channel> &globalChannelList, string response){
+vector<reply>    NICK::buildReplies(const command &msg, vector<user> &globalUserList, string response){
 	vector<reply>	ret;
 	size_t			i_ret = 0;
 
 	if (response.find("NICK") != string::npos) {
-		for (size_t i = 0; i < globalChannelList.size(); i++){
-			if (globalChannelList[i].isUser(msg.getClient())) {
-				ret.push_back(reply());
-				ret[i_ret].setMsg(response);
-				ret[i_ret++].setUserFds(globalChannelList[i]);
-			}
+		for (size_t i = 0; i < globalUserList.size(); i++){
+			ret.push_back(reply());
+			ret.at(i_ret).setMsg(response);
+			ret.at(i_ret++).setUserFds(globalUserList.at(i));
 		}
 	}
 	if (!i_ret) {
 		ret.push_back(reply());
-		ret[0].setMsg(response);
-		ret[0].setUserFds(msg.getClient());
+		ret.at(0).setMsg(response);
+		ret.at(0).setUserFds(msg.getClient());
 	}
 	return (ret);
 }
 
 vector<reply> NICK::execute(const command &msg, vector<user> &globalUserList, vector<channel> &globalChannelList) {
+	(void)globalChannelList;
 	string nickname = msg.getParameters().substr(0, msg.getParameters().find('\r'));
 
-	return (buildReplies(msg, globalChannelList, this->buildResponse(msg, globalUserList, nickname)));
+	return this->buildReplies(msg, globalUserList, this->buildResponse(msg, globalUserList, nickname));
 }
