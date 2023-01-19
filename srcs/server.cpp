@@ -167,7 +167,8 @@ void			server::handleExistingConnection(int clientFd){
 				else {
 					if (parser.getParsedCmd(0).getCmdType() == "PONG") {
 						string	msg = ":WeBareBears 462 * :You may not reregister\n";
-						send(clientFd, msg.c_str(), msg.length(), 0);
+						int s = send(clientFd, msg.c_str(), msg.length(), 0);
+						checkStatusAndThrow(s, SEND_ERR);
 						removeUserFromServer(clientFd);
 					}
 					else
@@ -202,8 +203,10 @@ void			server::reconnect(int clientFd){
 			for (size_t index = 0; index < users[i].getMsgHistory().size(); index++)
 				getUser(clientFd).addToMsgHistory(users[i].getMsgHistory()[index]);
 			getUser(clientFd).enterServer();
-			for (size_t index = 0; index < getUser(clientFd).getMsgHistory().size(); index++)
-				send(clientFd, getUser(clientFd).getMsgHistory()[index].c_str(), getUser(clientFd).getMsgHistory()[index].length(), 0);
+			for (size_t index = 0; index < getUser(clientFd).getMsgHistory().size(); index++){
+				int s = send(clientFd, getUser(clientFd).getMsgHistory()[index].c_str(), getUser(clientFd).getMsgHistory()[index].length(), 0);
+				checkStatusAndThrow(s, SEND_ERR);
+			}
 			removeUserFromServer(users[i].getFd());
 		}
 	}
