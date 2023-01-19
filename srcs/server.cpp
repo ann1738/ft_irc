@@ -159,15 +159,23 @@ void			server::handleExistingConnection(int clientFd){
 		parser.parse(buffer, getUser(clientFd));
 		parser.test();
 
-		if (!this->isUserAuthenticated(getUser(clientFd))) {
-			authenticate	a(parser, this->serverPassword);
-			if (a.isAuthenticated() == 1){
-				getUser(clientFd).enterServer();
-				getUser(clientFd).saveUserInfo(buffer);
-			}
-			else if (a.isAuthenticated() == -1){
-				send(clientFd, a.getErrorMsg().c_str(), a.getErrorMsg().length(), 0);
-				removeUserFromServer(clientFd);
+		if (!getUser(clientFd).isEnteredServer()) {
+			try {
+				if (!getUser(clientFd).isAuthenticated()) {
+					authenticateProcess(clientFd, buffer);
+				}
+				else {
+					if (parser.getParsedCmd(0).getCmdType() == "PONG") {
+						string	msg = ":WeBareBears 462 * :You may not reregister\n";
+						int s = send(clientFd, msg.c_str(), msg.length(), 0);
+						checkStatusAndThrow(s, SEND_ERR);
+						removeUserFromServer(clientFd);
+					}
+					else
+						reconnect(clientFd);
+				}
+			} catch (exception &e) {
+				cout << e.what() << endl;
 			}
 		} else {
 			redirectCommand	funnel;
@@ -179,8 +187,55 @@ void			server::handleExistingConnection(int clientFd){
 			}
 		}
 		logUsers();
+		logChannels();
 		cout << endl << CYAN << "The amount of fds: " << WHITE << fdCount << endl;
 	}
+}
+
+void			server::reconnect(int clientFd){
+	for (size_t i = 0; i < users.size(); i++){
+		if ((users[i].getFd() != getUser(clientFd).getFd()) && (users[i].getNickname() == getUser(clientFd).getNickname())){
+			getUser(clientFd).setUsername(users[i].getUsername());
+			getUser(clientFd).setHostname(users[i].getHostname());
+			getUser(clientFd).setServername(users[i].getServername());
+			getUser(clientFd).setRealname(users[i].getRealname());
+			getUser(clientFd).setChannels(users[i].getChannels());
+			for (size_t index = 0; index < users[i].getMsgHistory().size(); index++)
+				getUser(clientFd).addToMsgHistory(users[i].getMsgHistory()[index]);
+			getUser(clientFd).enterServer();
+			for (size_t index = 0; index < getUser(clientFd).getMsgHistory().size(); index++){
+				int s = send(clientFd, getUser(clientFd).getMsgHistory()[index].c_str(), getUser(clientFd).getMsgHistory()[index].length(), 0);
+				checkStatusAndThrow(s, SEND_ERR);
+			}
+			removeUserFromServer(users[i].getFd());
+		}
+	}
+}
+
+void			server::authenticateProcess(const int clientFd, char* buff){
+	authenticate	a(parser, this->serverPassword);
+	if (a.isAuthenticated() == AUTHENTICATED){
+		getUser(clientFd).saveUserInfo(buff);
+		getUser(clientFd).setAuthenticate(true);
+		if (isNicknameUnique(clientFd))
+			getUser(clientFd).enterServer();
+		else {
+			string s = "PING " + getUser(clientFd).getNickname() + "\n";
+			send(clientFd, s.c_str(), s.length(), 0);
+		}
+	}
+	else if (a.isAuthenticated() == NOT_AUTHENTICATED){
+		send(clientFd, a.getErrorMsg().c_str(), a.getErrorMsg().length(), 0);
+		removeUserFromServer(clientFd);
+	}
+}
+
+bool			server::isNicknameUnique(int clientFd){
+	for (size_t i = 0; i < users.size(); i++){
+		if ((users[i].getFd() != getUser(clientFd).getFd()) && (users[i].getNickname() == getUser(clientFd).getNickname()))
+			return (false);
+	}
+	return (true);
 }
 
 void			server::loopAndHandleConnections(){
@@ -245,28 +300,12 @@ user&		server::getUser(int fd){
 	return users[0];
 }
 
-bool		server::isCapOrJOIN(const command& cmd) const {
-	return (cmd.getCmdType() == "JOIN" || cmd.getCmdType() == "CAP");
-}
-
-/**
- * checks if a user has been admitted to the server or not. This allows us to determine
- * if they may proceed in using the commands or if they should conclude the capability
- * negotiations first, followed by providing their information
-*/
-bool		server::isUserAuthenticated(const user& User) {
-	// I think we could check the password around here
-
-	return !User.getUsername().empty() &&
-	       !User.getHostname().empty() &&
-	       !User.getServername().empty() &&
-	       !User.getRealname().empty();
-}
-
 void		server::sendReplies(const vector<reply>& replies){
 	for (size_t reply_count = 0; reply_count < replies.size(); reply_count++) {
-		for (size_t user_count = 0; user_count < replies[reply_count].getUserFds().size(); user_count++)
+		for (size_t user_count = 0; user_count < replies[reply_count].getUserFds().size(); user_count++){
+			getUser(replies[reply_count].getUserFds()[user_count]).addToMsgHistory(replies[reply_count].getMsg());
 			send(replies[reply_count].getUserFds()[user_count], replies[reply_count].getMsg().c_str(), replies[reply_count].getMsg().length(), 0);
+		}
 		cout << "******* sent reply start *******" << endl;
 		cout << replies[reply_count].getMsg() << endl;
 		cout << "******* sent reply end *******" << endl;

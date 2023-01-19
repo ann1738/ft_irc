@@ -75,10 +75,12 @@ private:
 	string            m_nickname;
 	string            m_buffer;
 	vector<string>    m_channels;
+	vector<string>    m_msg_history;
 	bool              m_entered_server;
+	bool              m_authenticated;
 
 	vector<string> parseMessage(char* buffer) const;
-	void initNickname();
+	void initNickname(const string& buff);
 
 public:
 	user();
@@ -89,26 +91,34 @@ public:
 
 	void saveUserInfo(char* buffer);
 
-	void    setUsername(const string& username);
-	void    setHostname(const string& hostname);
-	void    setServername(const string& servername);
-	void    setRealname(const string& realname);
-	void    setNickname(const string& nickname);
+	void setAuthenticate(const bool state);
+	void setUsername(const string& username);
+	void setHostname(const string& hostname);
+	void setServername(const string& servername);
+	void setRealname(const string& realname);
+	void setNickname(const string& nickname);
+	void setChannels(const vector<string>& channels);
 
-	string    getUsername() const;
-	string    getHostname() const;
-	string    getServername() const;
-	string    getRealname() const;
-	string    getNickname() const;
-  size_t    getChannelSize() const;
+	string         getUsername() const;
+	string         getHostname() const;
+	string         getServername() const;
+	string         getRealname() const;
+	string         getNickname() const;
+	size_t         getChannelSize() const;
+	vector<string> getMsgHistory() const;
+	vector<string> getChannels() const;
 
-	void      addToBuffer(const string& message);
-	string    getBuffer() const;
-	void      clearBuffer();
-	void      addChannel(const string& channel_name);
-	void      removeChannel(const string& channel_name);
-	void      enterServer();
+	void	addToBuffer(const string& message);
+	string	getBuffer() const;
+	void	clearBuffer();
 
+	bool isEnteredServer() const;
+	bool isAuthenticated() const;
+
+	void addToMsgHistory(const string& msg);
+	void addChannel(const string& channel_name);
+	void removeChannel(const string& channel_name);
+	void enterServer();
 };
 
 #endif
