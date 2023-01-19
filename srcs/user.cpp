@@ -23,14 +23,10 @@ int user::getFd() const {
 	return this->m_fd;
 }
 
-/**
- * assigns a "guest_n" nickname to a client that joined the server. Doing so will prevent
- * issues where clients use the same nickname.
-*/
 void user::initNickname(const string& buff) {
 	size_t start = buff.find("NICK") + 5;
-
 	size_t end = buff.find("\r\n", start);
+
 	if (end == string::npos) {
 		end = buff.find('\n', start);
 	}
