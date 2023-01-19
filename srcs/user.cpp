@@ -61,26 +61,26 @@ void user::saveUserInfo(char* buffer) {
 	this->setRealname(client_message[i++]);
 }
 
-void user::setUsername(string username) {
+void user::setUsername(const string username) {
 	this->m_username = username;
 }
 
-void user::setHostname(string hostname) {
+void user::setHostname(const string hostname) {
 	this->m_hostname = hostname;
 }
 
-void user::setServername(string servername) {
+void user::setServername(const string servername) {
 	this->m_servername = servername;
 }
 
-void user::setRealname(string realname) {
+void user::setRealname(const string realname) {
 	this->m_realname = realname.substr(1, realname.length() - 1);
 }
 
-void user::setNickname(string nickname) {
+void user::setNickname(const string nickname) {
 	this->m_nickname = nickname;
 }
-void user::setChannels(vector<string> channels){
+void user::setChannels(const vector<string> channels){
 	this->m_channels = channels;
 }
 
@@ -120,11 +120,11 @@ void user::addToMsgHistory(const string& msg){
 	this->m_msg_history.push_back(msg);
 }
 // /connect 10.13.7.14 6667 password
-void user::setAuthenticate(bool state){
+void user::setAuthenticate(const bool state){
 	this->m_authenticated = state;
 }
 
-bool user::isAuthenticate() const{
+bool user::isAuthenticated() const{
 	return this->m_authenticated;
 }
 

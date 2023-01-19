@@ -160,7 +160,7 @@ void			server::handleExistingConnection(int clientFd){
 		parser.test();
 
 		if (!getUser(clientFd).isEnteredServer()) {
-			if (!getUser(clientFd).isAuthenticate()) {
+			if (!getUser(clientFd).isAuthenticated()) {
 				authenticateProcess(clientFd, buffer);
 			}
 			else {
@@ -207,7 +207,7 @@ void			server::reconnect(int clientFd){
 
 void			server::authenticateProcess(const int clientFd, char* buff){
 	authenticate	a(parser, this->serverPassword);
-	if (a.isAuthenticated() == 1){
+	if (a.isAuthenticated() == AUTHENTICATED){
 		getUser(clientFd).saveUserInfo(buff);
 		getUser(clientFd).setAuthenticate(true);
 		if (isNicknameUnique(clientFd))
@@ -217,7 +217,7 @@ void			server::authenticateProcess(const int clientFd, char* buff){
 			send(clientFd, s.c_str(), s.length(), 0);
 		}
 	}
-	else if (a.isAuthenticated() == -1){
+	else if (a.isAuthenticated() == NOT_AUTHENTICATED){
 		send(clientFd, a.getErrorMsg().c_str(), a.getErrorMsg().length(), 0);
 		removeUserFromServer(clientFd);
 	}
