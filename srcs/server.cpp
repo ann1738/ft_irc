@@ -160,17 +160,21 @@ void			server::handleExistingConnection(int clientFd){
 		parser.test();
 
 		if (!getUser(clientFd).isEnteredServer()) {
-			if (!getUser(clientFd).isAuthenticated()) {
-				authenticateProcess(clientFd, buffer);
-			}
-			else {
-				if (parser.getParsedCmd(0).getCmdType() == "PONG") {
-					string	msg = ":WeBareBears 462 * :You may not reregister\n";
-					send(clientFd, msg.c_str(), msg.length(), 0);
-					removeUserFromServer(clientFd);
+			try {
+				if (!getUser(clientFd).isAuthenticated()) {
+					authenticateProcess(clientFd, buffer);
 				}
-				else
-					reconnect(clientFd);
+				else {
+					if (parser.getParsedCmd(0).getCmdType() == "PONG") {
+						string	msg = ":WeBareBears 462 * :You may not reregister\n";
+						send(clientFd, msg.c_str(), msg.length(), 0);
+						removeUserFromServer(clientFd);
+					}
+					else
+						reconnect(clientFd);
+				}
+			} catch (exception &e) {
+				cout << e.what() << endl;
 			}
 		} else {
 			redirectCommand	funnel;

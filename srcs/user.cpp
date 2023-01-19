@@ -117,7 +117,8 @@ vector<string> user::getMsgHistory() const{
 }
 
 void user::addToMsgHistory(const string& msg){
-	this->m_msg_history.push_back(msg);
+	if (msg.find("PONG") == string::npos)
+		this->m_msg_history.push_back(msg);
 }
 // /connect 10.13.7.14 6667 password
 void user::setAuthenticate(const bool state){
