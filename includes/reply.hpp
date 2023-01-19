@@ -114,6 +114,9 @@
 #define RPL_QUIT(servername, channel, nickname, message) \
 (":" + servername + " " + nickname + " has quit #" + channel + " [Quit: " + message + "] \n")
 
+#define ERR_UNKNOWNCOMMAND(servername, command) \
+(":" + servername + " 421 * " + command + ": Unknown command\n")
+
 // -----
 
 class reply {

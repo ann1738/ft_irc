@@ -39,7 +39,7 @@ vector<reply>	redirectCommand::redirect(const command &message, vector<user> &gl
 	else if (cmd == "QUIT")
 		return quit.execute(message, globalUserList, globalChannelList);
 	else
-		ret[0].setMsg(""); // ret[0].setMsg(ERR_UNKNOWNCOMMAND);
+		ret[0].setMsg(ERR_UNKNOWNCOMMAND(message.getClient().getServername(), message.getCmdType()));
 	ret[0].setUserFds(message.getClient());
 	return ret;
 }

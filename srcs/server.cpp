@@ -180,10 +180,14 @@ void			server::handleExistingConnection(int clientFd){
 		} else {
 			redirectCommand	funnel;
 			for (size_t i = 0; i < parser.getCommandAmount(); i++){
-				vector<reply> replies = funnel.redirect(parser.getParsedCmd(i), users, channels);
-				if (parser.getParsedCmd(i).getCmdType() == "QUIT")
-					removeUserFromServer(clientFd);
-				this->sendReplies(replies);
+				try{
+					vector<reply> replies = funnel.redirect(parser.getParsedCmd(i), users, channels);
+					if (parser.getParsedCmd(i).getCmdType() == "QUIT")
+						removeUserFromServer(clientFd);
+					this->sendReplies(replies);
+				} catch(std::exception &e) {
+					cout << e.what() << endl;
+				}
 			}
 		}
 		logUsers();
