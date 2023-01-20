@@ -148,7 +148,7 @@ void			server::handleExistingConnection(int clientFd){
 	}
 	else if (readBytes == 0) //connection closed
 	{
-		removeSocket(clientFd);
+		removeUserFromServer(clientFd);
 	}
 	else
 	{
