@@ -53,23 +53,29 @@ bool user::isNicknameValid(const string& nickname) const {
 	       nickname.find_first_not_of(alpha + digits + special) == string::npos;
 }
 
-int user::saveUserInfo(char* buffer) {
-	if (!this->getUsername().empty()) {
-		return INFO_COLLECTED;
-	}
+string user::getErrorMsg() const{
+	return this->m_errorMsg;
+}
 
+void   user::setErrorMsg(const string& s){
+	this->m_errorMsg = s;
+}
+
+bool user::saveUserInfo(char* buffer) {
 	initNickname(buffer);
 	if (this->getNickname().find_first_not_of(' ') == string::npos) {
-		return EMPTY_NICK;
+		this->setErrorMsg(":WeBareBears 431 * :No nickname given\n");
+		return false;
 	} else if (!this->isNicknameValid(this->getNickname())) {
-		return INVALID_NICK;
+		this->setErrorMsg(":WeBareBears 432 * " + this->getNickname() + " :Erroneus nickname\n");
+		return false;
 	}
 
 	vector<string> client_message = this->parseMessage(buffer);
 	vector<string>::iterator iter;
 	if ((iter = find(client_message.begin(), client_message.end(), "USER")) == client_message.end()
 	   || client_message.size() - (iter - client_message.begin() + 1) != 4) {
-		return INFO_INCOMPLETE;
+		return false;
 	}
 
 	size_t i = iter - client_message.begin() + 1;
@@ -77,7 +83,7 @@ int user::saveUserInfo(char* buffer) {
 	this->setHostname(client_message.at(i++));
 	this->setServername(client_message.at(i++));
 	this->setRealname(client_message.at(i++));
-	return 0;
+	return true;
 }
 
 void user::setUsername(const string& username) {

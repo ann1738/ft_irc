@@ -58,11 +58,6 @@
 \00300    |   | |      |    | |        \n \
 \00300    \\___/-'       \\__/-'        \n"
 
-#define INFO_COLLECTED     1
-#define INFO_INCOMPLETE    2
-#define INVALID_NICK       3
-#define EMPTY_NICK         4
-
 #define RPL_WELCOME(nickname) \
 ("001 " + nickname + " :Welcome to the Internet Relay Network " + nickname + "\n")
 
@@ -82,6 +77,7 @@ private:
 	vector<string>    m_msg_history;
 	bool              m_entered_server;
 	bool              m_authenticated;
+	string            m_errorMsg;
 
 	vector<string> parseMessage(char* buffer) const;
 	void initNickname(const string& buff);
@@ -93,7 +89,10 @@ public:
 	user(int fd);
 	int getFd() const;
 
-	int saveUserInfo(char* buffer);
+	bool saveUserInfo(char* buffer);
+
+	string getErrorMsg() const;
+	void   setErrorMsg(const string& s);
 
 	void setAuthenticate(const bool state);
 	void setUsername(const string& username);
