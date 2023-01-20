@@ -376,14 +376,15 @@ vector<reply>	MODE::execute(const command &message, vector<user> &globalUserList
 
 	/*	check that the channel exists	*/
 	if (isChannel(parsedChannelName, globalChannelList) == false) {
-		m_reply_msg.push_back(ERR_NOSUCHCHANNEL(message.getClient().getServername(), parsedChannelName));
+		string temp = (parsedChannelName.at(0) == '#') ? &parsedChannelName.at(1) : parsedChannelName;
+		m_reply_msg.push_back(ERR_NOSUCHCHANNEL(message.getClient().getServername(), temp));
 		return constructReply();
 	}
 	storeChannel(parsedChannelName, globalChannelList);
 
 	/*	check that the user has privilege	*/
 	if (isUserOperator(message.getClient()) == false) {
-		m_reply_msg.push_back(ERR_CHANOPRIVSNEEDED(message.getClient().getServername(), message.getClient().getNickname(), parsedChannelName));
+		m_reply_msg.push_back(ERR_CHANOPRIVSNEEDED(message.getClient().getServername(), message.getClient().getNickname(), m_channel->getName()));
 		return constructReply();
 	}
 
