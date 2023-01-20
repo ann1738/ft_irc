@@ -75,9 +75,9 @@ private:
 	string            m_buffer;
 	vector<string>    m_channels;
 	vector<string>    m_msg_history;
+	string            m_errorMsg;
 	bool              m_entered_server;
 	bool              m_authenticated;
-	string            m_errorMsg;
 
 	vector<string> parseMessage(char* buffer) const;
 	void initNickname(const string& buff);

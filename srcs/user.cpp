@@ -15,6 +15,7 @@ user::user(int fd) : m_fd(fd),
                      m_realname(""),
                      m_nickname(""),
                      m_buffer(""),
+                     m_errorMsg(""),
 					 m_entered_server(false),
 					 m_authenticated(false) {
 }
