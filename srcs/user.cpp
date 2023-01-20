@@ -80,6 +80,7 @@ bool user::saveUserInfo(char* buffer) {
 	vector<string>::iterator iter;
 	if ((iter = find(client_message.begin(), client_message.end(), "USER")) == client_message.end()
 	   || this->countUserParameters(client_message, iter) != 4) {
+		this->setErrorMsg(":WeBareBears 461 * " + this->getNickname() + " USER :Not enough parameters\n");
 		return false;
 	}
 
