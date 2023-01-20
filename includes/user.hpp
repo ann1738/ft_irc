@@ -89,7 +89,8 @@ public:
 	user(int fd);
 	int getFd() const;
 
-	bool saveUserInfo(char* buffer);
+	size_t countUserParameters(const vector<string>& client_message, const vector<string>::iterator iter);
+	bool   saveUserInfo(char* buffer);
 
 	string getErrorMsg() const;
 	void   setErrorMsg(const string& s);

@@ -62,6 +62,10 @@ void   user::setErrorMsg(const string& s){
 	this->m_errorMsg = s;
 }
 
+size_t user::countUserParameters(const vector<string>& client_message, const vector<string>::iterator iter) {
+	return client_message.size() - (iter - client_message.begin() + 1);
+}
+
 bool user::saveUserInfo(char* buffer) {
 	initNickname(buffer);
 	if (this->getNickname().find_first_not_of(' ') == string::npos) {
@@ -75,7 +79,7 @@ bool user::saveUserInfo(char* buffer) {
 	vector<string> client_message = this->parseMessage(buffer);
 	vector<string>::iterator iter;
 	if ((iter = find(client_message.begin(), client_message.end(), "USER")) == client_message.end()
-	   || client_message.size() - (iter - client_message.begin() + 1) != 4) {
+	   || this->countUserParameters(client_message, iter) != 4) {
 		return false;
 	}
 
