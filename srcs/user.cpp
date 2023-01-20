@@ -15,6 +15,7 @@ user::user(int fd) : m_fd(fd),
                      m_realname(""),
                      m_nickname(""),
                      m_buffer(""),
+                     m_errorMsg(""),
 					 m_entered_server(false),
 					 m_authenticated(false) {
 }
@@ -23,13 +24,13 @@ int user::getFd() const {
 	return this->m_fd;
 }
 
-/**
- * assigns a "guest_n" nickname to a client that joined the server. Doing so will prevent
- * issues where clients use the same nickname.
-*/
 void user::initNickname(const string& buff) {
 	size_t start = buff.find("NICK") + 5;
 	size_t end = buff.find("\r\n", start);
+
+	if (end == string::npos) {
+		end = buff.find('\n', start);
+	}
 	this->setNickname(buff.substr(start, (end - start)));
 }
 
@@ -44,24 +45,51 @@ vector<string> user::parseMessage(char* buffer) const {
 	return client_message;
 }
 
-void user::saveUserInfo(char* buffer) {
-	if (!this->getUsername().empty()) {
-		return;
-	}
+bool user::isNicknameValid(const string& nickname) const {
+	string alpha("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+	       digits("0123456789"),
+	       special("`|-_^{}[]\\");
 
+	return nickname.length() < 10 &&
+	       nickname.find_first_not_of(alpha + digits + special) == string::npos;
+}
+
+string user::getErrorMsg() const{
+	return this->m_errorMsg;
+}
+
+void   user::setErrorMsg(const string& s){
+	this->m_errorMsg = s;
+}
+
+size_t user::countUserParameters(const vector<string>& client_message, const vector<string>::iterator iter) {
+	return client_message.size() - (iter - client_message.begin() + 1);
+}
+
+bool user::saveUserInfo(char* buffer) {
 	initNickname(buffer);
+	if (this->getNickname().find_first_not_of(' ') == string::npos) {
+		this->setErrorMsg(":WeBareBears 431 * :No nickname given\n");
+		return false;
+	} else if (!this->isNicknameValid(this->getNickname())) {
+		this->setErrorMsg(":WeBareBears 432 * " + this->getNickname() + " :Erroneus nickname\n");
+		return false;
+	}
 
 	vector<string> client_message = this->parseMessage(buffer);
 	vector<string>::iterator iter;
-	if ((iter = find(client_message.begin(), client_message.end(), "USER")) == client_message.end()) {
-		return;
+	if ((iter = find(client_message.begin(), client_message.end(), "USER")) == client_message.end()
+	   || this->countUserParameters(client_message, iter) != 4) {
+		this->setErrorMsg(":WeBareBears 461 * " + this->getNickname() + " USER :Not enough parameters\n");
+		return false;
 	}
 
 	size_t i = iter - client_message.begin() + 1;
-	this->setUsername(client_message[i++]);
-	this->setHostname(client_message[i++]);
-	this->setServername(client_message[i++]);
-	this->setRealname(client_message[i++]);
+	this->setUsername(client_message.at(i++));
+	this->setHostname(client_message.at(i++));
+	this->setServername(client_message.at(i++));
+	this->setRealname(client_message.at(i++));
+	return true;
 }
 
 void user::setUsername(const string& username) {

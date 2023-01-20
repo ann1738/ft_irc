@@ -58,7 +58,6 @@
 \00300    |   | |      |    | |        \n \
 \00300    \\___/-'       \\__/-'        \n"
 
-
 #define RPL_WELCOME(nickname) \
 ("001 " + nickname + " :Welcome to the Internet Relay Network " + nickname + "\n")
 
@@ -76,6 +75,7 @@ private:
 	string            m_buffer;
 	vector<string>    m_channels;
 	vector<string>    m_msg_history;
+	string            m_errorMsg;
 	bool              m_entered_server;
 	bool              m_authenticated;
 
@@ -89,7 +89,11 @@ public:
 	user(int fd);
 	int getFd() const;
 
-	void saveUserInfo(char* buffer);
+	size_t countUserParameters(const vector<string>& client_message, const vector<string>::iterator iter);
+	bool   saveUserInfo(char* buffer);
+
+	string getErrorMsg() const;
+	void   setErrorMsg(const string& s);
 
 	void setAuthenticate(const bool state);
 	void setUsername(const string& username);
@@ -114,6 +118,7 @@ public:
 
 	bool isEnteredServer() const;
 	bool isAuthenticated() const;
+	bool isNicknameValid(const string& nickname) const;
 
 	void addToMsgHistory(const string& msg);
 	void addChannel(const string& channel_name);

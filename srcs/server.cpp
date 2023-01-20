@@ -219,7 +219,12 @@ void			server::reconnect(int clientFd){
 void			server::authenticateProcess(const int clientFd, char* buff){
 	authenticate	a(parser, this->serverPassword);
 	if (a.isAuthenticated() == AUTHENTICATED){
-		getUser(clientFd).saveUserInfo(buff);
+		if (getUser(clientFd).saveUserInfo(buff) == false) {
+			send(clientFd, getUser(clientFd).getErrorMsg().c_str(), getUser(clientFd).getErrorMsg().length(), 0);
+			this->removeUserFromServer(clientFd);
+			return;
+		}
+
 		getUser(clientFd).setAuthenticate(true);
 		if (isNicknameUnique(clientFd))
 			getUser(clientFd).enterServer();

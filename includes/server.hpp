@@ -87,6 +87,7 @@ private:
 
 	void			logUsers() const;
 	void			logChannels() const;
+
 public:
 	server(int port, const string& password);
 	~server();
@@ -94,7 +95,5 @@ public:
 	void			terminateServer();
 	void			run();
 };
-
-
 
 #endif
