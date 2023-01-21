@@ -9,6 +9,7 @@
 /* -------------- Error messages --------------- */
 #define NBR_ARGS_ERR "Parse Error: Invalid number of arguments"
 #define INVLD_PORT_ERR "Parse Error: Invalid port number"
+#define INVLD_PASS_ERR "Password Error: Invalid password"
 
 class initialParse
 {
