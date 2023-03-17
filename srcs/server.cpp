@@ -207,11 +207,26 @@ void			server::reconnect(int clientFd){
 			for (size_t index = 0; index < users[i].getMsgHistory().size(); index++)
 				getUser(clientFd).addToMsgHistory(users[i].getMsgHistory()[index]);
 			getUser(clientFd).enterServer();
+			for (vector<channel>::iterator it = channels.begin(); it != channels.end(); it++)
+			{
+				if (it->isUser(users[i]))
+				{
+					bool isO = it->isOperator(users[i]);
+					bool isV = it->isVoicedUser(users[i]);
+					bool isI = it->isInvitedUser(users[i]);
+					it->removeUser(users[i]);
+					it->addUser(getUser(clientFd));
+					if (isO) it->addOperator(getUser(clientFd));
+					if (isV) it->addVoicedUser(getUser(clientFd));
+					if (isI) it->addInvitedUser(getUser(clientFd));
+				}
+			}
 			for (size_t index = 0; index < getUser(clientFd).getMsgHistory().size(); index++){
 				int s = send(clientFd, getUser(clientFd).getMsgHistory()[index].c_str(), getUser(clientFd).getMsgHistory()[index].length(), 0);
 				checkStatusAndThrow(s, SEND_ERR);
 			}
 			removeUserFromServer(users[i].getFd());
+			break ;
 		}
 	}
 }

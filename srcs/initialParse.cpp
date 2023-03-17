@@ -48,6 +48,12 @@ void			initialParse::parse(int argc, char **argv) throw(std::runtime_error){
 	if (checkValidPort(argv[1]) == false)
 		throw std::runtime_error(INVLD_PORT_ERR);
 
+	std::string alpha("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+	       digits("0123456789");
+
+	if (std::string(argv[2]).length() < 3 || std::string(argv[2]).find_first_not_of(alpha + digits) != std::string::npos)
+		throw std::runtime_error(INVLD_PASS_ERR);
+
 	setPort(argv[1]);
 	setPassword(argv[2]);
 }
